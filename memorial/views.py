@@ -396,6 +396,7 @@ def upload_profile_picture(request, pk):
     if request.method == 'POST' and 'profile_picture' in request.FILES:
         profile_pic = request.FILES['profile_picture']
 
+        # Validation (same as before)
         if profile_pic.size > 5 * 1024 * 1024:
             return JsonResponse(
                 {'status': 'error', 'message': 'Image too large (max 5MB)'},
@@ -409,25 +410,21 @@ def upload_profile_picture(request, pk):
             )
 
         try:
-            if memorial.profile_picture:
-                memorial.profile_picture.delete()
-
-            upload_result = upload(
-                profile_pic,
-                folder=f"memorials/{memorial.id}/profile_pictures",
-                public_id=f"profile_{memorial.id}",
-                overwrite=True,
-                resource_type="image"
-            )
-
-            memorial.profile_public_id = upload_result['public_id']
-            memorial.profile_picture.name = upload_result['public_id']
+            # SIMPLE FIX: Let Django + MediaCloudinaryStorage handle it
+            memorial.profile_picture = profile_pic
+            
+            # Also save the public_id for reference
+            # The public_id will be: memorials/{id}/profile_pictures/profile_{id}
+            memorial.profile_public_id = f"memorials/{memorial.id}/profile_pictures/profile_{memorial.id}"
             memorial.save()
-
+            
+            # Get the URL from the saved field
+            profile_url = memorial.profile_picture.url
+            
             return JsonResponse({
                 'status': 'success',
-                'profile_picture_url': upload_result['secure_url'],
-                'public_id': upload_result['public_id'],
+                'profile_picture_url': profile_url,
+                'public_id': memorial.profile_public_id,
                 'message': 'Profile picture updated!'
             })
 
