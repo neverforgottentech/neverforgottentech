@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<!-- Main Edit Profile Form Container -->
+<div class="form-wrapper">
+  <div class="form-container">
+    <!-- Form Header -->
+    <div class="text-center mb-4">
+      <h2 class="login-title">Edit Profile</h2>
+      <p class="login-subtitle">Update your account details</p>
+    </div>
+    
+    <!-- Main Form -->
+    <form method="post">
+      {% csrf_token %}
+      
+      <!-- ==================== Personal Information Section ==================== -->
+      <div class="mb-4">
+        <h5 class="section-header mb-3">
+          <i class="fas fa-user-circle me-2"></i>Personal Information
+        </h5>
+        
+        <!-- First Name Field -->
+        <div class="form-group mb-3">
+          <label for="id_first_name" class="form-label">First Name</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-user"></i></span>
+            <input type="text" 
+                   name="first_name" 
+                   id="id_first_name" 
+                   class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" 
+                   value="{{ form.first_name.value|default:user.first_name }}"
+                   placeholder="{{ user.first_name }}">
+          </div>
+          {% if form.first_name.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.first_name.errors|join:", " }}
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Last Name Field -->
+        <div class="form-group mb-3">
+          <label for="id_last_name" class="form-label">Last Name</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-user"></i></span>
+            <input type="text" 
+                   name="last_name" 
+                   id="id_last_name" 
+                   class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" 
+                   value="{{ form.last_name.value|default:user.last_name }}"
+                   placeholder="{{ user.last_name }}">
+          </div>
+          {% if form.last_name.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.last_name.errors|join:", " }}
+            </div>
+          {% endif %}
+        </div>
+
+        
+        <!-- Email Field -->
+        <div class="form-group mb-3">
+          <label for="id_email" class="form-label">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+            <input type="email" 
+                   name="email" 
+                   id="id_email" 
+                   class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                   value="{{ form.email.value|default:user.email }}"
+                   placeholder="{{ user.email }}">
+          </div>
+          {% if form.email.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.email.errors|join:", " }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- ==================== Password Change Section ==================== -->
+      <div class="mb-4">
+        <h5 class="section-header mb-3">
+          <i class="fas fa-lock me-2"></i>Password Management
+        </h5>
+        
+        <!-- Password Change Info Alert -->
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          To change your password, 
+          <a href="{% url 'account_change_password' %}" class="alert-link">
+            click here
+          </a>.
+        </div>
+      </div>
+      
+      <!-- Form Buttons -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'memorials:account_profile' %}" 
+           class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-2"></i>Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-2"></i>Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<!-- Custom CSS for Edit Profile Page -->
+<link rel="stylesheet" href="{% static 'css/account/edit_profile.css' %}">
+{% endblock %}
+

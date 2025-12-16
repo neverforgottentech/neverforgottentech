@@ -1,0 +1,166 @@
+/* ===================== */
+/* FORM LAYOUT           */
+/* ===================== */
+
+/* Main form wrapper with background */
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 4rem);
+    padding: 2rem;
+    background-color: rgba(255, 249, 230, 0.97);
+}
+
+/* Form container styling */
+.form-container {
+    background-color: #fff;
+    width: 100%;
+    max-width: 600px;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ===================== */
+/* TYPOGRAPHY            */
+/* ===================== */
+
+/* Main form title styling */
+.login-title {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: #3e2f1c;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+/* Form subtitle styling */
+.login-subtitle {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Section headers styling */
+.section-header {
+    color: #3e2f1c;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f2e5c7;
+}
+
+/* ===================== */
+/* FORM ELEMENTS         */
+/* ===================== */
+
+/* Form labels styling */
+.form-label {
+    font-weight: 500;
+    color: #3e2f1c;
+    margin-bottom: 0.5rem;
+}
+
+/* Input field styling */
+.form-control {
+    padding: 12px 14px;
+    border: 1px solid #f2e5c7;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #3e2f1c;
+    background-color: rgba(255, 253, 208, 0.1);
+}
+
+/* Input focus state */
+.form-control:focus {
+    border-color: #d96e2b;
+    box-shadow: 0 0 0 0.25rem rgba(217, 110, 43, 0.25);
+}
+
+/* Input group text styling */
+.input-group-text {
+    background-color: #fff8e1;
+    border-color: #f2e5c7;
+    color: #d96e2b;
+}
+
+/* ===================== */
+/* BUTTONS               */
+/* ===================== */
+
+/* Primary button styling */
+.btn-primary {
+    background-color: #d96e2b;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+/* Primary button hover state */
+.btn-primary:hover {
+    background-color: #b7551e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(183, 85, 30, 0.4);
+}
+
+/* Secondary button styling */
+.btn-outline-secondary {
+    border-color: #f2e5c7;
+    color: #6e4b2c;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+/* Secondary button hover state */
+.btn-outline-secondary:hover {
+    background-color: #f2e5c7;
+    color: #3e2f1c;
+}
+
+/* ===================== */
+/* ALERTS                */
+/* ===================== */
+
+/* Info alert styling */
+.alert-info {
+    background-color: #f8f4e9;
+    border-color: #f2e5c7;
+    color: #6e4b2c;
+}
+
+/* Alert link styling */
+.alert-link {
+    color: #d96e2b;
+    font-weight: 600;
+}
+
+/* ===================== */
+/* RESPONSIVE DESIGN     */
+/* ===================== */
+
+@media (max-width: 576px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .login-title {
+        font-size: 1.75rem;
+    }
+    
+    .form-control {
+        padding: 10px 12px;
+    }
+    
+    .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}

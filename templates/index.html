@@ -1,0 +1,421 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {# ===================== META TAGS & SEO ===================== #}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {# ----- Title ----- #}
+  <title>NeverForgotten - Create a Memorial Page for Loved Ones</title>
+
+  {# ----- Meta SEO ----- #}
+  <meta name="description" content="
+    NeverForgotten helps you honor loved ones by creating beautiful online memorial pages. 
+    Share memories, photos, music, and tributes in one place.
+  ">
+  <meta name="keywords" content="
+    online memorial, tribute, obituary, remember loved ones, 
+    create memorial page, digital legacy
+  ">
+  <meta name="author" content="NeverForgotten Team">
+  <meta name="robots" content="index, follow">
+
+  {# ----- Open Graph (Facebook, LinkedIn) ----- #}
+  <meta property="og:title" content="NeverForgotten - Create a Memorial Page for Loved Ones">
+  <meta property="og:description" content="
+    Easily create and share memorial pages to remember loved ones. 
+    Add stories, photos, music, and tributes.
+  ">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  
+
+  {# ----- Twitter Card ----- #}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NeverForgotten - Create a Memorial Page">
+    <meta name="twitter:description" content="
+        Create beautiful memorial pages to honor and remember loved ones. 
+        Share memories, photos, and tributes in one place.
+
+  {# ----- Canonical URL ----- #}
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+  {# ----- Favicon ----- #}
+  <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+  {# ===================== CSS & FONTS ===================== #}
+  {# ----- Font Awesome ----- #}
+  <script src="https://kit.fontawesome.com/de0549e373.js" crossorigin="anonymous"></script>
+
+  {# ----- Bootstrap CSS ----- #}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+  <link rel="stylesheet" href="{% static 'css/recent_memorials.css' %}">
+
+ 
+
+  {# ----- Swiper CSS ----- #}
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+</head>
+
+<body class="body-background">
+  <div class="background-wrapper">
+    {# ===================== MESSAGES ===================== #}
+    {% if messages %}
+      <div class="message-container">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {# ===================== HEADER ===================== #}
+    <header class="header">
+      <div class="container text-center bg-cream rounded p-4">
+        <input type="checkbox" id="check">
+        <label for="check" class="checkbtn" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </label>
+        
+        <h1 class="logo text-uppercase">NeverForgotten</h1>
+        
+        <ul class="navbar-links list-inline m-0">
+          <li class="list-inline-item mx-3"><a href="{% url 'memorials:about' %}">About</a></li>
+          <li class="list-inline-item mx-3"><a href="{% url 'memorials:memorial_create' %}">Create Memorial</a></li>
+          <li class="list-inline-item mx-3"><a href="{% url 'memorials:browse' %}">Browse Memorials</a></li>
+          <li class="list-inline-item mx-3"><a href="{% url 'memorials:plans' %}">Plans</a></li>
+          <li class="list-inline-item mx-3"><a href="{% url 'memorials:contact' %}">Contact</a></li>
+
+          {% if user.is_authenticated %}
+            <li class="list-inline-item mx-3"><a href="{% url 'memorials:account_profile' %}">My Account</a></li>
+          {% else %}
+            <li class="list-inline-item mx-3"><a href="{% url 'account_login' %}">Sign Up/Login</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </header>
+
+    {# ===================== MAIN CONTENT ===================== #}
+    <main>
+      {# ----- Hero Section ----- #}
+      <section class="hero-section d-flex justify-content-center align-items-center text-center">
+        <div class="hero-overlay container p-5 rounded">
+          <h1 class="display-5 fw-bold mb-4">A Memorial That Is Just a Scan Away</h1>
+          <p>“Create a tribute that friends and family can find with a simple scan.”</p>
+
+          <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+            <a href="{% url 'memorials:memorial_create' %}" class="btn btn-primary btn-lg px-4">
+              Create a Memorial
+            </a>
+            <a href="{% url 'memorials:browse' %}" class="btn btn-outline-secondary btn-lg px-4">
+              Browse Memorials
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+
+        {# ===================== RECENT MEMORIALS SECTION ===================== #}
+    <section class="recent-memorials py-5">
+      <div class="container">
+        <div class="hero-overlay p-4 rounded">
+          <h2 class="section-title text-center mb-5">Recent Memorials</h2>
+          
+          {% if recent_memorials %}
+            {# ----- Desktop Grid (3 columns) ----- #}
+            <div class="row memorial-grid d-none d-lg-flex">
+              {% for memorial in recent_memorials %}
+                <div class="col-lg-4 mb-4 d-flex">
+                  <div class="memorial-card h-100 w-100">
+                    <div class="card-inner h-100 d-flex flex-column bg-white rounded shadow-sm p-4" 
+                         style="min-height: 500px;">
+                      {# Profile Picture #}
+                      <div class="profile-pic-container text-center mb-4">
+                        <div class="profile-pic-wrapper d-inline-block position-relative">
+                          {% if memorial.profile_public_id %}
+                            <img src="https://res.cloudinary.com/neverforgotten/image/upload/c_fill,g_face,h_250,w_250/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+                                 alt="{{ memorial.first_name }} {{ memorial.last_name }}" 
+                                 class="profile-image rounded-circle" 
+                                 style="width: 180px; height: 180px; object-fit: cover;">
+                          {% else %}
+                            <img src="{% static 'images/nf.png' %}" 
+                                 alt="Default memorial image" 
+                                 class="profile-image rounded-circle" 
+                                 style="width: 180px; height: 180px; object-fit: cover;">
+                          {% endif %}
+                          <div class="profile-overlay rounded-circle"></div>
+                        </div>
+                      </div>
+                      
+                      {# Memorial Info #}
+                      <div class="memorial-info text-center mt-auto">
+                        <h3 class="memorial-name h4" style="color: #3e2f1c;">
+                          {{ memorial.first_name }}
+                          {% if memorial.middle_name %} {{ memorial.middle_name }} {% endif %}
+                          {{ memorial.last_name }}
+                        </h3>
+                        
+                        <div class="memorial-dates my-4" style="color: #5a4a30;">
+                          <div class="date-row mb-2">
+                            <i class="fas fa-birthday-cake me-2"></i>
+                            <span>{{ memorial.date_of_birth|date:"F j, Y" }}</span>
+                          </div>
+                          {% if memorial.date_of_death %}
+                            <div class="date-row">
+                              <i class="fas fa-cross me-2"></i>
+                              <span>{{ memorial.date_of_death|date:"F j, Y" }}</span>
+                            </div>
+                          {% endif %}
+                        </div>
+                        
+                        <a href="{% url 'memorials:memorial_detail' memorial.id %}" 
+                           class="view-btn btn btn-primary mt-auto" 
+                           style="background-color: #d96e2b; border-color: #d96e2b;">
+                          View Memorial <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            
+            {# ----- Mobile & Tablet Carousel ----- #}
+            <div class="memorial-carousel d-lg-none">
+              <div class="swiper-container" style="overflow: hidden; padding: 10px 0 30px;">
+                <div class="swiper-wrapper">
+                  {% for memorial in recent_memorials %}
+                    <div class="swiper-slide">
+                      <div class="memorial-card h-100 px-2">
+                        <div class="card-inner h-100 d-flex flex-column bg-white rounded shadow-sm p-4 mx-1" 
+                             style="min-height: 450px;">
+                          {# Profile Picture #}
+                          <div class="profile-pic-container text-center mb-4">
+                            <div class="profile-pic-wrapper d-inline-block position-relative">
+                              {% if memorial.profile_public_id %}
+                                <img src="https://res.cloudinary.com/neverforgotten/image/upload/c_fill,g_face,h_250,w_250/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+                                     alt="{{ memorial.first_name }} {{ memorial.last_name }}" 
+                                     class="profile-image rounded-circle" 
+                                     style="width: 180px; height: 180px; object-fit: cover;">
+                              {% else %}
+                                <img src="{% static 'images/nf.png' %}" 
+                                     alt="Default memorial image" 
+                                     class="profile-image rounded-circle" 
+                                     style="width: 180px; height: 180px; object-fit: cover;">
+                              {% endif %}
+                              <div class="profile-overlay rounded-circle"></div>
+                            </div>
+                          </div>
+                          
+                          {# Memorial Info #}
+                          <div class="memorial-info text-center mt-auto">
+                            <h3 class="memorial-name h4" style="color: #3e2f1c;">
+                              {{ memorial.first_name }}
+                              {% if memorial.middle_name %} {{ memorial.middle_name }} {% endif %}
+                              {{ memorial.last_name }}
+                            </h3>
+                            
+                            <div class="memorial-dates my-4" style="color: #5a4a30;">
+                              <div class="date-row mb-2">
+                                <i class="fas fa-birthday-cake me-2"></i>
+                                <span>{{ memorial.date_of_birth|date:"F j, Y" }}</span>
+                              </div>
+                              {% if memorial.date_of_death %}
+                                <div class="date-row">
+                                  <i class="fas fa-cross me-2"></i>
+                                  <span>{{ memorial.date_of_death|date:"F j, Y" }}</span>
+                                </div>
+                              {% endif %}
+                            </div>
+                            
+                            <a href="{% url 'memorials:memorial_detail' memorial.id %}" 
+                               class="view-btn btn btn-primary mt-auto" 
+                               style="background-color: #d96e2b; border-color: #d96e2b;">
+                              View Memorial <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+                {# Navigation buttons #}
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
+              </div>
+            </div>
+          {% else %}
+            {# No memorials found #}
+            <div class="text-center py-4">
+              <div class="no-results" style="color: #3e2f1c;">
+                <i class="fas fa-heart-broken fa-3x mb-3"></i>
+                <p class="h5">No memorials found</p>
+              </div>
+            </div>
+          {% endif %}
+          
+          {# View All Button #}
+          <div class="text-center mt-5">
+            <a href="{% url 'memorials:browse' %}" 
+               class="btn btn-primary view-all-btn px-4 py-2" 
+               style="background-color: #d96e2b; border-color: #d96e2b;">
+              View All Memorials <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+{# ===================== NEWSLETTER SECTION ===================== #}
+<section class="newsletter-section py-5">
+    <div class="container">
+        <div class="hero-overlay p-4 rounded" 
+             style="border: 2px solid #f2e5c7; background-color: rgba(255, 249, 230, 0.9);">
+            <div class="text-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#d96e2b" 
+                     class="bi bi-envelope-heart mb-3" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l3.235 1.94a2.76 2.76 0 0 0-.233 1.027L1 5.384v5.721l3.453-2.124c.146.277.329.556.55.835l-3.97 2.443A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741l-3.968-2.442c.22-.28.403-.56.55-.836L15 11.105V5.384l-3.002 1.801a2.76 2.76 0 0 0-.233-1.026L15 4.217V4a1 1 0 0 0-1-1H2Zm6 2.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132Z"/>
+                </svg>
+                <h2 class="section-title mb-3" 
+                    style="color: #3e2f1c; font-family: 'Lora', serif; font-weight: 700;">
+                    Stay Connected
+                </h2>
+                <p class="mb-4" style="color: #5a4a30; font-size: 1.1rem;">
+                    Subscribe to our newsletter for updates and memorial tips
+                </p>
+                <div class="divider mx-auto" 
+                     style="width: 100px; height: 2px; background-color: #d96e2b; opacity: 0.5;"></div>
+            </div>
+            
+            {# Newsletter Form #}
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <form method="post" action="{% url 'newsletter:subscribe' %}" class="px-3 px-md-5">
+                        {% csrf_token %} 
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" name="first_name" class="form-control" 
+                                       placeholder="First name (optional)" 
+                                       style="background-color: rgba(255, 253, 208, 0.1); border: 1px solid #f2e5c7;">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="last_name" class="form-control" 
+                                       placeholder="Last name (optional)" 
+                                       style="background-color: rgba(255, 253, 208, 0.1); border: 1px solid #f2e5c7;">
+                            </div>
+                            <div class="col-12">
+                                <input type="email" name="email" class="form-control" 
+                                       placeholder="Your email address" required 
+                                       style="background-color: rgba(255, 253, 208, 0.1); border: 1px solid #f2e5c7;">
+                            </div>
+                            <div class="col-12 text-center mt-3">
+                                <button type="submit" class="btn btn-primary px-4 py-2" 
+                                        style="background-color: #d96e2b; min-width: 180px;">
+                                    Subscribe <i class="fas fa-envelope ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    {# ===================== FOOTER ===================== #}
+    <footer class="bg-cream text-center text-muted py-4 border-top" role="contentinfo">
+      <div class="container">
+        <p>&copy; {{ now.year }} NeverForgotten. All rights reserved.</p>
+        <p>
+          <a href="{% url 'memorials:privacy_policy' %}" class="text-decoration-none text-muted me-3">Privacy Policy</a>
+          <a href="{% url 'memorials:terms_and_conditions' %}" class="text-decoration-none text-muted">Terms of Service</a>
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  {# ===================== JAVASCRIPT ===================== #}
+  {# ----- Bootstrap Bundle JS ----- #}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  {# ----- Slide-out Nav Script ----- #}
+  <script>
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".nav-menu");
+
+    hamburger?.addEventListener("click", mobileMenu);
+
+    function mobileMenu() {
+      hamburger.classList.toggle("active");
+      navMenu.classList.toggle("active");
+    }
+
+    const navLink = document.querySelectorAll(".nav-link");
+    navLink.forEach(n => n.addEventListener("click", closeMenu));
+
+    function closeMenu() {
+      hamburger.classList.remove("active");
+      navMenu.classList.remove("active");
+    }
+  </script>
+    {# ----- Swiper JS ----- #}
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Swiper if container exists
+      if (document.querySelector('.swiper-container')) {
+        var swiper = new Swiper('.swiper-container', {
+          slidesPerView: 1,
+          spaceBetween: 20,
+          loop: true,
+          autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+          },
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+          breakpoints: {
+            576: {
+              slidesPerView: 2,
+            }
+          }
+        });
+      }
+
+      // Auto-dismiss alerts
+      const closeButtons = document.querySelectorAll('.btn-close');
+      closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const alert = this.closest('.alert');
+          if (alert) {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
+          }
+        });
+      });
+
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        setTimeout(() => {
+          alert.style.opacity = '0';
+          setTimeout(() => alert.remove(), 300);
+        }, 5000);
+      });
+    });
+  </script>
+</body>
+</html>

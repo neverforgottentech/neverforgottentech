@@ -1,0 +1,42 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://neverforgotten-696913151c1f.herokuapp.com/sitemap.xml
+
+# Block sensitive/admin areas
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /api/
+
+# Block user-specific actions (forms, edits, deletes)
+Disallow: /memorials/*/edit/
+Disallow: /memorials/*/delete/
+Disallow: /memorials/*/update-
+Disallow: /memorials/*/upload-
+Disallow: /memorials/*/tributes/create/
+Disallow: /memorials/*/tributes/*/edit/
+Disallow: /memorials/*/tributes/*/delete/
+Disallow: /memorials/*/stories/create/
+Disallow: /memorials/*/stories/*/edit/
+Disallow: /memorials/*/stories/*/delete/
+Disallow: /memorials/*/upgrade/
+
+# Block payment/checkout pages
+Disallow: /plans/choose/
+Disallow: /plans/checkout/
+Disallow: /plans/cancel/
+Disallow: /plans/webhook/
+
+# Block Newsletter 
+Disallow: /newsletter/subscribe
+Disallow: /newsletter/unsubscribe
+
+# Allow public content
+Allow: /memorials/create/
+Allow: /memorials/plans/
+Allow: /browse/
+Allow: /plans/
+Allow: /static/
+Allow: /media/
+Allow: /memorials/*/tributes/
+Allow: /memorials/*/stories/

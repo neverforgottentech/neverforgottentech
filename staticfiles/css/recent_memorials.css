@@ -1,0 +1,159 @@
+/* ======================
+   MEMORIAL CARDS & OVERLAYS
+   ====================== */
+.recent-memorials {
+    background-color: transparent;
+}
+
+.memorial-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.memorial-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Profile overlay effect */
+.profile-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(217, 110, 43, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.memorial-card:hover .profile-overlay {
+    opacity: 1;
+}
+
+/* Hero section styling */
+.hero-overlay {
+    background-color: rgba(255, 249, 230, 0.9);
+    color: #3e2f1c;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* ======================
+   SWIPER CAROUSEL STYLES
+   ====================== */
+
+/* Container positioning */
+.recent-memorials .swiper-container {
+    position: relative;
+    padding: 20px 0 40px; /
+}
+
+/* Navigation arrows - centered vertically */
+.recent-memorials .swiper-button-next,
+.recent-memorials .swiper-button-prev {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.recent-memorials .swiper-button-next {
+    right: 10px;
+}
+
+.recent-memorials .swiper-button-prev {
+    left: 10px;
+}
+
+.recent-memorials .swiper-button-next::after,
+.recent-memorials .swiper-button-prev::after {
+    font-size: 1.2rem;
+    color: #d96e2b;
+    font-weight: bold;
+}
+
+/* Pagination dots - positioned below */
+.recent-memorials .swiper-pagination {
+    bottom: 0;
+    top: auto;
+}
+
+.recent-memorials .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+}
+
+.recent-memorials .swiper-pagination-bullet-active {
+    background: #d96e2b;
+    transform: scale(1.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .recent-memorials .swiper-button-next,
+    .recent-memorials .swiper-button-prev {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .recent-memorials .swiper-button-next::after,
+    .recent-memorials .swiper-button-prev::after {
+        font-size: 1rem;
+    }
+}
+
+/* ======================
+   BUTTON STYLES
+   ====================== */
+.btn-primary {
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #b7551e !important;
+    border-color: #b7551e !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ======================
+   RESPONSIVE ADJUSTMENTS
+   ====================== */
+
+/* Medium devices (tablets, 768px and below) */
+@media (max-width: 768px) {
+    .profile-image {
+        width: 150px !important;
+        height: 150px !important;
+    }
+    
+    .card-inner {
+        min-height: 400px !important;
+    }
+    
+    .swiper-button-next {
+        transform: translateY(-50%) translateX(10px) !important;
+    }
+    
+    .swiper-button-prev {
+        transform: translateY(-50%) translateX(-10px) !important;
+    }
+}
+
+/* Small devices (phones, 576px and below) */
+@media (max-width: 576px) {
+    .profile-image {
+        width: 130px !important;
+        height: 130px !important;
+    }
+    
+    .card-inner {
+        min-height: 380px !important;
+        padding: 1.5rem !important;
+    }
+    
+    .memorial-name {
+        font-size: 1.2rem !important;
+    }
+}

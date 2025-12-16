@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/500.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-code">500</div>
+    <h1 class="error-title">Server Error</h1>
+    
+    <p class="error-message">
+        Sorry, something went wrong on our end. We're working to fix the issue.
+    </p>
+    
+    <p class="error-message">
+        Please try again in a few moments, or contact support if the problem persists.
+    </p>
+    
+    <div class="error-actions">
+        <a href="{% url 'memorials:index' %}" class="home-link">
+            Return to Memorial Home
+        </a>
+        <a href="javascript:window.location.reload()" class="home-link" style="background-color: #3e2f1c; margin-left: 1rem;">
+            Try Again
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <button onclick="goBack()" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Previous Page
+        </button>
+    </div>
+
+    <!-- Terms and Conditions Header -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-file-contract me-2"></i>Terms and Conditions
+                    </h1>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Last Updated -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Last Updated:</strong> January 1, 2024
+                    </div>
+
+                    <!-- Important Notice -->
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Please read these terms carefully before using our services.</strong> 
+                        By accessing or using NeverForgotten, you agree to be bound by these terms.
+                    </div>
+
+                    <!-- Terms Content -->
+                    <div class="terms-content">
+                        <!-- Section 1 -->
+                        <div class="mb-4">
+                            <h3 class="h5 text-success mb-3">
+                                <i class="fas fa-user-plus me-2"></i>1. Account Registration
+                            </h3>
+                            <div class="ms-4">
+                                <p>To create an account on NeverForgotten, you must:</p>
+                                <ul>
+                                    <li>Be at least 18 years of age</li>
+                                    <li>Provide accurate and complete registration information</li>
+                                    <li>Maintain the security of your password</li>
+                                    <li>Accept responsibility for all activities under your account</li>
+                                </ul>
+                                <p class="text-muted small">
+                                    <i class="fas fa-lock me-1"></i>
+                                    You are responsible for maintaining the confidentiality of your account credentials.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 2 -->
+                        <div class="mb-4">
+                            <h3 class="h5 text-success mb-3">
+                                <i class="fas fa-credit-card me-2"></i>2. Payments & Refunds
+                            </h3>
+                            <div class="ms-4">
+                                <p><strong>Payment Processing:</strong></p>
+                                <ul>
+                                    <li>All payments are processed securely through Stripe</li>
+                                    <li>You agree to provide valid payment information</li>
+                                    <li>Prices are subject to change with notice</li>
+                                </ul>
+                                
+                                <p><strong>Refund Policy:</strong></p>
+                                <ul>
+                                    <li>All sales are final for digital memorial services</li>
+                                    <li>Refunds may be considered for technical issues within 14 days</li>
+                                    <li>Refund requests must be submitted to support</li>
+                                </ul>
+                                
+                                <div class="alert alert-light border mt-3">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <strong>Note:</strong> Refund eligibility is determined on a case-by-case basis.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3 -->
+                        <div class="mb-4">
+                            <h3 class="h5 text-success mb-3">
+                                <i class="fas fa-ban me-2"></i>3. Prohibited Conduct
+                            </h3>
+                            <div class="ms-4">
+                                <p>You agree not to engage in the following activities:</p>
+                                <ul>
+                                    <li>Illegal activities or promoting unlawful content</li>
+                                    <li>Harassment, abuse, or hate speech</li>
+                                    <li>Impersonation of other individuals or entities</li>
+                                    <li>Uploading malicious code or viruses</li>
+                                    <li>Attempting to gain unauthorized access to systems</li>
+                                    <li>Commercial use without explicit permission</li>
+                                </ul>
+                                
+                                <div class="alert alert-danger mt-3">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <strong>Violation of these terms may result in account suspension or termination.</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4 -->
+                        <div class="mb-4">
+                            <h3 class="h5 text-success mb-3">
+                                <i class="fas fa-balance-scale me-2"></i>4. Limitation of Liability
+                            </h3>
+                            <div class="ms-4">
+                                <p>To the fullest extent permitted by law:</p>
+                                <ul>
+                                    <li>We are not liable for indirect, incidental, or consequential damages</li>
+                                    <li>We are not responsible for user-generated content</li>
+                                    <li>We do not guarantee uninterrupted or error-free service</li>
+                                    <li>Total liability shall not exceed amounts paid to us in the past 6 months</li>
+                                </ul>
+                                
+                                <p class="text-muted small mt-3">
+                                    <i class="fas fa-gavel me-1"></i>
+                                    Some jurisdictions do not allow limitations of liability, so these restrictions may not apply to you.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 5 -->
+                        <div class="mb-4">
+                            <h3 class="h5 text-success mb-3">
+                                <i class="fas fa-copyright me-2"></i>5. Intellectual Property
+                            </h3>
+                            <div class="ms-4">
+                                <p><strong>Your Content:</strong></p>
+                                <ul>
+                                    <li>You retain ownership of memorial content you create</li>
+                                    <li>You grant us license to display and distribute your content</li>
+                                    <li>You are responsible for ensuring you have rights to uploaded content</li>
+                                </ul>
+                                
+                                <p><strong>Our Content:</strong></p>
+                                <ul>
+                                    <li>NeverForgotten trademarks and logos are our property</li>
+                                    <li>Website design, code, and features are protected by copyright</li>
+                                    <li>You may not copy or reproduce our proprietary materials</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Section 6 -->
+                        <div class="mb-4">
+                            <h3 class="h5 text-success mb-3">
+                                <i class="fas fa-exchange-alt me-2"></i>6. Modifications to Terms
+                            </h3>
+                            <div class="ms-4">
+                                <p>We reserve the right to:</p>
+                                <ul>
+                                    <li>Modify these terms at any time</li>
+                                    <li>Notify users of significant changes via email or site announcements</li>
+                                    <li>Require acceptance of updated terms for continued service use</li>
+                                </ul>
+                                <p class="text-muted small">
+                                    <i class="fas fa-bell me-1"></i>
+                                    Continued use of our services after changes constitutes acceptance of modified terms.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 7 -->
+                        <div class="mb-4">
+                            <h3 class="h5 text-success mb-3">
+                                <i class="fas fa-headset me-2"></i>7. Contact Information
+                            </h3>
+                            <div class="ms-4">
+                                <p>For questions about these terms, please contact us:</p>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <p class="mb-1"><strong>Email:</strong> legal@neverforgotten.com</p>
+                                        <p class="mb-0"><strong>Response Time:</strong> Within 3-5 business days</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acceptance Section -->
+                    <div class="alert alert-success mt-4">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>By using NeverForgotten Memorials, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.</strong>
+                    </div>
+
+                    <!-- Bottom Back Button -->
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <button onclick="goBack()" class="btn btn-success">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Previous Page
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Back Button -->
+<script>
+function goBack() {
+    if (document.referrer && document.referrer.includes(window.location.host)) {
+        // If coming from our site, go back
+        window.history.back();
+    } else {
+        // If coming from external site or direct link, go to home
+        window.location.href = "{% url 'memorials:index' %}";
+    }
+}
+</script>
+
+<style>
+.terms-content h3 {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.terms-content ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.terms-content li {
+    padding: 0.25rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.terms-content li:before {
+    content: "•";
+    color: #28a745;
+    font-weight: bold;
+    position: absolute;
+    left: 0.5rem;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.alert {
+    border: none;
+    border-radius: 8px;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+</style>
+{% endblock %}

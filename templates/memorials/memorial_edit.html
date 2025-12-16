@@ -1,0 +1,2108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Memorial - {{ memorial.first_name }} {{ memorial.last_name }}{% endblock %}
+
+{% block content %}
+  <!-- Banner Container -->
+  <div class="banner" style="overflow: hidden;">
+    {% if memorial.banner_type == 'image' and memorial.banner_value %}
+      <div id="memorialBanner" 
+           class="banner banner-image"
+           data-memorial-id="{{ memorial.pk }}"
+           style="background-image: url('{% static memorial.banner_value %}'); width: 100%;">
+    {% elif memorial.banner_type == 'color' and memorial.banner_value %}
+      <div id="memorialBanner" 
+           class="banner banner-color"
+           data-memorial-id="{{ memorial.pk }}"
+           style="background-color: {{ memorial.banner_value }};">
+    {% else %}
+      <div id="memorialBanner" 
+           class="banner banner-default"
+           data-memorial-id="{{ memorial.pk }}">
+    {% endif %}
+    </div>
+
+    {% if memorial.plan and memorial.plan.name|lower != "free" %}
+      <!-- Paid plan: enabled Change Banner button -->
+      <button id="changeBannerBtn" class="banner-change-btn">
+        <i class="fas fa-image"></i> Change Banner
+      </button>
+    {% else %}
+      <!-- Free plan: disabled banner change button -->
+      <div style="position: absolute; top: 10px; left: 10px; z-index: 10; 
+                  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;">
+        <button class="banner-change-btn disabled" disabled 
+                title="Upgrade to change banner" style="position: static;">
+          <i class="fas fa-lock"></i> Change Banner (Locked)
+        </button>
+        <a href="{% url 'plans:choose_plan' memorial.id %}" class="btn btn-sm btn-warning">
+          <i class="fas fa-star"></i> Unlock Premium
+        </a>
+      </div>
+    {% endif %}
+
+    <!-- Banner selection modal -->
+    <div id="bannerSelectionModal" class="banner-modal" style="display: none;">
+      <p>Select a banner:</p>
+      <div class="banner-options">
+        <!-- Color option -->
+        <button class="banner-option" data-type="color" data-value="#f7e8c9">
+          Default Color
+        </button>
+
+        <img src="{% static 'banners/sunset.jpg' %}"
+             class="banner-option"
+             data-type="image"
+             data-value="banners/sunset.jpg"
+             alt="Sunset">
+
+        <img src="{% static 'banners/sunflower.jpg' %}"
+             class="banner-option"
+             data-type="image"
+             data-value="banners/sunflower.jpg"
+             alt="Sunflower">
+      </div>
+      <button id="closeBannerModal">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Profile Picture Upload Form -->
+  <form method="POST" enctype="multipart/form-data" 
+        id="pfpUploadForm" action="{% url 'memorials:upload_profile_picture' memorial.pk %}">
+    {% csrf_token %}
+    <div class="profile-pic-wrapper upload-wrapper" title="Click to change profile picture">
+      {% if memorial.profile_public_id %}
+        <img src="https://res.cloudinary.com/neverforgotten/image/upload/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+             alt="Profile Picture of {{ memorial.first_name }}" 
+             data-original-src="https://res.cloudinary.com/neverforgotten/image/upload/{{ memorial.profile_public_id }}.png">
+      {% else %}
+        <img src="{% static 'images/nf.png' %}" 
+             alt="Default memorial image" 
+             data-original-src="{% static 'images/nf.png' %}">
+      {% endif %}
+      <input type="file" name="profile_picture" id="profilePictureInput" 
+             accept="image/*" style="display:none;">
+      <div class="upload-icon"><i class="fas fa-edit"></i></div>
+    </div>
+  </form>
+
+  <!-- Memorial Name and Dates Section -->
+  <div class="container text-center mt-0" style="bottom: 100px;">
+    <!-- Editable Name with Modal -->
+    <h1 class="fw-bold editable-field" id="editable-name" 
+        data-bs-toggle="modal" data-bs-target="#nameEditModal">
+      {{ memorial.first_name }} 
+      {% if memorial.middle_name %}{{ memorial.middle_name }} {% endif %}
+      {{ memorial.last_name }}
+      <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
+    </h1>
+    <br>
+    <!-- Editable Dates with Modal -->
+    <p class="dates editable-field" id="editable-dates" 
+       data-bs-toggle="modal" data-bs-target="#datesEditModal">
+      {{ memorial.date_of_birth|date:"F j, Y" }} - {{ memorial.date_of_death|date:"F j, Y" }}
+      <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
+    </p>
+  </div>
+
+  <!-- Name Edit Modal -->
+  <div class="modal fade" id="nameEditModal" tabindex="-1" 
+       aria-labelledby="nameEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="name-edit-form" method="POST" 
+              action="{% url 'memorials:memorial_edit' memorial.pk %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="nameEditModalLabel">Edit Name</h5>
+            <button type="button" class="btn-close" 
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" name="first_name" value="{{ memorial.first_name }}" 
+                   class="form-control mb-2" required>
+            <input type="text" name="middle_name" 
+                   value="{{ memorial.middle_name|default:'' }}" 
+                   class="form-control mb-2">
+            <input type="text" name="last_name" value="{{ memorial.last_name }}" 
+                   class="form-control mb-2" required>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" 
+                    data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dates Edit Modal -->
+  <div class="modal fade" id="datesEditModal" tabindex="-1" 
+       aria-labelledby="datesEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="dates-edit-form" method="POST" 
+              action="{% url 'memorials:memorial_edit' memorial.pk %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="datesEditModalLabel">Edit Dates</h5>
+            <button type="button" class="btn-close" 
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body d-flex justify-content-center align-items-center gap-2">
+            <input type="date" name="date_of_birth" 
+                   value="{{ memorial.date_of_birth|date:'Y-m-d' }}" 
+                   class="form-control" required>
+            <span>-</span>
+            <input type="date" name="date_of_death" 
+                   value="{{ memorial.date_of_death|date:'Y-m-d' }}" 
+                   class="form-control" required>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" 
+                    data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Button -->
+  <div class="d-flex justify-content-center my-4">
+    <button id="shareButton" class="btn btn-outline-primary share-button">
+      <i class="fas fa-share-alt me-2"></i> Share Memorial Page
+    </button>
+  </div>
+
+  <!-- View Memorial Button (for owner) -->
+  {% if request.user == memorial.user %}
+    <div class="d-flex justify-content-center mb-4">
+      <a href="{% url 'memorials:memorial_detail' pk=memorial.pk %}" 
+         class="view-btn btn btn-primary">
+        <i class="fas fa-edit"></i> View Memorial
+      </a>
+    </div>
+  {% endif %}
+
+  <!-- Editable Quote Section -->
+  <div class="quote-container container text-center mt-3">
+    <p id="editable-quote" class="editable-field" 
+       data-bs-toggle="modal" data-bs-target="#quoteEditModal">
+      {% if memorial.quote %}
+        {{ memorial.quote }}
+      {% else %}
+        In Loving Memory of {{ memorial.first_name }}
+      {% endif %}
+      <i class="fas fa-edit ms-2" style="font-size: 0.8em; opacity: 0.6;"></i>
+    </p>
+  </div>
+
+  <!-- Quote Edit Modal -->
+  <div class="modal fade" id="quoteEditModal" tabindex="-1" 
+       aria-labelledby="quoteEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="quote-edit-form" method="POST" 
+              action="{% url 'memorials:memorial_edit' memorial.pk %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="quoteEditModalLabel">Edit Quote</h5>
+            <button type="button" class="btn-close" 
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <textarea name="quote" rows="3" class="form-control" 
+                      placeholder='"In Loving Memory of {{ memorial.first_name }}"'>
+              {{ memorial.quote }}
+            </textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" 
+                    data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biography Section -->
+  <div class="biography-container container text-center mt-4">
+    <h2 class="biography-title">Remembering {{ memorial.first_name }}</h2>
+    <div id="editable-biography" class="editable-field mt-3" 
+         data-bs-toggle="modal" data-bs-target="#biographyEditModal" 
+         style="cursor:pointer;">
+      {% if memorial.biography %}
+        {{ memorial.biography|linebreaksbr }}
+      {% else %}
+        <p class="text-muted">
+          <em>Click here to share {{ memorial.first_name }}'s life story - their birth, 
+          family, accomplishments, personality, and what they meant to you. This will 
+          be displayed at the top of the memorial.</em>
+        </p>
+      {% endif %}
+      <small class="text-muted d-block mt-2">
+        <i class="fas fa-edit"></i> Edit biography
+      </small>
+    </div>
+  </div>
+
+  <!-- Biography Edit Modal -->
+  <div class="modal fade" id="biographyEditModal" tabindex="-1" 
+       aria-labelledby="biographyEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="biography-edit-form" method="POST" 
+              action="{% url 'memorials:update_biography' memorial.pk %}">
+          {% csrf_token %}
+          <div class="modal-header bg-light">
+            <h5 class="modal-title" id="biographyEditModalLabel">Edit Biography</h5>
+            <button type="button" class="btn-close" 
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <textarea name="biography" rows="8" class="form-control" 
+                      placeholder="Share {{ memorial.first_name }}'s life story here... 
+                      
+• When and where they were born
+• Their family relationships
+• Education and career
+• Hobbies and passions
+• Special memories or qualities
+• What they meant to their loved ones">
+              {{ memorial.biography }}
+            </textarea>
+            <div class="form-text mt-2">
+              This biography will appear at the top of the memorial page.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" 
+                    data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Biography</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tributes Section -->
+  <section class="tributes-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
+           data-memorial-id="{{ memorial.pk }}"
+           data-delete-tribute-url="{% url 'memorials:delete_tribute' 0 %}">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="section-title fs-3 fw-bold text-dark">Tributes</h2>
+      <button id="open-tribute-form" class="btn btn-primary rounded-pill px-3" 
+              data-bs-toggle="modal" data-bs-target="#tributeFormModal"
+              aria-label="Create new tribute">
+        <i class="fas fa-plus me-2"></i>Create Tribute
+      </button>
+    </div>
+
+    <!-- Tribute Form Modal -->
+    <div class="modal fade" id="tributeFormModal" tabindex="-1" 
+         aria-labelledby="tributeFormModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h3 class="modal-title fs-5" id="tributeFormModalLabel">Share Your Tribute</h3>
+            <button type="button" class="btn-close" 
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="tribute-form" method="POST" 
+                  action="{% url 'memorials:create_tribute' memorial.pk %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="author_name" class="form-label fw-semibold">Your Name</label>
+                <input type="text" class="form-control py-2" id="author_name" 
+                       name="author_name" required
+                       placeholder="Enter your name" 
+                       value="{{ request.user.first_name|default:request.user.first_name }}">
+              </div>
+              <div class="mb-4">
+                <label for="message" class="form-label fw-semibold">Your Tribute</label>
+                <textarea class="form-control py-2" id="message" name="message" 
+                          rows="5" required
+                          placeholder="Share your memories, thoughts, or condolences...">
+                </textarea>
+                <div class="form-text">
+                  Your tribute will be visible to all visitors of this memorial.
+                </div>
+              </div>
+              <div class="d-flex justify-content-end gap-3">
+                <button type="button" class="btn btn-outline-secondary px-4" 
+                        data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary px-4">Post Tribute</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tribute List -->
+    <div id="tribute-list" class="row g-4">
+      <!-- First 3 visible tributes -->
+      <div id="visible-tributes">
+        {% for tribute in memorial.tributes.all|slice:":3" %}
+          <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}">
+            <div class="card tribute-card h-100 border-0 shadow-sm">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
+                  <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                  {{ tribute.message|linebreaksbr }}
+                </div>
+                {% if request.user == memorial.user or request.user == tribute.user %}
+                  <div class="mt-auto text-end" data-user-can-edit="true">
+                    <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                            data-tribute-id="{{ tribute.id }}"
+                            data-author-name="{{ tribute.author_name }}"
+                            data-message="{{ tribute.message }}"
+                            aria-label="Edit tribute">
+                      <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                            data-tribute-id="{{ tribute.id }}"
+                            aria-label="Delete tribute">
+                      <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12" id="empty-tributes-message">
+            <div class="empty-tributes text-center py-5">
+              <i class="fas fa-heart text-muted fa-4x mb-4"></i>
+              <h3 class="h5 text-muted mb-3">No tributes yet</h3>
+              <p class="text-muted mb-4">
+                Be the first to share your memories of {{ memorial.first_name }}
+              </p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Hidden additional tributes -->
+      <div id="hidden-tributes" class="row g-4 d-none">
+        {% for tribute in memorial.tributes.all|slice:"3:" %}
+          <div class="col-12 tribute-item tribute-special" data-tribute-id="{{ tribute.id }}">
+            <div class="card tribute-card h-100 border-0 shadow-sm">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
+                  <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                  {{ tribute.message|linebreaksbr }}
+                </div>
+                {% if request.user == memorial.user or request.user == tribute.user %}
+                  <div class="mt-auto text-end" data-user-can-edit="true">
+                    <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                            data-tribute-id="{{ tribute.id }}"
+                            data-author-name="{{ tribute.author_name }}"
+                            data-message="{{ tribute.message }}"
+                            aria-label="Edit tribute">
+                      <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                            data-tribute-id="{{ tribute.id }}"
+                            aria-label="Delete tribute">
+                      <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if memorial.tributes.count > 3 %}
+      <div class="text-center mt-4">
+        <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
+          <i class="fas fa-chevron-down me-2"></i>View All Tributes
+        </button>
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- Edit Tribute Modal -->
+  <div class="modal fade" id="editTributeModal" tabindex="-1" 
+       aria-labelledby="editTributeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h3 class="modal-title fs-5" id="editTributeModalLabel">Edit Tribute</h3>
+          <button type="button" class="btn-close" 
+                  data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="edit-tribute-form" method="POST">
+            {% csrf_token %}
+            <input type="hidden" id="edit-tribute-id" name="tribute_id">
+            <div class="mb-3">
+              <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
+              <input type="text" class="form-control py-2" id="edit-author-name" 
+                     name="author_name" required>
+            </div>
+            <div class="mb-4">
+              <label for="edit-message" class="form-label fw-semibold">Your Tribute</label>
+              <textarea class="form-control py-2" id="edit-message" 
+                        name="message" rows="5" required></textarea>
+            </div>
+            <div class="d-flex justify-content-end gap-3">
+              <button type="button" class="btn btn-outline-secondary px-4" 
+                      data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteTributeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h3 class="modal-title fs-5">Confirm Deletion</h3>
+          <button type="button" class="btn-close" 
+                  data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body py-4">
+          <p class="mb-2">Are you sure you want to delete this tribute?</p>
+          <div class="alert alert-light mt-3">
+            <strong id="delete-tribute-author"></strong>
+            <p id="delete-tribute-message" class="mb-0"></p>
+          </div>
+          <p class="text-danger mt-3">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" 
+                  data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Music Section -->
+  <div class="music-section container text-center mt-4">
+    <h2 class="music-title">Memorial Music</h2>
+
+    {% if memorial.plan and memorial.plan.name|lower != 'free' %}
+      <!-- Unlocked: Show audio or upload -->
+      {% if memorial.audio_file %}
+        <audio controls class="mt-3">
+          <source src="{{ memorial.audio_file.url }}" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
+      {% else %}
+        <p class="text-muted mt-3">No music uploaded yet.</p>
+      {% endif %}
+
+      <button class="btn btn-outline-secondary mt-3" 
+              data-bs-toggle="modal" 
+              data-bs-target="#musicEditModal">
+        <i class="fas fa-music me-2"></i> 
+        {% if memorial.audio_file %}Change{% else %}Add{% endif %} Music
+      </button>
+
+    {% else %}
+      <!-- Locked: No audio player, show lock and disable button -->
+      <button class="btn btn-outline-secondary mt-3" disabled title="Upgrade to unlock">
+        <i class="fas fa-lock me-2"></i> Music Locked
+      </button>
+      <br>
+      <br>
+      <a href="{% url 'plans:choose_plan' memorial.id %}" class="btn btn-sm btn-warning">
+        <i class="fas fa-star me-2"></i> Unlock Premium
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Music Upload Modal -->
+  <div class="modal fade" id="musicEditModal" tabindex="-1" 
+       aria-labelledby="musicEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form method="POST" action="{% url 'memorials:upload_audio' memorial.pk %}" 
+              enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="musicEditModalLabel">Upload Memorial Music</h5>
+            <button type="button" class="btn-close" 
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="file" name="audio_file" accept="audio/mpeg" 
+                   class="form-control" required>
+            <div class="form-text mt-2">Only MP3 files allowed. Max size ~10MB.</div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Upload</button>
+            <button type="button" class="btn btn-secondary" 
+                    data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+<!-- Gallery Section -->
+  <section class="gallery-section container mt-5 p-4 rounded-3 shadow-sm bg-light">
+    <h2 class="gallery-title fs-3 fw-bold text-dark mb-4 text-center">Photo Gallery</h2>
+    <!-- Add this somewhere in your base template or gallery section -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">Notification</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body"></div>
+  </div>
+</div>
+
+  <div class="gallery-container">
+    <!-- First 3 visible photos -->
+     <div class="row g-3" id="visible-gallery">
+        {% for image in memorial.gallery.all|slice:":3" %}
+          <div class="col-12 col-md-4">
+            <div class="gallery-item position-relative rounded overflow-hidden shadow-sm">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                 data-bs-slide-to="{{ forloop.counter0 }}">
+                <img src="{{ image.image.url }}" 
+                     alt="{{ image.caption|default:'Gallery Image' }}" 
+                     class="img-fluid gallery-img" loading="lazy">
+              </a>
+              {% if image.caption %}
+                <div class="gallery-caption px-2 py-1 bg-dark bg-opacity-50 
+                            text-white position-absolute bottom-0 w-100 text-truncate">
+                  {{ image.caption }}
+                </div>
+              {% endif %}
+              {% if user == memorial.user %}
+                <form method="POST" 
+                      action="{% url 'memorials:delete_gallery_image' memorial.id image.id %}" 
+                      class="position-absolute top-0 end-0 m-2">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger" 
+                          onclick="return confirm('Delete this photo?');" 
+                          title="Delete photo">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <p class="text-center text-muted fst-italic">
+            No photos have been added to the gallery yet.
+          </p>
+        {% endfor %}
+      </div>
+
+      <!-- Hidden additional photos -->
+      <div class="row g-3 d-none" id="hidden-gallery">
+        {% for image in memorial.gallery.all|slice:"3:" %}
+          <div class="col-12 col-md-4">
+            <div class="gallery-item position-relative rounded overflow-hidden shadow-sm">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                 data-bs-slide-to="{{ forloop.counter0|add:'3' }}">
+                <img src="{{ image.image.url }}" 
+                     alt="{{ image.caption|default:'Gallery Image' }}" 
+                     class="img-fluid gallery-img" loading="lazy">
+              </a>
+              {% if image.caption %}
+                <div class="gallery-caption px-2 py-1 bg-dark bg-opacity-50 
+                            text-white position-absolute bottom-0 w-100 text-truncate">
+                  {{ image.caption }}
+                </div>
+              {% endif %}
+              {% if user == memorial.user %}
+                <form method="POST" 
+                      action="{% url 'memorials:delete_gallery_image' memorial.id image.id %}" 
+                      class="position-absolute top-0 end-0 m-2">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger" 
+                          onclick="return confirm('Delete this photo?');" 
+                          title="Delete photo">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      {% if memorial.gallery.all|length > 3 %}
+        <button id="toggle-gallery-btn" class="btn btn-secondary rounded-pill px-4">
+          <i class="fas fa-chevron-down me-2"></i>View More
+        </button>
+      {% endif %}
+
+      {% if user == memorial.user %}
+        {% if memorial.plan and memorial.plan.name|lower != "free" %}
+          <button class="btn btn-primary rounded-pill px-4 ms-2" 
+                  id="uploadGalleryBtn"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#uploadGalleryModal">
+            <i class="fas fa-upload me-2"></i>
+            <span class="btn-text">Upload Photos</span>
+          </button>
+        {% elif memorial.gallery.all|length < 3 %}
+          <button class="btn btn-primary rounded-pill px-4 ms-2" 
+                  id="uploadGalleryBtn"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#uploadGalleryModal">
+            <i class="fas fa-upload me-2"></i>
+            <span class="btn-text">Upload Photos</span>
+          </button>
+        {% else %}
+          <a href="{% url 'plans:choose_plan' memorial.id %}" 
+             class="btn btn-warning rounded-pill px-4 ms-2">
+            <i class="fas fa-star me-2"></i>Upgrade to Upload More
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Gallery Carousel Modal -->
+  <div class="modal fade" id="galleryModal" tabindex="-1" 
+       aria-labelledby="galleryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="galleryModalLabel">Photo Gallery</h5>
+          <button type="button" class="btn-close btn-close-white" 
+                  data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              {% for image in memorial.gallery.all %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ image.image.url }}" class="d-block w-100" 
+                       alt="{{ image.caption|default:'Gallery Image' }}">
+                  {% if image.caption %}
+                    <div class="carousel-caption d-none d-md-block">
+                      <p>{{ image.caption }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" 
+                    data-bs-target="#galleryCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" 
+                    data-bs-target="#galleryCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">Notification</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body"></div>
+  </div>
+</div>
+
+<!-- Upload Gallery Modal -->
+<div class="modal fade" id="uploadGalleryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="galleryUploadForm" method="POST" action="{% url 'memorials:upload_gallery_images' memorial.pk %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Photos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Select photos</label>
+            <input class="form-control" type="file" name="images" multiple accept="image/*" required>
+            <div class="form-text">
+              Max {% if memorial.plan and memorial.plan.name|lower != "free" %}9{% else %}3{% endif %} photos total
+            </div>
+          </div>
+          <div id="uploadProgress" class="progress d-none mb-3">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">
+            <span class="btn-text">Upload</span>
+            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Stories Section -->
+<section class="stories-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
+         data-memorial-id="{{ memorial.pk }}"
+         data-delete-story-url="{% url 'memorials:delete_story' 0 %}">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title fs-3 fw-bold text-dark">Stories</h2>
+    <!-- Updated Share Story Button -->
+    <button id="open-story-form" class="btn btn-primary rounded-pill px-3" 
+            data-bs-toggle="modal" 
+            data-bs-target="#storyFormModal"
+            aria-label="Create new story">
+      <i class="fas fa-plus me-2"></i>Share Story
+    </button>
+  </div>
+
+  
+  <!-- Story Form Modal -->
+  <div class="modal fade" id="storyFormModal" tabindex="-1" aria-labelledby="storyFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h3 class="modal-title fs-5" id="storyFormModalLabel">Share Your Story</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="story-form" method="POST" action="{% url 'memorials:create_story' memorial.pk %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="author_name" class="form-label fw-semibold">Your Name</label>
+              <input type="text" class="form-control py-2" id="author_name" name="author_name" required
+                     placeholder="Enter your name" value="{{ request.user.first_name|default:request.user.first_name }}">
+            </div>
+            <div class="mb-3">
+              <label for="title" class="form-label fw-semibold">Story Title</label>
+              <input type="text" class="form-control py-2" id="title" name="title" required
+                     placeholder="Give your story a title">
+            </div>
+            <div class="mb-4">
+              <label for="content" class="form-label fw-semibold">Your Story</label>
+              <textarea class="form-control py-2" id="content" name="content" rows="5" required
+                        placeholder="Share your memories and stories..."></textarea>
+              <div class="form-text">Your story will be visible to all visitors of this memorial.</div>
+            </div>
+            <div class="d-flex justify-content-end gap-3">
+              <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary px-4" id="submit-story-btn">
+              <span class="btn-text">Share Story</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Story List -->
+  <div id="story-list" class="row g-4">
+    <!-- First 3 visible stories -->
+    <div id="visible-stories">
+      {% for story in memorial.stories.all|slice:":3" %}
+        <div class="col-12 story-item" data-story-id="{{ story.id }}">
+          <div class="card story-card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                  <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                </div>
+                <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
+              </div>
+              <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                {{ story.content|linebreaksbr }}
+              </div>
+              {% if request.user == memorial.user or request.user == story.user %}
+                <div class="mt-auto text-end" data-user-can-edit="true">
+                  <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                          data-story-id="{{ story.id }}"
+                          data-author-name="{{ story.author_name }}"
+                          data-title="{{ story.title }}"
+                          data-content="{{ story.content }}"
+                          aria-label="Edit story">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-story" 
+                          data-story-id="{{ story.id }}"
+                          aria-label="Delete story">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12" id="empty-stories-message">
+          <div class="empty-stories text-center py-5">
+            <i class="fas fa-book-open text-muted fa-4x mb-4"></i>
+            <h3 class="h5 text-muted mb-3">No stories yet</h3>
+            <p class="text-muted mb-4">Be the first to share a story about {{ memorial.first_name }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Hidden additional stories -->
+    <div id="hidden-stories" class="row g-4 d-none">
+      {% for story in memorial.stories.all|slice:"3:" %}
+        <div class="col-12 story-item story-special" data-story-id="{{ story.id }}">
+          <div class="card story-card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                  <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                </div>
+                <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
+              </div>
+              <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                {{ story.content|linebreaksbr }}
+              </div>
+              {% if request.user == memorial.user or request.user == story.user %}
+                <div class="mt-auto text-end" data-user-can-edit="true">
+                  <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                          data-story-id="{{ story.id }}"
+                          data-author-name="{{ story.author_name }}"
+                          data-title="{{ story.title }}"
+                          data-content="{{ story.content }}"
+                          aria-label="Edit story">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-story" 
+                          data-story-id="{{ story.id }}"
+                          aria-label="Delete story">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if memorial.stories.count > 3 %}
+    <div class="text-center mt-4">
+      <button id="toggle-stories-btn" class="btn btn-secondary rounded-pill px-4">
+        <i class="fas fa-chevron-down me-2"></i>View All Stories
+      </button>
+    </div>
+  {% endif %}
+</section>
+
+<!-- Edit Story Modal -->
+<div class="modal fade" id="editStoryModal" tabindex="-1" aria-labelledby="editStoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h3 class="modal-title fs-5" id="editStoryModalLabel">Edit Story</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-story-form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="edit-story-id" name="story_id">
+          <div class="mb-3">
+            <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
+            <input type="text" class="form-control py-2" id="edit-author-name" name="author_name" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit-title" class="form-label fw-semibold">Story Title</label>
+            <input type="text" class="form-control py-2" id="edit-title" name="title" required>
+          </div>
+          <div class="mb-4">
+            <label for="edit-content" class="form-label fw-semibold">Your Story</label>
+            <textarea class="form-control py-2" id="edit-content" name="content" rows="5" required></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-3">
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteStoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h3 class="modal-title fs-5">Confirm Deletion</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-4">
+        <p class="mb-2">Are you sure you want to delete this story?</p>
+        <div class="alert alert-light mt-3">
+          <strong id="delete-story-title"></strong>
+          <p class="mb-1"><small>by <span id="delete-story-author"></span></small></p>
+          <p id="delete-story-content" class="mb-0 text-truncate"></p>
+        </div>
+        <p class="text-danger mt-3">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="confirm-story-delete" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- QR code section -->
+<div class="qr-code-section">
+    <h3>Share This Memorial</h3>
+    <p class="qr-instructions">Scan this QR code to visit this memorial from another device</p>
+    
+    {% if memorial.qr_code_public_id %}
+        <div class="qr-code-container">
+            <img src="{{ memorial.get_qr_code_url }}" 
+                 alt="QR Code for {{ memorial.first_name }} {{ memorial.last_name }}"
+                 class="qr-code-image"
+                 id="qrCodeImage"
+                 onerror="this.style.display='none'; console.error('Failed to load QR code')">
+        </div>
+        <br>
+        <button class="qr-download-btn" id="downloadQrBtn" 
+                data-qr-url="{{ memorial.get_qr_code_url }}">
+            <i class="fas fa-download"></i> Download QR Code
+        </button>
+    {% else %}
+        <p class="text-muted">QR code not available</p>
+    {% endif %}
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/memorials/memorial_edit.css' %}">
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/memorials/memorial_edit.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('pfpUploadForm');
+  const uploadWrapper = document.querySelector('.profile-pic-wrapper');
+  const profileImg = uploadWrapper.querySelector('img');
+  const fileInput = document.getElementById('profilePictureInput');
+  const uploadIcon = document.querySelector('.upload-icon');
+  
+  // Store original clean URL (without parameters)
+  profileImg.dataset.originalSrc = profileImg.src.split('?')[0];
+
+  // Create loading spinner
+  const spinner = document.createElement('div');
+  spinner.className = 'pfp-loading-spinner';
+  spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  spinner.style.display = 'none';
+  uploadWrapper.appendChild(spinner);
+
+  // Handle click on wrapper
+  uploadWrapper.addEventListener('click', function(e) {
+    if (!e.target.matches('input')) {
+      fileInput.click();
+    }
+  });
+
+  // Handle file selection
+  fileInput.addEventListener('change', function() {
+    if (!this.files || !this.files[0]) return;
+
+    // Show loading state
+    spinner.style.display = 'block';
+    uploadIcon.style.visibility = 'hidden';
+    profileImg.style.opacity = '0.7';
+    uploadWrapper.style.cursor = 'wait';
+
+    // Preview image immediately
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      profileImg.src = e.target.result;
+    };
+    reader.readAsDataURL(this.files[0]);
+
+    // Prepare form data
+    const formData = new FormData(form);
+    
+    // AJAX upload
+    fetch(form.action, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      if (data.status === 'success') {
+        // Update with the clean URL from server
+        profileImg.src = data.profile_picture_url;
+        profileImg.dataset.originalSrc = data.profile_picture_url;
+        
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'upload-success-message';
+        successMsg.textContent = data.message;
+        uploadWrapper.appendChild(successMsg);
+        
+        // Remove message after 3 seconds
+        setTimeout(() => successMsg.remove(), 3000);
+      } else {
+        throw new Error(data.message || 'Upload failed');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Revert to original image
+      profileImg.src = profileImg.dataset.originalSrc;
+      alert('Error: ' + error.message);
+    })
+    .finally(() => {
+      // Reset UI
+      spinner.style.display = 'none';
+      uploadIcon.style.visibility = 'visible';
+      profileImg.style.opacity = '1';
+      uploadWrapper.style.cursor = 'pointer';
+      fileInput.value = '';
+    });
+  });
+});
+</script>
+<script>
+  const csrfToken = getCookie('csrftoken');
+  const memorialId = "{{ memorial.pk }}";
+
+  // Submit Name via AJAX
+  document.getElementById("name-edit-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch(`/memorials/${memorialId}/update-name/`, {
+      method: "POST",
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        // Update name display
+        const nameField = document.getElementById("editable-name");
+        nameField.innerHTML = `
+          ${data.first_name} ${data.middle_name || ''} ${data.last_name}
+          <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
+        `;
+
+        // Close the modal and clean up
+        const nameModal = bootstrap.Modal.getInstance(document.getElementById('nameEditModal'));
+        if (nameModal) {
+          nameModal.hide();
+          nameModal._element.addEventListener('hidden.bs.modal', removeModalBackdrop);
+        } else {
+          removeModalBackdrop();
+        }
+      } else {
+        alert("Failed to update name.");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      removeModalBackdrop();
+    });
+  });
+
+  // Submit Dates via AJAX
+  document.getElementById("dates-edit-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch(`/memorials/${memorialId}/update-dates/`, {
+      method: "POST",
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        // Update date display
+        const datesField = document.getElementById("editable-dates");
+        datesField.innerHTML = `
+          ${data.date_of_birth} - ${data.date_of_death}
+          <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
+        `;
+
+        // Close the modal and clean up
+        const datesModal = bootstrap.Modal.getInstance(document.getElementById('datesEditModal'));
+        if (datesModal) {
+          datesModal.hide();
+          datesModal._element.addEventListener('hidden.bs.modal', removeModalBackdrop);
+        } else {
+          removeModalBackdrop();
+        }
+      } else {
+        alert("Failed to update dates.");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      removeModalBackdrop();
+    });
+  });
+</script>
+<script>
+  document.getElementById("shareButton").addEventListener("click", function () {
+    const shareData = {
+      title: "Memorial for {{ memorial.first_name }} {{ memorial.last_name }}",
+      text: "Visit this memorial page:",
+      url: window.location.href
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData)
+        .then(() => console.log('Memorial shared successfully'))
+        .catch((error) => console.error('Error sharing memorial:', error));
+    } else {
+      // Fallback: copy URL to clipboard
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => alert("Link copied to clipboard!"))
+        .catch(() => alert("Couldn't copy the link. Please try manually."));
+    }
+  });
+</script>
+<script>
+  // Submit Quote via AJAX
+  document.getElementById("quote-edit-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch(`/memorials/${memorialId}/update-quote/`, {
+      method: "POST",
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        // Update quote display
+        const quoteField = document.getElementById("editable-quote");
+        quoteField.innerHTML = `
+          ${data.quote ? data.quote : 'In "Loving Memory of {{ memorial.first_name }}"'}
+          <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
+        `;
+
+        // Close the modal and clean up
+        const quoteModal = bootstrap.Modal.getInstance(document.getElementById('quoteEditModal'));
+        if (quoteModal) {
+          quoteModal.hide();
+          quoteModal._element.addEventListener('hidden.bs.modal', removeModalBackdrop);
+        } else {
+          removeModalBackdrop();
+        }
+      } else {
+        alert("Failed to update quote.");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      removeModalBackdrop();
+    });
+  });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Safely get elements with null checks
+  const memorialSection = document.querySelector('.tributes-section');
+  if (!memorialSection) {
+    console.warn('Tribute section not found');
+    return;
+  }
+
+  const memorialId = memorialSection.dataset.memorialId;
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+  // Safely initialize modals
+  const tributeFormModalEl = document.getElementById('tributeFormModal');
+  const editTributeModalEl = document.getElementById('editTributeModal');
+  
+  if (!tributeFormModalEl || !editTributeModalEl) {
+    console.warn('Required modals not found');
+    return;
+  }
+
+  const tributeFormModal = bootstrap.Modal.getOrCreateInstance(tributeFormModalEl);
+  const editTributeModal = bootstrap.Modal.getOrCreateInstance(editTributeModalEl);
+
+  // Get form elements
+  const tributeList = document.getElementById('tribute-list');
+  const openTributeFormBtn = document.getElementById('open-tribute-form');
+  const tributeForm = document.getElementById('tribute-form');
+  const editTributeForm = document.getElementById('edit-tribute-form');
+
+  // Check for essential elements
+  if (!tributeList || !openTributeFormBtn || !tributeForm || !editTributeForm) {
+    console.error('Essential tribute elements missing');
+    return;
+  }
+
+  // --- Helper Functions ---
+
+  /**
+   * Escapes HTML to prevent XSS
+   */
+  function escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /**
+   * Generates HTML for a tribute card
+   */
+  function generateTributeCard(tribute, canEdit = false) {
+    const dateStr = new Date(tribute.created_at).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    return `
+      <div class="col-12 tribute-item" data-tribute-id="${tribute.id}">
+        <div class="card tribute-card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h3 class="card-title mb-0 fs-5 fw-semibold">${escapeHTML(tribute.author_name)}</h3>
+              <small class="text-muted">${dateStr}</small>
+            </div>
+            <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+              ${escapeHTML(tribute.message).replace(/\n/g, '<br>')}
+            </div>
+            ${canEdit ? `
+            <div class="mt-auto text-end" data-user-can-edit="true">
+              <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                      data-tribute-id="${tribute.id}"
+                      data-author-name="${escapeHTML(tribute.author_name)}"
+                      data-message="${escapeHTML(tribute.message)}"
+                      aria-label="Edit tribute">
+                <i class="fas fa-edit me-1"></i> Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                      data-tribute-id="${tribute.id}"
+                      aria-label="Delete tribute">
+                <i class="fas fa-trash me-1"></i> Delete
+              </button>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- Event Handlers ---
+
+  /**
+   * Handles opening the create tribute modal
+   */
+  openTributeFormBtn.addEventListener('click', () => {
+    tributeForm.reset();
+    tributeForm.action = `/memorials/${memorialId}/tributes/create/`;
+    tributeFormModal.show();
+    const firstInput = tributeForm.querySelector('input, textarea, select');
+    firstInput?.focus();
+  });
+
+  /**
+   * Handles tribute form submission
+   */
+  tributeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(tributeForm);
+
+    try {
+      const response = await fetch(tributeForm.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove empty state if it exists
+        const emptyMessage = document.getElementById('empty-tributes-message');
+        if (emptyMessage) emptyMessage.remove();
+
+        // Add new tribute to the top
+        tributeList.insertAdjacentHTML('afterbegin', generateTributeCard(data.tribute, data.can_edit));
+        
+        // Close modal and reset
+        tributeFormModal.hide();
+        tributeForm.reset();
+        openTributeFormBtn.focus();
+      } else {
+        throw new Error(data.error || 'Failed to create tribute');
+      }
+    } catch (error) {
+      console.error('Tribute creation error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  });
+
+  /**
+   * Handles edit/delete button clicks via delegation
+   */
+  tributeList.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.edit-tribute');
+    const deleteBtn = e.target.closest('.delete-tribute');
+
+    if (editBtn) {
+      // Set up edit form
+      editTributeForm.action = `/memorials/tributes/${editBtn.dataset.tributeId}/edit/`;
+      document.getElementById('edit-tribute-id').value = editBtn.dataset.tributeId;
+      document.getElementById('edit-author-name').value = editBtn.dataset.authorName;
+      document.getElementById('edit-message').value = editBtn.dataset.message;
+      
+      // Show modal and focus
+      editTributeModal.show();
+      document.getElementById('edit-author-name').focus();
+    } 
+    else if (deleteBtn) {
+      // Confirm before deleting
+      if (confirm('Are you sure you want to delete this tribute?')) {
+        deleteTribute(deleteBtn.dataset.tributeId);
+      }
+    }
+  });
+
+  /**
+   * Handles edit form submission
+   */
+  editTributeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(editTributeForm);
+    const tributeId = formData.get('tribute_id');
+
+    try {
+      const response = await fetch(editTributeForm.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the tribute in the list
+        const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
+        if (tributeElem) {
+          tributeElem.outerHTML = generateTributeCard(data.tribute, data.can_edit);
+        }
+        
+        // Close modal
+        editTributeModal.hide();
+      } else {
+        throw new Error(data.error || 'Failed to update tribute');
+      }
+    } catch (error) {
+      console.error('Tribute edit error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  });
+
+  /**
+   * Deletes a tribute
+   */
+  async function deleteTribute(tributeId) {
+    try {
+      const response = await fetch(`/memorials/tributes/${tributeId}/delete/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove tribute from DOM
+        const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
+        tributeElem?.remove();
+        
+        // Show empty state if no tributes left
+        if (!document.querySelector('.tribute-item')) {
+          document.getElementById('empty-tributes-message')?.classList.remove('d-none');
+        }
+      } else {
+        throw new Error(data.error || 'Failed to delete tribute');
+      }
+    } catch (error) {
+      console.error('Tribute deletion error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  // --- Toggle Tributes Visibility ---
+  const toggleTributesBtn = document.getElementById('toggle-tributes-btn');
+  const hiddenTributes = document.getElementById('hidden-tributes');
+  
+  if (toggleTributesBtn && hiddenTributes) {
+    toggleTributesBtn.addEventListener('click', function() {
+      hiddenTributes.classList.toggle('d-none');
+      
+      // Update button text
+      this.innerHTML = hiddenTributes.classList.contains('d-none') 
+        ? '<i class="fas fa-chevron-down me-2"></i>View More'
+        : '<i class="fas fa-chevron-up me-2"></i>View Less';
+    });
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Gallery carousel functionality (keep this)
+  const galleryModal = document.getElementById('galleryModal');
+  if (galleryModal) {
+    const galleryCarousel = new bootstrap.Carousel('#galleryCarousel');
+    galleryModal.addEventListener('show.bs.modal', function(event) {
+      const trigger = event.relatedTarget;
+      const slideIndex = trigger.getAttribute('data-bs-slide-to');
+      if (slideIndex) galleryCarousel.to(parseInt(slideIndex));
+    });
+  }
+
+  // Simple view more/less toggle (keep this)
+  const toggleBtn = document.getElementById('toggle-gallery-btn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+      const hiddenGallery = document.getElementById('hidden-gallery');
+      hiddenGallery.classList.toggle('d-none');
+      this.querySelector('i').classList.toggle('fa-chevron-down');
+      this.querySelector('i').classList.toggle('fa-chevron-up');
+      this.querySelector('span').textContent = 
+        hiddenGallery.classList.contains('d-none') ? 'View More' : 'View Less';
+    });
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize elements
+  const form = document.getElementById('galleryUploadForm');
+  const uploadSubmitBtn = document.getElementById('uploadSubmitBtn');
+  const fileInput = form?.querySelector('input[type="file"]');
+  
+  // Form submission handler
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Validate files
+      if (fileInput.files.length === 0) {
+        showToast('Please select at least one image', 'error');
+        return;
+      }
+      
+      // Show loading state
+      const btnText = uploadSubmitBtn.querySelector('.btn-text');
+      const spinner = uploadSubmitBtn.querySelector('.spinner-border');
+      const progressBar = document.querySelector('.progress-bar');
+      
+      uploadSubmitBtn.disabled = true;
+      btnText.textContent = 'Uploading...';
+      spinner.classList.remove('d-none');
+      document.getElementById('uploadProgress').classList.remove('d-none');
+      
+      try {
+        const formData = new FormData(form);
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+          }
+        });
+        
+        // Check response type
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Server returned unexpected response');
+        }
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Upload failed');
+        }
+        
+        // Update gallery display
+        if (data.new_images && data.new_images.length > 0) {
+          updateGalleryDisplay(data.new_images);
+        }
+        
+        showToast(data.message || 'Upload successful', 'success');
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('uploadGalleryModal'));
+        if (modal) modal.hide();
+        
+        // Reset form
+        form.reset();
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        showToast(error.message || 'An error occurred during upload', 'error');
+      } finally {
+        // Reset button state
+        uploadSubmitBtn.disabled = false;
+        btnText.textContent = 'Upload';
+        spinner.classList.add('d-none');
+        document.getElementById('uploadProgress').classList.add('d-none');
+      }
+    });
+  }
+
+  // Update gallery display with new images
+  function updateGalleryDisplay(newImages) {
+    const visibleGallery = document.getElementById('visible-gallery');
+    const hiddenGallery = document.getElementById('hidden-gallery');
+    const toggleBtn = document.getElementById('toggle-gallery-btn');
+    const emptyMessage = visibleGallery.querySelector('p.text-muted');
+    
+    // Remove empty message if exists
+    if (emptyMessage) emptyMessage.remove();
+    
+    // Add new images
+    newImages.forEach((image, index) => {
+      const totalImages = visibleGallery.children.length + (hiddenGallery.children.length || 0);
+      const galleryItem = createGalleryItem(image, totalImages);
+      
+      if (visibleGallery.children.length < 3) {
+        visibleGallery.appendChild(galleryItem);
+      } else {
+        hiddenGallery.classList.remove('d-none');
+        hiddenGallery.appendChild(galleryItem);
+      }
+    });
+    
+    // Show toggle button if needed
+    if (hiddenGallery.children.length > 0 && toggleBtn) {
+      toggleBtn.classList.remove('d-none');
+    }
+  }
+  
+  // Create gallery item DOM element
+  function createGalleryItem(image, slideIndex) {
+    const colDiv = document.createElement('div');
+    colDiv.className = 'col-12 col-md-4';
+    
+    colDiv.innerHTML = `
+      <div class="gallery-item position-relative rounded overflow-hidden shadow-sm">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#galleryModal" 
+           data-bs-slide-to="${slideIndex}">
+          <img src="${image.url}" 
+               alt="${image.caption || 'Gallery Image'}" 
+               class="img-fluid gallery-img" loading="lazy">
+        </a>
+        ${image.caption ? `
+        <div class="gallery-caption px-2 py-1 bg-dark bg-opacity-50 
+                    text-white position-absolute bottom-0 w-100 text-truncate">
+          ${image.caption}
+        </div>` : ''}
+        {% if user == memorial.user %}
+        <form method="POST" 
+              action="{% url 'memorials:delete_gallery_image' memorial.id '0' %}" 
+              class="position-absolute top-0 end-0 m-2 delete-gallery-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger" 
+                  onclick="return confirm('Delete this photo?');" 
+                  title="Delete photo">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    `;
+    
+    // Update delete form action
+    const deleteForm = colDiv.querySelector('.delete-gallery-form');
+    if (deleteForm) {
+      deleteForm.action = deleteForm.action.replace('/0', `/${image.id}`);
+    }
+    
+    return colDiv;
+  }
+  
+  // Show toast notification
+  function showToast(message, type = 'success') {
+    const toastEl = document.getElementById('toastNotification');
+    if (!toastEl) return;
+    
+    const toast = new bootstrap.Toast(toastEl);
+    const toastBody = toastEl.querySelector('.toast-body');
+    const toastHeader = toastEl.querySelector('.toast-header');
+    
+    toastBody.textContent = message;
+    toastHeader.className = `toast-header bg-${type === 'error' ? 'danger' : 'success'} text-white`;
+    
+    toast.show();
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Safely get elements with null checks
+  const storiesSection = document.querySelector('.stories-section');
+  if (!storiesSection) {
+    console.warn('Stories section not found');
+    return;
+  }
+
+  const memorialId = storiesSection.dataset.memorialId;
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+  // Safely initialize modals
+  const storyFormModalEl = document.getElementById('storyFormModal');
+  const editStoryModalEl = document.getElementById('editStoryModal');
+  
+  if (!storyFormModalEl || !editStoryModalEl) {
+    console.warn('Required modals not found');
+    return;
+  }
+
+  const storyFormModal = bootstrap.Modal.getOrCreateInstance(storyFormModalEl);
+  const editStoryModal = bootstrap.Modal.getOrCreateInstance(editStoryModalEl);
+
+  // Get form elements
+  const storyList = document.getElementById('story-list');
+  const openStoryFormBtn = document.getElementById('open-story-form');
+  const storyForm = document.getElementById('story-form');
+  const editStoryForm = document.getElementById('edit-story-form');
+
+  // Check for essential elements
+  if (!storyList || !openStoryFormBtn || !storyForm || !editStoryForm) {
+    console.error('Essential story elements missing');
+    return;
+  }
+
+  // --- Helper Functions ---
+
+  /**
+   * Escapes HTML to prevent XSS
+   */
+  function escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /**
+   * Generates HTML for a story card
+   */
+  function generateStoryCard(story, canEdit = false) {
+    const dateStr = new Date(story.created_at).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    return `
+      <div class="col-12 story-item" data-story-id="${story.id}">
+        <div class="card story-card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h3 class="card-title mb-1 fs-5 fw-semibold">${escapeHTML(story.title)}</h3>
+                <p class="text-muted mb-0">by ${escapeHTML(story.author_name)}</p>
+              </div>
+              <small class="text-muted">${dateStr}</small>
+            </div>
+            <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+              ${escapeHTML(story.content).replace(/\n/g, '<br>')}
+            </div>
+            ${canEdit ? `
+            <div class="mt-auto text-end" data-user-can-edit="true">
+              <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                      data-story-id="${story.id}"
+                      data-author-name="${escapeHTML(story.author_name)}"
+                      data-title="${escapeHTML(story.title)}"
+                      data-content="${escapeHTML(story.content)}"
+                      aria-label="Edit story">
+                <i class="fas fa-edit me-1"></i> Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger delete-story" 
+                      data-story-id="${story.id}"
+                      aria-label="Delete story">
+                <i class="fas fa-trash me-1"></i> Delete
+              </button>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- Event Handlers ---
+
+  /**
+   * Handles opening the create story modal
+   */
+  openStoryFormBtn.addEventListener('click', () => {
+    storyForm.reset();
+    storyForm.action = `/memorials/${memorialId}/stories/create/`;
+    storyFormModal.show();
+    const firstInput = storyForm.querySelector('input, textarea, select');
+    firstInput?.focus();
+  });
+
+  /**
+   * Handles story form submission
+   */
+  storyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(storyForm);
+
+    try {
+      const response = await fetch(storyForm.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove empty state if it exists
+        const emptyMessage = document.getElementById('empty-stories-message');
+        if (emptyMessage) emptyMessage.remove();
+
+        // Add new story to the top
+        storyList.insertAdjacentHTML('afterbegin', generateStoryCard(data.story, data.can_edit));
+        
+        // Close modal and reset
+        storyFormModal.hide();
+        storyForm.reset();
+        openStoryFormBtn.focus();
+      } else {
+        throw new Error(data.error || 'Failed to create story');
+      }
+    } catch (error) {
+      console.error('Story creation error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  });
+
+  /**
+   * Handles edit/delete button clicks via delegation
+   */
+  storyList.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.edit-story');
+    const deleteBtn = e.target.closest('.delete-story');
+
+    if (editBtn) {
+      // Set up edit form
+      editStoryForm.action = `/memorials/stories/${editBtn.dataset.storyId}/edit/`;
+      document.getElementById('edit-story-id').value = editBtn.dataset.storyId;
+      document.getElementById('edit-author-name').value = editBtn.dataset.authorName;
+      document.getElementById('edit-title').value = editBtn.dataset.title;
+      document.getElementById('edit-content').value = editBtn.dataset.content;
+      
+      // Show modal and focus
+      editStoryModal.show();
+      document.getElementById('edit-title').focus();
+    } 
+    else if (deleteBtn) {
+      // Set up delete confirmation modal
+      document.getElementById('delete-story-title').textContent = deleteBtn.dataset.title;
+      document.getElementById('delete-story-author').textContent = deleteBtn.dataset.authorName;
+      document.getElementById('delete-story-content').textContent = deleteBtn.dataset.content;
+      
+      // Show confirmation modal
+      const deleteModal = new bootstrap.Modal(document.getElementById('deleteStoryModal'));
+      deleteModal.show();
+      
+      // Set up confirm delete button
+      document.getElementById('confirm-story-delete').onclick = () => {
+        deleteStory(deleteBtn.dataset.storyId);
+        deleteModal.hide();
+      };
+    }
+  });
+
+  /**
+   * Handles edit form submission
+   */
+  editStoryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(editStoryForm);
+    const storyId = formData.get('story_id');
+
+    try {
+      const response = await fetch(editStoryForm.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the story in the list
+        const storyElem = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
+        if (storyElem) {
+          storyElem.outerHTML = generateStoryCard(data.story, data.can_edit);
+        }
+        
+        // Close modal
+        editStoryModal.hide();
+      } else {
+        throw new Error(data.error || 'Failed to update story');
+      }
+    } catch (error) {
+      console.error('Story edit error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  });
+
+  /**
+   * Deletes a story
+   */
+  async function deleteStory(storyId) {
+    try {
+      const response = await fetch(`/memorials/stories/${storyId}/delete/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove story from DOM
+        const storyElem = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
+        storyElem?.remove();
+        
+        // Show empty state if no stories left
+        if (!document.querySelector('.story-item')) {
+          document.getElementById('empty-stories-message')?.classList.remove('d-none');
+        }
+      } else {
+        throw new Error(data.error || 'Failed to delete story');
+      }
+    } catch (error) {
+      console.error('Story deletion error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  // --- Toggle Stories Visibility ---
+  const toggleStoriesBtn = document.getElementById('toggle-stories-btn');
+  const hiddenStories = document.getElementById('hidden-stories');
+  
+  if (toggleStoriesBtn && hiddenStories) {
+    toggleStoriesBtn.addEventListener('click', function() {
+      hiddenStories.classList.toggle('d-none');
+      
+      // Update button text
+      this.innerHTML = hiddenStories.classList.contains('d-none') 
+        ? '<i class="fas fa-chevron-down me-2"></i>View More Stories'
+        : '<i class="fas fa-chevron-up me-2"></i>View Less';
+    });
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const downloadQrBtn = document.getElementById('downloadQrBtn');
+    
+    if (downloadQrBtn) {
+        downloadQrBtn.addEventListener('click', async function() {
+            const qrCodeUrl = this.getAttribute('data-qr-url');
+            const qrCodeImage = document.getElementById('qrCodeImage');
+            
+            if (!qrCodeImage || !qrCodeUrl) {
+                console.error('QR code image or URL not found');
+                alert('Unable to download QR code. Please try again.');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+                this.disabled = true;
+                
+                // Fetch the image
+                const response = await fetch(qrCodeUrl);
+                if (!response.ok) throw new Error('Failed to fetch QR code');
+                
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Create download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = blobUrl;
+                
+                // Create filename based on memorial name
+                const memorialName = "{{ memorial.first_name }}_{{ memorial.last_name }}".replace(/\s+/g, '_');
+                downloadLink.download = `${memorialName}_qr_code.png`;
+                
+                // Trigger download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // Clean up
+                URL.revokeObjectURL(blobUrl);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Failed to download QR code. Please try again.');
+                
+                // Fallback method - try the simple approach
+                try {
+                    const fallbackLink = document.createElement('a');
+                    fallbackLink.href = qrCodeUrl;
+                    fallbackLink.download = 'qr_code.png';
+                    document.body.appendChild(fallbackLink);
+                    fallbackLink.click();
+                    document.body.removeChild(fallbackLink);
+                } catch (fallbackError) {
+                    console.error('Fallback download also failed:', fallbackError);
+                }
+            } finally {
+                // Reset button state
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Music upload form loading state
+  const musicForm = document.querySelector('#musicEditModal form');
+  
+  if (musicForm) {
+    musicForm.addEventListener('submit', function() {
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+      
+      // Also disable the cancel button to prevent modal closing during upload
+      const cancelBtn = this.querySelector('button[type="button"]');
+      if (cancelBtn) {
+        cancelBtn.disabled = true;
+      }
+      
+      // Store original content to restore if needed
+      submitBtn.dataset.originalContent = originalText;
+    });
+    
+    // Reset button state when modal is shown (in case of previous failed attempts)
+    const musicModal = document.getElementById('musicEditModal');
+    if (musicModal) {
+      musicModal.addEventListener('show.bs.modal', function() {
+        const submitBtn = musicForm.querySelector('button[type="submit"]');
+        const cancelBtn = musicForm.querySelector('button[type="button"]');
+        
+        if (submitBtn && submitBtn.dataset.originalContent) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = submitBtn.dataset.originalContent;
+        }
+        if (cancelBtn) {
+          cancelBtn.disabled = false;
+        }
+      });
+    }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/404.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-code">404</div>
+    <h1 class="error-title">Memorial Not Found</h1>
+    
+    <p class="error-message">
+        The memorial page you're looking for doesn't exist or may have been moved.
+    </p>
+    
+    {% if request.path %}
+    <div class="error-path">
+        Attempted path: {{ request.path }}
+    </div>
+    {% endif %}
+    
+    <a href="{% url 'memorials:index' %}" class="home-link">
+        Return to Memorial Home
+    </a>
+</div>
+{% endblock %}
