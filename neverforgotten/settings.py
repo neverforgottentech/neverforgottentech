@@ -14,7 +14,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'neverforgotten-696913151c1f.herokuapp.com',
+    'neverforgottentech.herokuapp.com',
     '.herokuapp.com',
     'localhost',
     '127.0.0.1',
@@ -79,20 +79,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'neverforgotten.wsgi.application'
 
-# ========================
-# Database Configuration
-# ========================
-if 'DATABASE_URL' in os.environ:
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 # ========================
 # Authentication
@@ -129,7 +115,7 @@ ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True  # Require password confirmation
 SITE_ID = 1
 SITE_URL = config(
     "SITE_URL",
-    default="https://neverforgotten-696913151c1f.herokuapp.com"
+    default="https://neverforgottentech-7593096aaa0b.herokuapp.com"
 )
 
 
@@ -201,10 +187,10 @@ STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET')
 if DEBUG:
     STRIPE_WEBHOOK_URL = 'http://127.0.0.1:8000/plans/webhook/'
 else:
-    STRIPE_WEBHOOK_URL = 'https://neverforgotten-461f6f1b50c5.herokuapp.com/plans/webhook/'
+    STRIPE_WEBHOOK_URL = 'https://neverforgottentech-7593096aaa0b.herokuapp.com/plans/webhook/'
 DOMAIN = config(
     'DOMAIN',
-    default='https://neverforgotten-461f6f1b50c5.herokuapp.com'
+    default='https://neverforgottentech-7593096aaa0b.herokuapp.com'
 )
 
 # ========================
