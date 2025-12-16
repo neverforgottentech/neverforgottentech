@@ -129,9 +129,15 @@ class Memorial(models.Model):
         """Returns full Cloudinary URL for the QR code."""
         if self.qr_code_public_id:
             return (
-                "https://res.cloudinary.com/neverforgotten/image/upload/"
+                "https://res.cloudinary.com/dols0zev1/image/upload/"
                 f"{self.qr_code_public_id}.png"
             )
+        return None
+    
+    def get_profile_picture_url(self):
+        """Returns full Cloudinary URL for the profile picture."""
+        if self.profile_public_id:
+            return f"https://res.cloudinary.com/dols0zev1/image/upload/{self.profile_public_id}"
         return None
 
     @property

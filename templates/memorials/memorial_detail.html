@@ -51,10 +51,10 @@
          data-bs-toggle="modal" 
          data-bs-target="#profilePictureModal">
       {% if memorial.profile_public_id %}
-        <img src="https://res.cloudinary.com/neverforgotten/image/upload/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+        <img src="https://res.cloudinary.com/dols0zev1/image/upload/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
              alt="Profile Picture of {{ memorial.first_name }}" 
              class="profile-image-clickable"
-             data-original-src="https://res.cloudinary.com/neverforgotten/image/upload/{{ memorial.profile_public_id }}.png">
+             data-original-src="https://res.cloudinary.com/dols0zev1/image/upload/{{ memorial.profile_public_id }}.png">
       {% else %}
         <img src="{% static 'images/nf.png' %}" 
              alt="Default memorial image" 

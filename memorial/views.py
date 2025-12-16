@@ -431,7 +431,8 @@ def upload_profile_picture(request, pk):
             
             return JsonResponse({
                 'status': 'success',
-                'profile_picture_url': upload_result['secure_url'],
+                # FIX: Use dols0zev1 cloud name instead of Cloudinary's secure_url
+                'profile_picture_url': f"https://res.cloudinary.com/dols0zev1/image/upload/{upload_result['public_id']}",
                 'public_id': upload_result['public_id'],
                 'message': 'Profile picture updated!'
             })
