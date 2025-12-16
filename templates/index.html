@@ -44,20 +44,19 @@
   {# ----- Favicon ----- #}
   <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 
-  {# ===================== CSS & FONTS ===================== #}
-  {# ----- Font Awesome ----- #}
-  <script src="https://kit.fontawesome.com/de0549e373.js" crossorigin="anonymous"></script>
+{# ===================== CSS & FONTS ===================== #}
+{# ----- Font Awesome ----- #}
+<script src="https://kit.fontawesome.com/de0549e373.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  {# ----- Bootstrap CSS ----- #}
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{# ----- Bootstrap CSS ----- #}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="{% static 'css/index.css' %}">
-  <link rel="stylesheet" href="{% static 'css/recent_memorials.css' %}">
+{# ----- Swiper CSS ----- #}
+<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css">
 
- 
-
-  {# ----- Swiper CSS ----- #}
-  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+<link rel="stylesheet" href="{% static 'css/recent_memorials.css' %}">
 </head>
 
 <body class="body-background">
@@ -74,204 +73,401 @@
       </div>
     {% endif %}
 
-    {# ===================== HEADER ===================== #}
-    <header class="header">
-      <div class="container text-center bg-cream rounded p-4">
+{# ===================== HEADER ===================== #}
+<header class="header">
+    <div class="container text-center bg-cream rounded p-4 position-relative">
         <input type="checkbox" id="check">
         <label for="check" class="checkbtn" aria-label="Toggle menu">
-          <i class="fas fa-bars"></i>
+            <i class="fas fa-bars"></i>
         </label>
         
         <h1 class="logo text-uppercase">NeverForgotten</h1>
         
+        <!-- Desktop navbar links -->
         <ul class="navbar-links list-inline m-0">
-          <li class="list-inline-item mx-3"><a href="{% url 'memorials:about' %}">About</a></li>
-          <li class="list-inline-item mx-3"><a href="{% url 'memorials:memorial_create' %}">Create Memorial</a></li>
-          <li class="list-inline-item mx-3"><a href="{% url 'memorials:browse' %}">Browse Memorials</a></li>
-          <li class="list-inline-item mx-3"><a href="{% url 'memorials:plans' %}">Plans</a></li>
-          <li class="list-inline-item mx-3"><a href="{% url 'memorials:contact' %}">Contact</a></li>
+            <li class="list-inline-item mx-3"><a href="{% url 'memorials:about' %}">About</a></li>
+            <li class="list-inline-item mx-3"><a href="{% url 'memorials:memorial_create' %}">Create Memorial</a></li>
+            <li class="list-inline-item mx-3"><a href="{% url 'memorials:browse' %}">Browse Memorials</a></li>
+            <li class="list-inline-item mx-3"><a href="{% url 'memorials:plans' %}">Plans</a></li>
+            <li class="list-inline-item mx-3"><a href="{% url 'memorials:contact' %}">Contact</a></li>
 
-          {% if user.is_authenticated %}
-            <li class="list-inline-item mx-3"><a href="{% url 'memorials:account_profile' %}">My Account</a></li>
-          {% else %}
-            <li class="list-inline-item mx-3"><a href="{% url 'account_login' %}">Sign Up/Login</a></li>
-          {% endif %}
+            {% if user.is_authenticated %}
+                <li class="list-inline-item mx-3"><a href="{% url 'memorials:account_profile' %}">My Account</a></li>
+            {% else %}
+                <li class="list-inline-item mx-3"><a href="{% url 'account_login' %}">Sign Up/Login</a></li>
+            {% endif %}
         </ul>
-      </div>
-    </header>
+        
+        <!-- Mobile Menu Overlay -->
+        <div class="menu-overlay"></div>
+        
+        <!-- Mobile Menu Container -->
+        <div class="mobile-menu-container">
+            <!-- Close button -->
+            <label for="check" class="mobile-menu-close" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </label>
+            
+            <!-- Menu Header -->
+            <div class="mobile-menu-header">
+                <h2 class="mobile-menu-title">Menu</h2>
+            </div>
+            
+            <!-- Menu Items -->
+            <ul class="mobile-menu-items">
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:about' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">About Us</span>
+                        <span class="mobile-menu-subtext">Learn about our mission</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:memorial_create' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Create Memorial</span>
+                        <span class="mobile-menu-subtext">Honor a loved one</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:browse' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Browse Memorials</span>
+                        <span class="mobile-menu-subtext">Explore tributes</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:plans' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Plans & Pricing</span>
+                        <span class="mobile-menu-subtext">Choose your plan</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:contact' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Contact Us</span>
+                        <span class="mobile-menu-subtext">Get in touch</span>
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="mobile-menu-item">
+                        <a href="{% url 'memorials:account_profile' %}" class="mobile-menu-link">
+                            <span class="mobile-menu-text">My Account</span>
+                            <span class="mobile-menu-subtext">Manage your profile</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="mobile-menu-item">
+                        <a href="{% url 'account_login' %}" class="mobile-menu-link">
+                            <span class="mobile-menu-text">Sign Up / Login</span>
+                            <span class="mobile-menu-subtext">Access your account</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</header>
 
     {# ===================== MAIN CONTENT ===================== #}
     <main>
       {# ----- Hero Section ----- #}
-      <section class="hero-section d-flex justify-content-center align-items-center text-center">
-        <div class="hero-overlay container p-5 rounded">
-          <h1 class="display-5 fw-bold mb-4">A Memorial That Is Just a Scan Away</h1>
-          <p>“Create a tribute that friends and family can find with a simple scan.”</p>
-
-          <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-            <a href="{% url 'memorials:memorial_create' %}" class="btn btn-primary btn-lg px-4">
-              Create a Memorial
+<section class="hero-section">
+    <div class="hero-overlay text-center">
+        <h1 class="mb-4">A Memorial That Is Just a Scan Away</h1>
+        <p class="mb-5">Create a tribute that friends and family can find with a simple scan.</p>
+        
+        <div class="hero-buttons">
+            <a href="{% url 'memorials:memorial_create' %}" class="btn btn-primary">
+                Create a Memorial
             </a>
-            <a href="{% url 'memorials:browse' %}" class="btn btn-outline-secondary btn-lg px-4">
-              Browse Memorials
+            <a href="{% url 'memorials:browse' %}" class="btn btn-outline-secondary">
+                Browse Memorials
             </a>
-          </div>
         </div>
-      </section>
+        
+        <div class="scan-badge">
+            <i class="fas fa-qrcode"></i>
+            <span>Scan QR code to access memorial</span>
+        </div>
+    </div>
+</section>
     </main>
 
 
-        {# ===================== RECENT MEMORIALS SECTION ===================== #}
-    <section class="recent-memorials py-5">
-      <div class="container">
+{# ===================== RECENT MEMORIALS SECTION ===================== #}
+<section class="recent-memorials py-5">
+    <div class="container">
         <div class="hero-overlay p-4 rounded">
-          <h2 class="section-title text-center mb-5">Recent Memorials</h2>
-          
-          {% if recent_memorials %}
-            {# ----- Desktop Grid (3 columns) ----- #}
-            <div class="row memorial-grid d-none d-lg-flex">
-              {% for memorial in recent_memorials %}
-                <div class="col-lg-4 mb-4 d-flex">
-                  <div class="memorial-card h-100 w-100">
-                    <div class="card-inner h-100 d-flex flex-column bg-white rounded shadow-sm p-4" 
-                         style="min-height: 500px;">
-                      {# Profile Picture #}
-                      <div class="profile-pic-container text-center mb-4">
-                        <div class="profile-pic-wrapper d-inline-block position-relative">
-                          {% if memorial.profile_public_id %}
-                            <img src="https://res.cloudinary.com/dols0zev1/image/upload/c_fill,g_face,h_250,w_250/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
-                                 alt="{{ memorial.first_name }} {{ memorial.last_name }}" 
-                                 class="profile-image rounded-circle" 
-                                 style="width: 180px; height: 180px; object-fit: cover;">
-                          {% else %}
-                            <img src="{% static 'images/nf.png' %}" 
-                                 alt="Default memorial image" 
-                                 class="profile-image rounded-circle" 
-                                 style="width: 180px; height: 180px; object-fit: cover;">
-                          {% endif %}
-                          <div class="profile-overlay rounded-circle"></div>
-                        </div>
-                      </div>
-                      
-                      {# Memorial Info #}
-                      <div class="memorial-info text-center mt-auto">
-                        <h3 class="memorial-name h4" style="color: #3e2f1c;">
-                          {{ memorial.first_name }}
-                          {% if memorial.middle_name %} {{ memorial.middle_name }} {% endif %}
-                          {{ memorial.last_name }}
-                        </h3>
-                        
-                        <div class="memorial-dates my-4" style="color: #5a4a30;">
-                          <div class="date-row mb-2">
-                            <i class="fas fa-birthday-cake me-2"></i>
-                            <span>{{ memorial.date_of_birth|date:"F j, Y" }}</span>
-                          </div>
-                          {% if memorial.date_of_death %}
-                            <div class="date-row">
-                              <i class="fas fa-cross me-2"></i>
-                              <span>{{ memorial.date_of_death|date:"F j, Y" }}</span>
+            <h2 class="section-title text-center mb-5">Recent Memorials</h2>
+            
+            {% if recent_memorials %}
+                {# ----- Desktop Grid (3 columns) ----- #}
+                <div class="row memorial-grid d-none d-lg-flex">
+                    {% for memorial in recent_memorials %}
+                        <div class="col-lg-4 mb-4 d-flex">
+                            <div class="memorial-card h-100 w-100">
+                                <div class="card-inner h-100 d-flex flex-column bg-white rounded shadow-sm p-4">
+                                    {# Profile Picture - Proper Oval Shape #}
+                                    <div class="profile-pic-container text-center mb-3 mt-2">
+                                        <div class="profile-pic-wrapper d-inline-block position-relative">
+                                            {% if memorial.profile_public_id %}
+                                                <img src="https://res.cloudinary.com/dols0zev1/image/upload/c_fill,g_face,h_300,w_220/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+                                                     alt="{{ memorial.first_name }} {{ memorial.last_name }}" 
+                                                     class="profile-image">
+                                            {% else %}
+                                                <img src="{% static 'images/nf.png' %}" 
+                                                     alt="Default memorial image" 
+                                                     class="profile-image">
+                                            {% endif %}
+                                            <div class="profile-overlay"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    {# Memorial Info #}
+                                    <div class="memorial-info text-center mt-auto">
+                                        <h3 class="memorial-name h4 mb-3">
+                                            {{ memorial.first_name }}
+                                            {% if memorial.middle_name %} {{ memorial.middle_name }} {% endif %}
+                                            {{ memorial.last_name }}
+                                        </h3>
+                                        
+                                        <div class="memorial-dates">
+                                            <div class="date-row mb-2">
+                                                <i class="fas fa-birthday-cake me-2"></i>
+                                                <span>{{ memorial.date_of_birth|date:"F j, Y" }}</span>
+                                            </div>
+                                            {% if memorial.date_of_death %}
+                                                <div class="date-row">
+                                                    <i class="fas fa-cross me-2"></i>
+                                                    <span>{{ memorial.date_of_death|date:"F j, Y" }}</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <a href="{% url 'memorials:memorial_detail' memorial.id %}" 
+                                           class="view-btn btn btn-primary mt-3 px-4">
+                                            View Memorial <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                          {% endif %}
                         </div>
-                        
-                        <a href="{% url 'memorials:memorial_detail' memorial.id %}" 
-                           class="view-btn btn btn-primary mt-auto" 
-                           style="background-color: #d96e2b; border-color: #d96e2b;">
-                          View Memorial <i class="fas fa-arrow-right ms-2"></i>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+                    {% endfor %}
                 </div>
-              {% endfor %}
+                
+                {# ----- Mobile & Tablet Carousel ----- #}
+                <div class="memorial-carousel d-lg-none">
+                    <div class="swiper">
+                        <div class="swiper-wrapper">
+                            {% for memorial in recent_memorials %}
+                                <div class="swiper-slide">
+                                    <div class="memorial-card h-100 px-2">
+                                        <div class="card-inner h-100 d-flex flex-column bg-white rounded shadow-sm p-4 mx-1">
+                                            {# Profile Picture - Proper Oval Shape #}
+                                            <div class="profile-pic-container text-center mb-3 mt-2">
+                                                <div class="profile-pic-wrapper d-inline-block position-relative">
+                                                    {% if memorial.profile_public_id %}
+                                                        <img src="https://res.cloudinary.com/dols0zev1/image/upload/c_fill,g_face,h_300,w_220/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+                                                             alt="{{ memorial.first_name }} {{ memorial.last_name }}" 
+                                                             class="profile-image">
+                                                    {% else %}
+                                                        <img src="{% static 'images/nf.png' %}" 
+                                                             alt="Default memorial image" 
+                                                             class="profile-image">
+                                                    {% endif %}
+                                                    <div class="profile-overlay"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            {# Memorial Info #}
+                                            <div class="memorial-info text-center mt-auto">
+                                                <h3 class="memorial-name h4 mb-3">
+                                                    {{ memorial.first_name }}
+                                                    {% if memorial.middle_name %} {{ memorial.middle_name }} {% endif %}
+                                                    {{ memorial.last_name }}
+                                                </h3>
+                                                
+                                                <div class="memorial-dates">
+                                                    <div class="date-row mb-2">
+                                                        <i class="fas fa-birthday-cake me-2"></i>
+                                                        <span>{{ memorial.date_of_birth|date:"F j, Y" }}</span>
+                                                    </div>
+                                                    {% if memorial.date_of_death %}
+                                                        <div class="date-row">
+                                                            <i class="fas fa-cross me-2"></i>
+                                                            <span>{{ memorial.date_of_death|date:"F j, Y" }}</span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <a href="{% url 'memorials:memorial_detail' memorial.id %}" 
+                                                   class="view-btn btn btn-primary mt-3 px-4">
+                                                    View Memorial <i class="fas fa-arrow-right ms-2"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {# Navigation buttons #}
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+                
+                {# View All Button #}
+                <div class="text-center mt-5">
+                    <a href="{% url 'memorials:browse' %}" 
+                       class="btn btn-primary view-all-btn px-4 py-2">
+                        View All Memorials <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+                
+            {% else %}
+                {# No memorials found #}
+                <div class="text-center py-4">
+                    <div class="no-results">
+                        <i class="fas fa-heart-broken fa-3x mb-3"></i>
+                        <p class="h5">No memorials found</p>
+                    </div>
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <div class="hero-overlay p-5 rounded">
+            <h2 class="section-title text-center mb-5">Why Choose NeverForgotten</h2>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 feature-item">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <h3 class="feature-title">QR Code Access</h3>
+                        <p class="feature-description">
+                            Share memorials easily with scannable QR codes for physical tributes. Instantly connect physical and digital memorial spaces.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 feature-item">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h3 class="feature-title">Beautiful Galleries</h3>
+                        <p class="feature-description">
+                            Create stunning photo galleries to celebrate cherished memories. Organize and display life's precious moments.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 feature-item">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <h3 class="feature-title">Music & Tributes</h3>
+                        <p class="feature-description">
+                            Add favorite songs and allow others to share their memories. Create an auditory tribute that celebrates a life.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 feature-item">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Mobile Friendly</h3>
+                        <p class="feature-description">
+                            Access memorials from any device, anywhere, at any time. Seamless experience across all platforms.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 feature-item">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="feature-title">Guest Tributes</h3>
+                        <p class="feature-description">
+                            Allow friends and family to share memories, stories, and condolences. Create a collaborative space for loved ones.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 feature-item">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <h3 class="feature-title">Forever Remembered</h3>
+                        <p class="feature-description">
+                            Create lasting digital legacies that can be passed down through generations. Preserve memories permanently.
+                        </p>
+                    </div>
+                </div>
             </div>
             
-            {# ----- Mobile & Tablet Carousel ----- #}
-            <div class="memorial-carousel d-lg-none">
-              <div class="swiper-container" style="overflow: hidden; padding: 10px 0 30px;">
-                <div class="swiper-wrapper">
-                  {% for memorial in recent_memorials %}
-                    <div class="swiper-slide">
-                      <div class="memorial-card h-100 px-2">
-                        <div class="card-inner h-100 d-flex flex-column bg-white rounded shadow-sm p-4 mx-1" 
-                             style="min-height: 450px;">
-                          {# Profile Picture #}
-                          <div class="profile-pic-container text-center mb-4">
-                            <div class="profile-pic-wrapper d-inline-block position-relative">
-                              {% if memorial.profile_public_id %}
-                                <img src="https://res.cloudinary.com/dols0zev1/image/upload/c_fill,g_face,h_250,w_250/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
-                                     alt="{{ memorial.first_name }} {{ memorial.last_name }}" 
-                                     class="profile-image rounded-circle" 
-                                     style="width: 180px; height: 180px; object-fit: cover;">
-                              {% else %}
-                                <img src="{% static 'images/nf.png' %}" 
-                                     alt="Default memorial image" 
-                                     class="profile-image rounded-circle" 
-                                     style="width: 180px; height: 180px; object-fit: cover;">
-                              {% endif %}
-                              <div class="profile-overlay rounded-circle"></div>
-                            </div>
-                          </div>
-                          
-                          {# Memorial Info #}
-                          <div class="memorial-info text-center mt-auto">
-                            <h3 class="memorial-name h4" style="color: #3e2f1c;">
-                              {{ memorial.first_name }}
-                              {% if memorial.middle_name %} {{ memorial.middle_name }} {% endif %}
-                              {{ memorial.last_name }}
-                            </h3>
-                            
-                            <div class="memorial-dates my-4" style="color: #5a4a30;">
-                              <div class="date-row mb-2">
-                                <i class="fas fa-birthday-cake me-2"></i>
-                                <span>{{ memorial.date_of_birth|date:"F j, Y" }}</span>
-                              </div>
-                              {% if memorial.date_of_death %}
-                                <div class="date-row">
-                                  <i class="fas fa-cross me-2"></i>
-                                  <span>{{ memorial.date_of_death|date:"F j, Y" }}</span>
-                                </div>
-                              {% endif %}
-                            </div>
-                            
-                            <a href="{% url 'memorials:memorial_detail' memorial.id %}" 
-                               class="view-btn btn btn-primary mt-auto" 
-                               style="background-color: #d96e2b; border-color: #d96e2b;">
-                              View Memorial <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-                {# Navigation buttons #}
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-pagination"></div>
-              </div>
+            <!-- Mobile "Show More" button -->
+            <div class="text-center mt-4 d-md-none">
+                <button id="showMoreBtn" class="btn btn-outline-primary">
+                    <span>Show More Features</span>
+                    <i class="fas fa-chevron-down ms-2"></i>
+                </button>
             </div>
-          {% else %}
-            {# No memorials found #}
-            <div class="text-center py-4">
-              <div class="no-results" style="color: #3e2f1c;">
-                <i class="fas fa-heart-broken fa-3x mb-3"></i>
-                <p class="h5">No memorials found</p>
-              </div>
-            </div>
-          {% endif %}
-          
-          {# View All Button #}
-          <div class="text-center mt-5">
-            <a href="{% url 'memorials:browse' %}" 
-               class="btn btn-primary view-all-btn px-4 py-2" 
-               style="background-color: #d96e2b; border-color: #d96e2b;">
-              View All Memorials <i class="fas fa-arrow-right ms-2"></i>
-            </a>
-          </div>
         </div>
-      </div>
-    </section>
+    </div>
+</section>
+
+
+{# ===================== TESTIMONIALS SECTION ===================== #}
+<section class="testimonials-section">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Trusted by Families Across Ireland</h2>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        Creating my mother's digital tribute with scannable QR codes brought our family closer. Visitors can now access her life journey simply by scanning the memorial marker.
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <h5>Sarah Johnson</h5>
+                            <p>Daughter, Ireland</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        Sharing my father's legacy became effortless with the QR code memorial. Family worldwide can now access his life story by scanning the tribute plaque at his resting place.
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <h5>Michael Chen</h5>
+                            <p>Brother, Ireland</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        This platform transformed how we honor my brother's memory. The QR code at his memorial site allows friends to instantly view photos and share their heartfelt stories.
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <h5>Dr. Maria Rodriguez</h5>
+                            <p>Hospice Caregiver, Ireland</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 {# ===================== NEWSLETTER SECTION ===================== #}
 <section class="newsletter-section py-5">
@@ -345,6 +541,8 @@
   {# ===================== JAVASCRIPT ===================== #}
   {# ----- Bootstrap Bundle JS ----- #}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
 
   {# ----- Slide-out Nav Script ----- #}
   <script>
@@ -366,56 +564,110 @@
       navMenu.classList.remove("active");
     }
   </script>
-    {# ----- Swiper JS ----- #}
-  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Swiper if container exists
-      if (document.querySelector('.swiper-container')) {
-        var swiper = new Swiper('.swiper-container', {
-          slidesPerView: 1,
-          spaceBetween: 20,
-          loop: true,
-          autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-          },
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-          },
-          navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          },
-          breakpoints: {
-            576: {
-              slidesPerView: 2,
+  {# ----- Swiper JS v8 ----- #}
+<script>
+// Recent Memorials Swiper Initialization
+document.addEventListener('DOMContentLoaded', function() {
+    const swiperEl = document.querySelector('.memorial-carousel .swiper');
+    
+    if (swiperEl) {
+        // Initialize Swiper
+        const swiper = new Swiper(swiperEl, {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+                dynamicBullets: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            breakpoints: {
+                400: {
+                    slidesPerView: 1,
+                    spaceBetween: 15,
+                },
+                576: {
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                },
+                768: {
+                    slidesPerView: 1,
+                    spaceBetween: 25,
+                }
+            },
+            centeredSlides: true,
+            slideToClickedSlide: true,
+            watchSlidesProgress: true,
+            observer: true,
+            observeParents: true,
+        });
+
+        // Add orange flash effect on button click
+        const nextBtn = swiperEl.querySelector('.swiper-button-next');
+        const prevBtn = swiperEl.querySelector('.swiper-button-prev');
+        
+        if (nextBtn && prevBtn) {
+            [nextBtn, prevBtn].forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Add clicked class for orange flash
+                    this.classList.add('clicked');
+                    
+                    // Remove class after 200ms to return to default
+                    setTimeout(() => {
+                        this.classList.remove('clicked');
+                    }, 200);
+                });
+                
+                // Also handle touch events for mobile
+                btn.addEventListener('touchstart', function(e) {
+                    this.classList.add('clicked');
+                });
+                
+                btn.addEventListener('touchend', function(e) {
+                    setTimeout(() => {
+                        this.classList.remove('clicked');
+                    }, 200);
+                });
+            });
+        }
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const showMoreBtn = document.getElementById('showMoreBtn');
+    const featureItems = document.querySelectorAll('.feature-item');
+    
+    if (showMoreBtn && featureItems.length > 3) {
+        // Toggle visibility of features 4-6
+        showMoreBtn.addEventListener('click', function() {
+            const hiddenFeatures = document.querySelectorAll('.feature-item:nth-child(4), .feature-item:nth-child(5), .feature-item:nth-child(6)');
+            const isShowingAll = hiddenFeatures[0].classList.contains('show-all');
+            
+            if (isShowingAll) {
+                // Hide features 4-6
+                hiddenFeatures.forEach(feature => {
+                    feature.classList.remove('show-all');
+                });
+                showMoreBtn.innerHTML = '<span>Show More Features</span><i class="fas fa-chevron-down ms-2"></i>';
+            } else {
+                // Show features 4-6
+                hiddenFeatures.forEach(feature => {
+                    feature.classList.add('show-all');
+                });
+                showMoreBtn.innerHTML = '<span>Show Less Features</span><i class="fas fa-chevron-up ms-2"></i>';
             }
-          }
         });
-      }
-
-      // Auto-dismiss alerts
-      const closeButtons = document.querySelectorAll('.btn-close');
-      closeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-          const alert = this.closest('.alert');
-          if (alert) {
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 300);
-          }
-        });
-      });
-
-      const alerts = document.querySelectorAll('.alert');
-      alerts.forEach(alert => {
-        setTimeout(() => {
-          alert.style.opacity = '0';
-          setTimeout(() => alert.remove(), 300);
-        }, 5000);
-      });
-    });
-  </script>
+    }
+});
+</script>
 </body>
 </html>

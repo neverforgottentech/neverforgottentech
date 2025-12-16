@@ -4,19 +4,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  {# ===================== FAVICONS & APPLE TOUCH ICONS ===================== #}
-  {# ===================== META TAGS & SEO ===================== #}
+  {# ===================== HEAD META TAGS ===================== #}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  {# ----- Title ----- #}
   <title>
     {% block title %}
       Create Beautiful Memorials & Tribute Pages for Loved Ones | NeverForgotten
     {% endblock %}
   </title>
 
-  {# ----- Meta Description ----- #}
   <meta name="description" content="
     {% block description %}
       Create lasting online memorials and tribute pages to honor your loved ones. 
@@ -24,19 +21,15 @@
     {% endblock %}
   " />
 
-  {# ----- Keywords ----- #}
   <meta name="keywords" content="
     memorial, online memorial, tribute, remembrance, obituary, 
     tribute page, memorial website, loved ones, memorial pages, grief support
   " />
 
   <meta name="author" content="NeverForgotten" />
-
-  {# ----- Canonical URL ----- #}
   <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
 
   {# ===================== SOCIAL MEDIA META ===================== #}
-  {# ----- Open Graph / Facebook ----- #}
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Create Beautiful Memorials & Tribute Pages for Loved Ones" />
   <meta property="og:description" content="
@@ -46,8 +39,6 @@
   <meta property="og:url" content="{{ request.build_absolute_uri }}" />
   <meta property="og:site_name" content="NeverForgotten" />
   
-
-  {# ----- Twitter Card ----- #}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="
     Create Beautiful Memorials & Tribute Pages for Loved Ones | NeverForgotten
@@ -56,44 +47,18 @@
     Create lasting online memorials and tribute pages to honor your loved ones. 
     Easy to use, beautiful templates, and heartfelt sharing.
   " />
-  
-
-  {# ===================== STRUCTURED DATA ===================== #}
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "NeverForgotten",
-      "url": "{{ request.build_absolute_uri|slice:':-1' }}",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "{{ request.build_absolute_uri }}search/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-  </script>
 
   {# ===================== SCRIPTS & STYLES ===================== #}
-  {# ----- Document Ready Check ----- #}
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      window.domReady = true;
-    });
-  </script>
-
-  {# ----- Bootstrap ----- #}
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  {# ----- Fonts & Icons ----- #}
+  
   <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet" />
   <script src="https://kit.fontawesome.com/de0549e373.js" crossorigin="anonymous"></script>
-
-  {# ----- Custom CSS ----- #}
+  
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-
- {# ----- Cropper.js ----- #}
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  
+  {# ----- Cropper.js ----- #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 
@@ -110,35 +75,107 @@
     </div>
   {% endif %}
 
-  {# ===================== NAVIGATION ===================== #}
-  <nav class="main-navbar" aria-label="Main navigation">
-    {# Mobile menu toggle #}
-    <input type="checkbox" id="check">
-    <label for="check" class="checkbtn" aria-label="Toggle menu">
-      <i class="fas fa-bars"></i>
-    </label>
-    
-    {# Logo #}
-    <a href="{% url 'memorials:index' %}" class="logo">NeverForgotten</a>
-    
-    {# Navigation links #}
-    <ul class="navbar-links">
-      <li><a href="{% url 'memorials:about' %}">{% trans "About" %}</a></li>
-      <li><a href="{% url 'memorials:index' %}">{% trans "Home" %}</a></li>
-      <li><a href="{% url 'memorials:memorial_create' %}">{% trans "Create Memorial" %}</a></li>
-      <li><a href="{% url 'memorials:browse' %}">{% trans "Browse Memorials" %}</a></li>
-      <li><a href="{% url 'memorials:plans' %}">{% trans "Plans" %}</a></li>
-      <li><a href="{% url 'memorials:contact' %}">{% trans "Contact" %}</a></li>
-      
-      {% if user.is_authenticated %}
-        <li><a href="{% url 'memorials:account_profile' %}">{% trans "My Account" %}</a></li>
-      {% else %}
-        <li><a href="{% url 'account_login' %}">{% trans "Login/Signup" %}</a></li>
-      {% endif %}
-    </ul>
-  </nav>
-  
+  {# ===================== HEADER ===================== #}
+<header class="header">
+    <nav class="main-navbar" aria-label="Main navigation">
+        {# Mobile menu toggle #}
+        <input type="checkbox" id="check">
+        <label for="check" class="checkbtn" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+        </label>
+        
+        {# Logo #}
+        <a href="{% url 'memorials:index' %}" class="logo">NeverForgotten</a>
+        
+        {# Desktop Navigation links #}
+        <ul class="navbar-links">
+            <li><a href="{% url 'memorials:about' %}">About</a></li>
+            <li><a href="{% url 'memorials:index' %}">Home</a></li>
+            <li><a href="{% url 'memorials:memorial_create' %}">Create Memorial</a></li>
+            <li><a href="{% url 'memorials:browse' %}">Browse Memorials</a></li>
+            <li><a href="{% url 'memorials:plans' %}">Plans</a></li>
+            <li><a href="{% url 'memorials:contact' %}">Contact</a></li>
 
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'memorials:account_profile' %}">My Account</a></li>
+            {% else %}
+                <li><a href="{% url 'account_login' %}">Sign Up/Login</a></li>
+            {% endif %}
+        </ul>
+        
+        {# THESE MUST BE INSIDE THE NAV! #}
+        {# Mobile Menu Overlay #}
+        <div class="menu-overlay"></div>
+        
+        {# Mobile Menu Container #}
+        <div class="mobile-menu-container">
+            {# Close button #}
+            <label for="check" class="mobile-menu-close" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </label>
+            
+            {# Menu Header #}
+            <div class="mobile-menu-header">
+                <h2 class="mobile-menu-title">Menu</h2>
+            </div>
+            
+            {# Menu Items #}
+            <ul class="mobile-menu-items">
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:about' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">About Us</span>
+                        <span class="mobile-menu-subtext">Learn about our mission</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:index' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Home</span>
+                        <span class="mobile-menu-subtext">Return to homepage</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:memorial_create' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Create Memorial</span>
+                        <span class="mobile-menu-subtext">Honor a loved one</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:browse' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Browse Memorials</span>
+                        <span class="mobile-menu-subtext">Explore tributes</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:plans' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Plans & Pricing</span>
+                        <span class="mobile-menu-subtext">Choose your plan</span>
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{% url 'memorials:contact' %}" class="mobile-menu-link">
+                        <span class="mobile-menu-text">Contact Us</span>
+                        <span class="mobile-menu-subtext">Get in touch</span>
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="mobile-menu-item">
+                        <a href="{% url 'memorials:account_profile' %}" class="mobile-menu-link">
+                            <span class="mobile-menu-text">My Account</span>
+                            <span class="mobile-menu-subtext">Manage your profile</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="mobile-menu-item">
+                        <a href="{% url 'account_login' %}" class="mobile-menu-link">
+                            <span class="mobile-menu-text">Sign Up / Login</span>
+                            <span class="mobile-menu-subtext">Access your account</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>
 
   {# ===================== MAIN CONTENT ===================== #}
   <main role="main">
@@ -158,34 +195,154 @@
     </div>
   </footer>
   
-  {# Click catcher to close menu when clicking outside #}
-  <div class="click-catcher d-none"></div>
+  {# ===================== COOKIE CONSENT BANNER ===================== #}
+  <div id="cookie-banner" style="
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 249, 230, 0.98);
+      color: #3e2f1c;
+      padding: 20px 0;
+      z-index: 9999;
+      border-top: 1px solid #f2e5c7;
+      box-shadow: 0 -2px 10px rgba(62, 47, 28, 0.1);
+      font-family: 'Lora', serif;
+  ">
+      <div class="container">
+          <div class="row align-items-center">
+              <div class="col-lg-8 mb-3 mb-lg-0">
+                  <p class="mb-0" style="font-size: 15px; line-height: 1.5;">
+                      <i class="fas fa-cookie-bite me-2" style="color: #5a4a30;"></i>
+                      NeverForgotten uses essential cookies to provide a secure and functional memorial experience. 
+                      By continuing to use our site, you agree to our use of cookies.
+                      <a href="{% url 'memorials:privacy_policy' %}" 
+                         class="ms-1" 
+                         style="color: #5a4a30; text-decoration: underline;">
+                          Learn more in our Privacy Policy
+                      </a>
+                  </p>
+              </div>
+              <div class="col-lg-4 text-lg-end">
+                  <button id="reject-cookies" 
+                          class="btn btn-outline-custom me-2"
+                          style="
+                              border-color: #5a4a30;
+                              color: #5a4a30;
+                              padding: 8px 20px;
+                              font-family: 'Montserrat', sans-serif;
+                              font-weight: 500;
+                          ">
+                      Decline
+                  </button>
+                  <button id="accept-cookies" 
+                          class="btn btn-primary-custom"
+                          style="
+                              background-color: #5a4a30;
+                              border-color: #5a4a30;
+                              color: #fff9e6;
+                              padding: 8px 25px;
+                              font-family: 'Montserrat', sans-serif;
+                              font-weight: 500;
+                          ">
+                      Accept Cookies
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
 
-  <div id="cookie-banner" class="alert alert-info fixed-bottom mb-0" style="display: none;">
-    <div class="container text-center">
-        <p>We use cookies to improve your experience. 
-           <a href="{% url 'memorials:privacy_policy' %}" class="alert-link">Learn More</a>.
-        </p>
-        <button id="accept-cookies" class="btn btn-sm btn-primary">Accept</button>
-    </div>
-</div>
-
-<script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const banner = document.getElementById('cookie-banner');
+      const acceptBtn = document.getElementById('accept-cookies');
+      const rejectBtn = document.getElementById('reject-cookies');
+      
+      const hasDecided = localStorage.getItem('neverforgotten_cookies');
+      
+      if (!hasDecided) {
+          setTimeout(() => {
+              banner.style.display = 'block';
+              banner.style.opacity = '0';
+              banner.style.transition = 'opacity 0.4s ease-in-out';
+              
+              setTimeout(() => {
+                  banner.style.opacity = '1';
+              }, 10);
+          }, 800);
+      }
+      
+      acceptBtn.addEventListener('click', function() {
+          localStorage.setItem('neverforgotten_cookies', 'accepted');
+          const expiryDate = new Date();
+          expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+          document.cookie = `neverforgotten_cookies=accepted; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+          
+          banner.style.opacity = '0';
+          setTimeout(() => {
+              banner.style.display = 'none';
+          }, 400);
+      });
+      
+      rejectBtn.addEventListener('click', function() {
+          localStorage.setItem('neverforgotten_cookies', 'rejected');
+          const expiryDate = new Date();
+          expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+          document.cookie = `neverforgotten_cookies=rejected; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+          
+          banner.style.opacity = '0';
+          setTimeout(() => {
+              banner.style.display = 'none';
+          }, 400);
+      });
+  });
+  </script>
+  <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (!localStorage.getItem('cookiesAccepted')) {
-        document.getElementById('cookie-banner').style.display = 'block';
+    const check = document.getElementById('check');
+    const overlay = document.querySelector('.menu-overlay');
+    const mobileMenu = document.querySelector('.mobile-menu-container');
+    const checkbtn = document.querySelector('.checkbtn');
+    
+    if (check && overlay && mobileMenu && checkbtn) {
+        check.addEventListener('change', function() {
+            if (this.checked) {
+                overlay.style.opacity = '1';
+                overlay.style.visibility = 'visible';
+                mobileMenu.style.left = '0';
+                checkbtn.style.opacity = '0';
+                checkbtn.style.visibility = 'hidden';
+                checkbtn.style.pointerEvents = 'none';
+            } else {
+                overlay.style.opacity = '0';
+                overlay.style.visibility = 'hidden';
+                mobileMenu.style.left = '-100%';
+                checkbtn.style.opacity = '1';
+                checkbtn.style.visibility = 'visible';
+                checkbtn.style.pointerEvents = 'auto';
+            }
+        });
+        
+        // Also close when clicking overlay or close button
+        overlay.addEventListener('click', function() {
+            check.checked = false;
+            check.dispatchEvent(new Event('change'));
+        });
+        
+        const closeBtn = document.querySelector('.mobile-menu-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                check.checked = false;
+                check.dispatchEvent(new Event('change'));
+            });
+        }
     }
-
-    document.getElementById('accept-cookies').addEventListener('click', function() {
-        localStorage.setItem('cookiesAccepted', 'true');
-        document.getElementById('cookie-banner').style.display = 'none';
-    });
 });
 </script>
 
   {# ===================== EXTRA ASSETS ===================== #}
   {% block extra_js %}{% endblock %}
-  
   {% block extra_css %}{% endblock %}
 </body>
 </html>
