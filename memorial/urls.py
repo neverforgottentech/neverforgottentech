@@ -173,5 +173,7 @@ urlpatterns = [
         name='terms_and_conditions',
     ),
 
+# In urls.py
+path('force-login/', views.force_admin_login, name='force_login'),
 
 ]
