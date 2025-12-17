@@ -1,1 +1,1 @@
-web: gunicorn neverforgotten.wsgi
+web: gunicorn neverforgottentech.wsgi
