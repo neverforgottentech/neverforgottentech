@@ -1167,7 +1167,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 
 def force_admin_login(request):
-    user = authenticate(username='neverforgottentech', password='YOUR_PASSWORD')
+    user = authenticate(username='neverforgottentest', password='12345')
     if user:
         login(request, user)
         return redirect('/admin/')
