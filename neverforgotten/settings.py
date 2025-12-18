@@ -55,6 +55,10 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    # Social providers
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.github',
     'whitenoise.runserver_nostatic',
 
     # Local
@@ -119,13 +123,57 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-# Allauth settings - FIXED VERSION
-ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Use email to authenticate
-ACCOUNT_EMAIL_REQUIRED = True           # Email is required
-ACCOUNT_USERNAME_REQUIRED = False       # Don't require username
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # No email verification
-ACCOUNT_LOGOUT_ON_GET = True         # Logout on GET request
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True  # Require password confirmation
+# Allauth settings
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+
+# Social account settings
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': config('GOOGLE_CLIENT_ID', default=''),
+            'secret': config('GOOGLE_CLIENT_SECRET', default=''),
+            'key': ''
+        }
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'FIELDS': [
+            'id',
+            'email',
+            'name',
+            'first_name',
+            'last_name',
+        ],
+        'EXCHANGE_TOKEN': True,
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v18.0',
+        'APP': {
+            'client_id': config('FACEBOOK_APP_ID', default=''),
+            'secret': config('FACEBOOK_APP_SECRET', default=''),
+            'key': ''
+        }
+    },
+}
 
 # Site framework
 SITE_ID = 1
@@ -134,10 +182,10 @@ SITE_URL = config(
     default="https://neverforgottentech-7593096aaa0b.herokuapp.com"
 )
 
-
 # Redirects
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login/'
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 # Security
 ACCOUNT_PREVENT_ENUMERATION = True

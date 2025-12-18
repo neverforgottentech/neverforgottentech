@@ -1,141 +1,300 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
-{% block title %}Create Memorial{% endblock %}
+{% block title %}Create a Memorial - NeverForgotten{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/memorials/memorial_form.css' %}">
 {% endblock %}
 
-
 {% block content %}
 <div class="form-wrapper">
   <div class="form-container">
-    <h2>Create Memorial</h2>
-    
+    <!-- Header Section -->
+    <div class="form-header">
+      <h1>Create a Memorial</h1>
+      <p class="form-subtitle">
+        Honor your loved one's memory with a beautiful, lasting tribute that friends and family can cherish forever.
+      </p>
+    </div>
+
     <!-- Display general form errors -->
     {% if form.non_field_errors %}
       <div class="error-message">
-        {% for error in form.non_field_errors %}
-          {{ error }}
-        {% endfor %}
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+          {% for error in form.non_field_errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
       </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" id="memorialForm">
       {% csrf_token %}
 
-      <div class="form-group">
-        <label for="id_first_name">First Name</label>
-        <input
-          type="text"
-          name="first_name"
-          id="id_first_name"
-          required
-          value="{{ form.first_name.value|default:'' }}"
-        />
-        {% if form.first_name.errors %}
-          <div class="field-error">
-            {% for error in form.first_name.errors %}
-              {{ error }}
-            {% endfor %}
+      <!-- Personal Information Section -->
+      <div class="form-section">
+        <h3><i class="fas fa-user-circle"></i> Tell Us About Your Loved One</h3>
+        <p class="section-description">
+          Help us create a meaningful tribute by sharing some basic information.
+        </p>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_first_name">
+              <i class="fas fa-user"></i>First Name
+              <span class="required-star">*</span>
+            </label>
+            <i class="fas fa-user input-icon"></i>
+            <input
+              type="text"
+              name="first_name"
+              id="id_first_name"
+              required
+              value="{{ form.first_name.value|default:'' }}"
+              placeholder="First name"
+            />
+            {% if form.first_name.errors %}
+              <div class="field-error">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.first_name.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
+
+          <div class="form-group">
+            <label for="id_middle_name">
+              <i class="fas fa-user"></i>Middle Name
+            </label>
+            <i class="fas fa-user input-icon"></i>
+            <input
+              type="text"
+              name="middle_name"
+              id="id_middle_name"
+              value="{{ form.middle_name.value|default:'' }}"
+              placeholder="Optional middle name"
+            />
+            {% if form.middle_name.errors %}
+              <div class="field-error">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.middle_name.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_last_name">
+            <i class="fas fa-user"></i>Last Name
+            <span class="required-star">*</span>
+          </label>
+          <i class="fas fa-user input-icon"></i>
+          <input
+            type="text"
+            name="last_name"
+            id="id_last_name"
+            required
+            value="{{ form.last_name.value|default:'' }}"
+            placeholder="Family name"
+          />
+          <span class="helper-text">This will appear on the memorial tribute</span>
+          {% if form.last_name.errors %}
+            <div class="field-error">
+              <i class="fas fa-exclamation-circle"></i>
+              {% for error in form.last_name.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="id_middle_name">Middle Name</label>
-        <input
-          type="text"
-          name="middle_name"
-          id="id_middle_name"
-          value="{{ form.middle_name.value|default:'' }}"
-        />
-        {% if form.middle_name.errors %}
-          <div class="field-error">
-            {% for error in form.middle_name.errors %}
-              {{ error }}
-            {% endfor %}
+      <!-- Life Dates Section -->
+      <div class="form-section">
+        <h3><i class="fas fa-heart"></i> Life's Journey</h3>
+        <p class="section-description">
+          These dates help us celebrate their life story and create meaningful timelines.
+        </p>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dob">
+              <i class="fas fa-birthday-cake"></i>Date of Birth
+              <span class="required-star">*</span>
+            </label>
+            <i class="fas fa-calendar-day input-icon"></i>
+            <input
+              type="date"
+              id="dob"
+              name="date_of_birth"
+              required
+              min="1900-01-01"
+              max="{{ today|default:'2025-12-31' }}"
+              value="{{ form.date_of_birth.value|default:'' }}"
+            />
+            {% if form.date_of_birth.errors %}
+              <div class="field-error">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.date_of_birth.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
+
+          <div class="form-group">
+            <label for="dod">
+              <i class="fas fa-cross"></i>Date of Passing
+              <span class="required-star">*</span>
+            </label>
+            <i class="fas fa-calendar-day input-icon"></i>
+            <input
+              type="date"
+              id="dod"
+              name="date_of_death"
+              required
+              min="1900-01-01"
+              value="{{ form.date_of_death.value|default:'' }}"
+            />
+            <span class="helper-text">We'll help create a meaningful life timeline</span>
+            {% if form.date_of_death.errors %}
+              <div class="field-error">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.date_of_death.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="id_last_name">Last Name</label>
-        <input
-          type="text"
-          name="last_name"
-          id="id_last_name"
-          required
-          value="{{ form.last_name.value|default:'' }}"
-        />
-        {% if form.last_name.errors %}
-          <div class="field-error">
-            {% for error in form.last_name.errors %}
-              {{ error }}
-            {% endfor %}
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn">
+          <i class="fas fa-heart-circle-plus"></i>
+          Create Beautiful Memorial
+        </button>
+        
+        {% if error_message %}
+          <div class="error-message" style="margin-top: 1.5rem;">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ error_message }}
           </div>
         {% endif %}
+        
+        <div class="privacy-notice">
+          <i class="fas fa-lock"></i>
+          <span>Your information is safe with us. Only share with those you choose.</span>
+        </div>
       </div>
-
-      <div class="form-group">
-        <label for="dob">Date of Birth</label>
-        <input
-          type="date"
-          id="dob"
-          name="date_of_birth"
-          required
-          min="1900-01-01"
-          max="{{ today|default:'2025-12-31' }}"
-          step="1"
-          value="{{ form.date_of_birth.value|default:'' }}"
-        />
-        {% if form.date_of_birth.errors %}
-          <div class="field-error">
-            {% for error in form.date_of_birth.errors %}
-              {{ error }}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-      <div class="form-group">
-        <label for="dod">Date of Death</label>
-        <input
-          type="date"
-          id="dod"
-          name="date_of_death"
-          required
-          min="1900-01-01"
-          step="1"
-          value="{{ form.date_of_death.value|default:'' }}"
-        />
-        {% if form.date_of_death.errors %}
-          <div class="field-error">
-            {% for error in form.date_of_death.errors %}
-              {{ error }}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-      <button type="submit" class="btn">Create Memorial</button>
-      
-      {% if error_message %}
-        <p class="error-message">{{ error_message }}</p>
-      {% endif %}
     </form>
   </div>
 </div>
 
 <script>
-  const dobInput = document.getElementById("dob");
-  const dodInput = document.getElementById("dod");
-
-  dobInput.addEventListener("change", function () {
-    if (dobInput.value) {
-      dodInput.min = dobInput.value;
-    }
-  });
+document.addEventListener('DOMContentLoaded', function() {
+    const dobInput = document.getElementById("dob");
+    const dodInput = document.getElementById("dod");
+    const form = document.getElementById("memorialForm");
+    
+    // Set date input maximums to today
+    const today = new Date().toISOString().split('T')[0];
+    dobInput.max = today;
+    
+    // Update death date minimum based on birth date
+    dobInput.addEventListener("change", function () {
+        if (dobInput.value) {
+            dodInput.min = dobInput.value;
+        }
+    });
+    
+    // Real-time validation with visual feedback
+    const inputs = form.querySelectorAll('input[required]');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() !== '' && this.checkValidity()) {
+                this.style.borderColor = '#27ae60';
+                this.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(39, 174, 96, 0.1)';
+            } else if (this.value.trim() === '' && this.hasAttribute('required')) {
+                this.style.borderColor = '#e74c3c';
+                this.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(231, 76, 60, 0.1)';
+            } else {
+                this.style.borderColor = '#f2e5c7';
+                this.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(62, 47, 28, 0.1)';
+            }
+        });
+    });
+    
+    // Form submission with validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Check required fields
+        inputs.forEach(input => {
+            if (input.hasAttribute('required') && input.value.trim() === '') {
+                input.style.borderColor = '#e74c3c';
+                input.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(231, 76, 60, 0.1)';
+                isValid = false;
+            }
+        });
+        
+        // Check date validity
+        if (dobInput.value && dodInput.value) {
+            const birthDate = new Date(dobInput.value);
+            const deathDate = new Date(dodInput.value);
+            
+            if (deathDate < birthDate) {
+                dodInput.style.borderColor = '#e74c3c';
+                dodInput.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(231, 76, 60, 0.1)';
+                
+                // Create a friendly error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.style.marginTop = '1rem';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i><div>Date of passing cannot be before date of birth.</div>';
+                
+                // Remove any existing error message
+                const existingError = form.querySelector('.date-error');
+                if (existingError) existingError.remove();
+                
+                errorDiv.className += ' date-error';
+                dodInput.parentNode.appendChild(errorDiv);
+                
+                isValid = false;
+            } else {
+                const existingError = form.querySelector('.date-error');
+                if (existingError) existingError.remove();
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Smooth scroll to first error
+            const firstError = form.querySelector('input[style*="border-color: #e74c3c"]');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        } else {
+            // Add gentle loading state
+            const submitBtn = form.querySelector('.btn');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Memorial...';
+            submitBtn.disabled = true;
+            
+            // Add a slight delay to show the loading state
+            setTimeout(() => {
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+            }, 1000);
+        }
+    });
+});
 </script>
 {% endblock %}

@@ -51,6 +51,67 @@
 }
 
 /* ===================== */
+/* SOCIAL LOGIN BUTTONS */
+/* ===================== */
+
+/* Google Sign-In Button */
+.btn-google {
+    background-color: #fff;
+    color: #3c4043;
+    border: 2px solid #dadce0;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    transition: all 0.3s ease;
+    font-family: 'Lora', serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-google:hover {
+    background-color: #f8f9fa;
+    border-color: #d2d3d4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    color: #3c4043;
+}
+
+.btn-google:active {
+    background-color: #f1f3f4;
+    transform: translateY(0);
+}
+
+.btn-google i {
+    font-size: 1.1rem;
+}
+
+/* ===================== */
+/* DIVIDER              */
+/* ===================== */
+
+.divider-container {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background-color: #e0e0e0;
+}
+
+.divider-text {
+    padding: 0 1rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* ===================== */
 /* FORM CONTROLS        */
 /* ===================== */
 
@@ -116,5 +177,16 @@
     /* More compact input fields */
     .form-control {
         padding: 10px 12px;
+    }
+
+    /* Adjust social button on mobile */
+    .btn-google {
+        font-size: 0.95rem;
+    }
+    
+    /* More compact divider */
+    .divider-text {
+        font-size: 0.85rem;
+        padding: 0 0.75rem;
     }
 }

@@ -1,134 +1,341 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'base.html' %}
 {% load i18n %}
-{% load account %}
+{% load socialaccount %}
+
+{% block title %}Sign In - NeverForgotten{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/account/login.css' %}">
+<style>
+:root {
+    --warm-cream: #fff9e6;
+    --warm-border: #f2e5c7;
+    --warm-brown: #3e2f1c;
+    --warm-accent: #d96e2b;
+    --warm-accent-light: #ff9e5e;
+}
+
+.auth-wrapper {
+    min-height: calc(100vh - 120px);
+    padding: 3rem 1.5rem;
+    background: linear-gradient(135deg, 
+        rgba(255, 249, 230, 0.85) 0%, 
+        rgba(245, 230, 204, 0.8) 50%, 
+        rgba(242, 229, 199, 0.75) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-container {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    max-width: 480px;
+    width: 100%;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(62, 47, 28, 0.12);
+    border: 2px solid var(--warm-border);
+    border-top: 8px solid var(--warm-accent);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    font-family: 'Lora', serif;
+    font-size: 2.2rem;
+    color: var(--warm-brown);
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: #5a4a30;
+    font-size: 1rem;
+}
+
+/* Social Login Buttons */
+.social-login {
+    margin-bottom: 2rem;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    margin-bottom: 0.75rem;
+    border: 2px solid var(--warm-border);
+    border-radius: 12px;
+    background: white;
+    font-family: 'Lora', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--warm-brown);
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.social-btn.google {
+    border-color: #4285f4;
+}
+
+.social-btn.google:hover {
+    background: #4285f4;
+    color: white;
+}
+
+.social-btn.facebook {
+    border-color: #1877f2;
+}
+
+.social-btn.facebook:hover {
+    background: #1877f2;
+    color: white;
+}
+
+.social-btn.github {
+    border-color: #333;
+}
+
+.social-btn.github:hover {
+    background: #333;
+    color: white;
+}
+
+.social-btn i {
+    font-size: 1.3rem;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2rem 0;
+    color: #5a4a30;
+    font-family: 'Lora', serif;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--warm-border);
+}
+
+.divider span {
+    padding: 0 1rem;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    color: var(--warm-brown);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--warm-border);
+    border-radius: 12px;
+    font-family: 'Lora', serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--warm-accent);
+    box-shadow: 0 0 0 3px rgba(217, 110, 43, 0.1);
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.forgot-password {
+    color: var(--warm-accent);
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--warm-accent), var(--warm-accent-light));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Lora', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(217, 110, 43, 0.3);
+}
+
+.signup-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-family: 'Lora', serif;
+    color: #5a4a30;
+}
+
+.signup-link a {
+    color: var(--warm-accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #e74c3c;
+}
+
+@media (max-width: 576px) {
+    .auth-container {
+        padding: 2rem 1.5rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .social-btn {
+        font-size: 0.95rem;
+        padding: 0.75rem 1.25rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-
-<!-- Main Login Form Container -->
-<div class="form-wrapper">
-  <div class="form-container">
-    
-    <!-- Form Header -->
-    <div class="text-center mb-4">
-      <h2 class="login-title">{% trans "Welcome Back" %}</h2>
-      <p class="login-subtitle">{% trans "Sign in to honor memories" %}</p>
+<div class="auth-wrapper">
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to continue honoring your loved ones</p>
     </div>
-    
-    <!-- Error Messages -->
+
     {% if form.errors %}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <i class="fas fa-exclamation-triangle me-2"></i>
-      {% if form.non_field_errors %}
+      <div class="error-message">
         {% for error in form.non_field_errors %}
           {{ error }}
         {% endfor %}
-      {% else %}
-        {% trans "Invalid email or password. Please try again." %}
-      {% endif %}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+      </div>
     {% endif %}
 
-    <!-- Success Messages -->
-    {% if messages %}
-      {% for message in messages %}
-        {% if message.tags == 'success' %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <i class="fas fa-check-circle me-2"></i>
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endif %}
-      {% endfor %}
-    {% endif %}
-    
-    <!-- Login Form -->
-    <form method="POST" action="{% url 'account_login' %}">
+    <!-- Social Login Options -->
+    <div class="social-login">
+      <a href="{% provider_login_url 'google' %}" class="social-btn google">
+        <i class="fab fa-google"></i>
+        <span>Continue with Google</span>
+      </a>
+      
+      <a href="{% provider_login_url 'facebook' %}" class="social-btn facebook">
+        <i class="fab fa-facebook-f"></i>
+        <span>Continue with Facebook</span>
+      </a>
+      
+      <a href="{% provider_login_url 'github' %}" class="social-btn github">
+        <i class="fab fa-github"></i>
+        <span>Continue with GitHub</span>
+      </a>
+    </div>
+
+    <div class="divider">
+      <span>or sign in with email</span>
+    </div>
+
+    <!-- Email Login Form -->
+    <form method="post" action="{% url 'account_login' %}">
       {% csrf_token %}
       
-      <!-- Email Input Field -->
-      <div class="form-group mb-4">
-        <label for="id_login" class="form-label">
-          {% trans "Account Email" %}
-        </label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-envelope"></i>
-          </span>
-          <input type="email" 
-                 name="login" 
-                 id="id_login" 
-                 class="form-control" 
-                 placeholder="{% trans 'Enter your email' %}" 
-                 required 
-                 autofocus>
-        </div>
+      <div class="form-group">
+        <label for="id_login">Email</label>
+        <input 
+          type="email" 
+          name="login" 
+          id="id_login" 
+          placeholder="your.email@example.com"
+          required
+          autocomplete="email"
+        />
       </div>
-      
-      <!-- Password Input Field -->
-      <div class="form-group mb-4">
-        <label for="id_password" class="form-label">
-          {% trans "Your Password" %}
-        </label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-lock"></i>
-          </span>
-          <input type="password" 
-                 name="password" 
-                 id="id_password" 
-                 class="form-control" 
-                 placeholder="{% trans 'Enter your secure password' %}" 
-                 required>
-        </div>
+
+      <div class="form-group">
+        <label for="id_password">Password</label>
+        <input 
+          type="password" 
+          name="password" 
+          id="id_password" 
+          placeholder="Enter your password"
+          required
+          autocomplete="current-password"
+        />
       </div>
-      
-      <!-- Remember Me & Password Reset -->
-      <div class="d-flex justify-content-between mb-4">
-        <div class="form-check">
-          <input type="checkbox" 
-                 name="remember" 
-                 id="id_remember" 
-                 class="form-check-input">
-          <label class="form-check-label" for="id_remember">
-            {% trans "Keep me signed in" %}
-          </label>
-        </div>
-        <a href="{% url 'account_reset_password' %}" 
-           class="text-decoration-none">
-          {% trans "Reset password" %}
+
+      <div class="form-options">
+        <label class="remember-me">
+          <input type="checkbox" name="remember" id="id_remember">
+          <span>Remember me</span>
+        </label>
+        <a href="{% url 'account_reset_password' %}" class="forgot-password">
+          Forgot password?
         </a>
       </div>
-      
-      <!-- Hidden Redirect Field -->
+
       {% if redirect_field_value %}
-        <input type="hidden" 
-               name="{{ redirect_field_name }}" 
-               value="{{ redirect_field_value }}">
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
       {% endif %}
-      
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary w-100 mb-3 py-2">
-        <i class="fas fa-sign-in-alt me-2"></i>
-        {% trans "Continue to Memorials" %}
-      </button>
-      
-      <!-- Sign Up Link -->
-      <div class="text-center mt-4">
-        <p class="text-muted">
-          {% trans "New to NeverForgotten?" %} 
-          <a href="{% url 'account_signup' %}" 
-             class="text-decoration-none fw-bold">
-            {% trans "Create memorial account" %}
-          </a>
-        </p>
-      </div>
+
+      <button type="submit" class="submit-btn">Sign In</button>
     </form>
+
+    <div class="signup-link">
+      Don't have an account? <a href="{% url 'account_signup' %}">Sign up</a>
+    </div>
   </div>
 </div>
 {% endblock %}
