@@ -109,17 +109,17 @@
         
         {# Mobile Menu Container #}
         <div class="mobile-menu-container">
-            {# Close button #}
-            <label for="check" class="mobile-menu-close" aria-label="Close menu">
+            {# Close button - UPDATED with onclick handler #}
+            <button type="button" class="mobile-menu-close" aria-label="Close menu" onclick="closeMobileMenu()">
                 <i class="fas fa-times"></i>
-            </label>
+            </button>
             
             {# Menu Header #}
             <div class="mobile-menu-header">
                 <h2 class="mobile-menu-title">Menu</h2>
             </div>
             
-            {# Menu Items #}
+            {# Menu Items - UPDATED with button styling #}
             <ul class="mobile-menu-items">
                 <li class="mobile-menu-item">
                     <a href="{% url 'memorials:about' %}" class="mobile-menu-link">
@@ -254,7 +254,19 @@
   </div>
 
   <script>
+  // Mobile menu functionality
+  function closeMobileMenu() {
+      const check = document.getElementById('check');
+      if (check) {
+          check.checked = false;
+          // Trigger the change event to update UI
+          const event = new Event('change');
+          check.dispatchEvent(event);
+      }
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
+      // Cookie banner functionality
       const banner = document.getElementById('cookie-banner');
       const acceptBtn = document.getElementById('accept-cookies');
       const rejectBtn = document.getElementById('reject-cookies');
@@ -296,50 +308,46 @@
               banner.style.display = 'none';
           }, 400);
       });
+      
+      // Mobile menu toggle functionality
+      const check = document.getElementById('check');
+      const overlay = document.querySelector('.menu-overlay');
+      const mobileMenu = document.querySelector('.mobile-menu-container');
+      const checkbtn = document.querySelector('.checkbtn');
+      
+      if (check && overlay && mobileMenu && checkbtn) {
+          check.addEventListener('change', function() {
+              if (this.checked) {
+                  overlay.style.opacity = '1';
+                  overlay.style.visibility = 'visible';
+                  mobileMenu.style.left = '0';
+                  checkbtn.style.opacity = '0';
+                  checkbtn.style.visibility = 'hidden';
+                  checkbtn.style.pointerEvents = 'none';
+              } else {
+                  overlay.style.opacity = '0';
+                  overlay.style.visibility = 'hidden';
+                  mobileMenu.style.left = '-100%';
+                  checkbtn.style.opacity = '1';
+                  checkbtn.style.visibility = 'visible';
+                  checkbtn.style.pointerEvents = 'auto';
+              }
+          });
+          
+          // Close when clicking overlay
+          overlay.addEventListener('click', function() {
+              closeMobileMenu();
+          });
+      }
+      
+      // Close mobile menu when clicking any menu link
+      document.querySelectorAll('.mobile-menu-link').forEach(link => {
+          link.addEventListener('click', function() {
+              closeMobileMenu();
+          });
+      });
   });
   </script>
-  <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const check = document.getElementById('check');
-    const overlay = document.querySelector('.menu-overlay');
-    const mobileMenu = document.querySelector('.mobile-menu-container');
-    const checkbtn = document.querySelector('.checkbtn');
-    
-    if (check && overlay && mobileMenu && checkbtn) {
-        check.addEventListener('change', function() {
-            if (this.checked) {
-                overlay.style.opacity = '1';
-                overlay.style.visibility = 'visible';
-                mobileMenu.style.left = '0';
-                checkbtn.style.opacity = '0';
-                checkbtn.style.visibility = 'hidden';
-                checkbtn.style.pointerEvents = 'none';
-            } else {
-                overlay.style.opacity = '0';
-                overlay.style.visibility = 'hidden';
-                mobileMenu.style.left = '-100%';
-                checkbtn.style.opacity = '1';
-                checkbtn.style.visibility = 'visible';
-                checkbtn.style.pointerEvents = 'auto';
-            }
-        });
-        
-        // Also close when clicking overlay or close button
-        overlay.addEventListener('click', function() {
-            check.checked = false;
-            check.dispatchEvent(new Event('change'));
-        });
-        
-        const closeBtn = document.querySelector('.mobile-menu-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                check.checked = false;
-                check.dispatchEvent(new Event('change'));
-            });
-        }
-    }
-});
-</script>
 
   {# ===================== EXTRA ASSETS ===================== #}
   {% block extra_js %}{% endblock %}
