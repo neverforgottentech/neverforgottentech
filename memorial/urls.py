@@ -5,7 +5,8 @@ from .views import (
     index, MemorialCreateView, MemorialEditView, MyAccountView, update_name,
     update_dates, update_banner, update_quote, memorial_detail, edit_tribute,
     delete_tribute, create_tribute, get_tributes, create_story, edit_story,
-    delete_story, get_stories, UpgradeMemorialView, update_biography, plans
+    delete_story, get_stories, UpgradeMemorialView, update_biography, plans,
+    approve_tribute, reject_tribute, delete_rejected_tribute  # Added these imports
 )
 
 
@@ -114,7 +115,7 @@ urlpatterns = [
         name='delete_gallery_image',
     ),
 
-    # Tribute URLs
+    # Tribute URLs - KEEP THESE (they have memorials/ prefix)
     path(
         'memorials/<int:pk>/tributes/create/',
         create_tribute,
@@ -134,6 +135,22 @@ urlpatterns = [
         'memorials/<int:pk>/tributes/',
         get_tributes,
         name='get_tributes',
+    ),
+    # NEW: Approval URLs
+    path(
+        'memorials/tributes/<int:pk>/approve/',
+        approve_tribute,
+        name='approve_tribute',
+    ),
+    path(
+        'memorials/tributes/<int:pk>/reject/',
+        reject_tribute,
+        name='reject_tribute',
+    ),
+    path(
+        'memorials/tributes/<int:pk>/delete-rejected/',
+        delete_rejected_tribute,
+        name='delete_rejected_tribute',
     ),
 
     # Story URLs
@@ -172,13 +189,5 @@ urlpatterns = [
         views.terms_and_conditions,
         name='terms_and_conditions',
     ),
-
-    path('tributes/create/<int:pk>/', views.create_tribute, name='create_tribute'),
-    path('tributes/<int:pk>/edit/', views.edit_tribute, name='edit_tribute'),
-    path('tributes/<int:pk>/delete/', views.delete_tribute, name='delete_tribute'),
-    path('tributes/<int:pk>/approve/', views.approve_tribute, name='approve_tribute'),
-    path('tributes/<int:pk>/reject/', views.reject_tribute, name='reject_tribute'),
-    path('tributes/<int:pk>/delete-rejected/', views.delete_rejected_tribute, name='delete_rejected_tribute'),
-    path('tributes/<int:pk>/', views.get_tributes, name='get_tributes'),
 
 ]
