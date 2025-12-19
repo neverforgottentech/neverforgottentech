@@ -742,7 +742,7 @@ def send_tribute_notification_email(request, tribute, memorial):
         
         subject = f'New Tribute Pending Approval for {memorial.first_name} {memorial.last_name}'
         
-        html_message = render_to_string('emails/tribute_notification.html', {
+        html_message = render_to_string('newsletter/emails/tribute_notification.html', {
             'tribute': tribute,
             'memorial': memorial,
             'memorial_url': memorial_url,
@@ -772,7 +772,7 @@ def send_tribute_approved_email(request, tribute):
         if tribute.user and tribute.user.email:
             subject = f'Your Tribute Has Been Approved'
             
-            html_message = render_to_string('emails/tribute_approved.html', {
+            html_message = render_to_string('newsletter/emails/tribute_approved.html', {
                 'tribute': tribute,
                 'memorial': tribute.memorial,
                 'site_name': 'NeverForgotten',
@@ -798,7 +798,7 @@ def send_tribute_rejected_email(request, tribute):
         if tribute.user and tribute.user.email:
             subject = f'Update on Your Tribute Submission'
             
-            html_message = render_to_string('emails/tribute_rejected.html', {
+            html_message = render_to_string('newsletteremails/tribute_rejected.html', {
                 'tribute': tribute,
                 'memorial': tribute.memorial,
                 'site_name': 'NeverForgotten',
