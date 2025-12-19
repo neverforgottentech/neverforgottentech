@@ -1403,6 +1403,14 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 <script>
+// Add the missing getCookie function at the top
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
 // Tribute Approval System JavaScript
 document.addEventListener('DOMContentLoaded', () => {
   // Safely get elements with null checks
@@ -1413,7 +1421,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const memorialId = memorialSection.dataset.memorialId;
-  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+  // Get CSRF token using getCookie function
+  const csrfToken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+  
+  if (!csrfToken) {
+    console.error('CSRF token not found');
+    // Continue anyway, but some operations will fail
+  }
 
   // Safely initialize modals
   const tributeFormModalEl = document.getElementById('tributeFormModal');
@@ -1584,7 +1598,9 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   openTributeFormBtn.addEventListener('click', () => {
     tributeForm.reset();
-    tributeForm.action = `/memorials/tributes/create/${memorialId}/`;
+    // FIXED: Correct URL pattern based on your urls.py
+    // Your pattern: 'memorials/<int:pk>/tributes/create/'
+    tributeForm.action = `/memorials/${memorialId}/tributes/create/`;
     tributeFormModal.show();
     const firstInput = tributeForm.querySelector('input, textarea, select');
     firstInput?.focus();
@@ -1595,6 +1611,12 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   tributeForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!csrfToken) {
+      alert('CSRF token missing. Please refresh the page and try again.');
+      return;
+    }
+
     const formData = new FormData(tributeForm);
 
     try {
@@ -1607,7 +1629,17 @@ document.addEventListener('DOMContentLoaded', () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) {
+        // Try to get error details from response
+        let errorMessage = `Network error: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (e) {
+          // Couldn't parse JSON response
+        }
+        throw new Error(errorMessage);
+      }
 
       const data = await response.json();
 
@@ -1617,8 +1649,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (emptyMessage) emptyMessage.remove();
 
         // Add new tribute to the top
-        const isOwner = data.can_edit; // Check if user can edit (owner or author)
-        tributeList.insertAdjacentHTML('afterbegin', generateTributeCard(data.tribute, isOwner, true));
+        // Note: You need to determine if current user is owner/author
+        // This depends on your view response
+        const isOwner = memorialSection.dataset.isOwner === 'true';
+        const isAuthor = data.can_edit; // Assuming this indicates author
+        tributeList.insertAdjacentHTML('afterbegin', generateTributeCard(data.tribute, isOwner, isAuthor));
         
         // Close modal and reset
         tributeFormModal.hide();
@@ -1685,6 +1720,12 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   editTributeForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!csrfToken) {
+      alert('CSRF token missing. Please refresh the page.');
+      return;
+    }
+
     const formData = new FormData(editTributeForm);
     const tributeId = formData.get('tribute_id');
 
@@ -1705,7 +1746,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         // Update the tribute in the list
         const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
-        const isOwner = tributeElem ? tributeElem.closest('.tributes-section').dataset.memorialOwner === 'true' : false;
+        const isOwner = memorialSection.dataset.isOwner === 'true';
         const isAuthor = data.can_edit;
         
         if (tributeElem) {
@@ -1934,6 +1975,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Debug: Log current state
+  console.log('Tribute system initialized');
+  console.log('Memorial ID:', memorialId);
+  console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
+  console.log('Tribute create URL:', `/memorials/${memorialId}/tributes/create/`);
 });
 </script>
 <script>
