@@ -87,24 +87,38 @@
     </div>
   </form>
 
-  <!-- Memorial Name and Dates Section -->
-  <div class="container text-center mt-0" style="bottom: 100px;">
-    <!-- Editable Name with Modal -->
-    <h1 class="fw-bold editable-field" id="editable-name" 
-        data-bs-toggle="modal" data-bs-target="#nameEditModal">
-      {{ memorial.first_name }} 
-      {% if memorial.middle_name %}{{ memorial.middle_name }} {% endif %}
-      {{ memorial.last_name }}
-      <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
-    </h1>
-    <br>
-    <!-- Editable Dates with Modal -->
-    <p class="dates editable-field" id="editable-dates" 
+<div class="container text-center mt-0" style="margin-bottom: 20px;">
+  <!-- Name - no icon -->
+  <h1 class="fw-bold editable-field" id="editable-name" 
+      data-bs-toggle="modal" data-bs-target="#nameEditModal">
+    {{ memorial.first_name }} 
+    {% if memorial.middle_name %}{{ memorial.middle_name }} {% endif %}
+    {{ memorial.last_name }}
+    <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
+  </h1>
+  
+  <!-- Dates with inline icons -->
+  <div class="editable-field" id="editable-dates" 
        data-bs-toggle="modal" data-bs-target="#datesEditModal">
-      {{ memorial.date_of_birth|date:"F j, Y" }} - {{ memorial.date_of_death|date:"F j, Y" }}
-      <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
-    </p>
+    <!-- Birth date with cake icon -->
+    <span class="birth-date">
+      <i class="fas fa-birthday-cake"></i>
+      {{ memorial.date_of_birth|date:"F j, Y" }}
+    </span>
+    
+    <!-- Separator -->
+    <span class="date-separator">-</span>
+    
+    <!-- Death date with cross icon -->
+    <span class="death-date">
+      <i class="fas fa-cross"></i>
+      {{ memorial.date_of_death|date:"F j, Y" }}
+    </span>
+    
+    <!-- Edit icon -->
+    <i class="fas fa-edit ms-2" style="font-size: 0.6em; opacity: 0.7;"></i>
   </div>
+</div>
 
   <!-- Name Edit Modal -->
   <div class="modal fade" id="nameEditModal" tabindex="-1" 
@@ -121,12 +135,12 @@
           </div>
           <div class="modal-body">
             <input type="text" name="first_name" value="{{ memorial.first_name }}" 
-                   class="form-control mb-2" required>
+                  class="form-control mb-2" placeholder="Enter first name" required>
             <input type="text" name="middle_name" 
-                   value="{{ memorial.middle_name|default:'' }}" 
-                   class="form-control mb-2">
+                  value="{{ memorial.middle_name|default:'' }}" 
+                  class="form-control mb-2" placeholder="Enter middle name (optional)">
             <input type="text" name="last_name" value="{{ memorial.last_name }}" 
-                   class="form-control mb-2" required>
+       class="form-control mb-2" placeholder="Enter last name" required>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Save</button>
@@ -170,37 +184,56 @@
     </div>
   </div>
 
+<!-- Button Container - Side by Side -->
+<div class="d-flex justify-content-center align-items-center my-4 flex-wrap">
   <!-- Share Button -->
-  <div class="d-flex justify-content-center my-4">
-    <button id="shareButton" class="btn btn-outline-primary share-button">
-      <i class="fas fa-share-alt me-2"></i> Share Memorial Page
-    </button>
-  </div>
+  <button id="shareButton" class="btn share-button me-3">
+    <i class="fas fa-share-alt me-2"></i> Share Memorial
+  </button>
 
   <!-- View Memorial Button (for owner) -->
   {% if request.user == memorial.user %}
-    <div class="d-flex justify-content-center mb-4">
-      <a href="{% url 'memorials:memorial_detail' pk=memorial.pk %}" 
-         class="view-btn btn btn-primary">
-        <i class="fas fa-edit"></i> View Memorial
-      </a>
-    </div>
+    <a href="{% url 'memorials:memorial_detail' pk=memorial.pk %}" 
+       class="btn view-btn">
+      <i class="fas fa-eye me-2"></i> View Memorial
+    </a>
   {% endif %}
+</div>
 
-  <!-- Editable Quote Section -->
-  <div class="quote-container container text-center mt-3">
-    <p id="editable-quote" class="editable-field" 
-       data-bs-toggle="modal" data-bs-target="#quoteEditModal">
-      {% if memorial.quote %}
-        {{ memorial.quote }}
-      {% else %}
-        In Loving Memory of {{ memorial.first_name }}
-      {% endif %}
-      <i class="fas fa-edit ms-2" style="font-size: 0.8em; opacity: 0.6;"></i>
-    </p>
+
+<!-- Quotation Marks Quote Section -->
+<div class="quote-container container text-center mt-3">
+  <div class="memorial-quote">
+    <div class="quote-content-wrapper">
+      <!-- Opening quotation mark icon - top left -->
+      <i class="fas fa-quote-left quote-icon quote-top-left"></i>
+      
+      <!-- Quote text -->
+      <p id="editable-quote" class="quote-text editable-field" 
+         data-bs-toggle="modal" data-bs-target="#quoteEditModal">
+        {% if memorial.quote %}
+          {{ memorial.quote|safe }}
+        {% else %}
+          In Loving Memory of {{ memorial.first_name }}
+        {% endif %}
+        <!-- Edit icon -->
+        <i class="fas fa-edit ms-2 edit-icon"></i>
+      </p>
+      
+      <!-- Closing quotation mark icon - bottom right -->
+      <i class="fas fa-quote-right quote-icon quote-bottom-right"></i>
+    </div>
+    
+    <!-- Quote author/footer -->
+    {% if memorial.quote_author %}
+    <footer class="blockquote-footer mt-4">
+      — {{ memorial.quote_author }}
+    </footer>
+    {% endif %}
   </div>
+</div>
 
-  <!-- Quote Edit Modal -->
+<!-- Quote Edit Modal -->
   <div class="modal fade" id="quoteEditModal" tabindex="-1" 
        aria-labelledby="quoteEditModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -214,10 +247,8 @@
                     data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <textarea name="quote" rows="3" class="form-control" 
-                      placeholder='"In Loving Memory of {{ memorial.first_name }}"'>
-              {{ memorial.quote }}
-            </textarea>
+          <textarea name="quote" rows="3" class="form-control"
+          placeholder='"In Loving Memory of {{ memorial.first_name }}"'>{{ memorial.quote|default:"" }}</textarea>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Save</button>
@@ -250,220 +281,83 @@
     </div>
   </div>
 
-  <!-- Biography Edit Modal -->
-  <div class="modal fade" id="biographyEditModal" tabindex="-1" 
-       aria-labelledby="biographyEditModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <form id="biography-edit-form" method="POST" 
-              action="{% url 'memorials:update_biography' memorial.pk %}">
-          {% csrf_token %}
-          <div class="modal-header bg-light">
-            <h5 class="modal-title" id="biographyEditModalLabel">Edit Biography</h5>
-            <button type="button" class="btn-close" 
-                    data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <textarea name="biography" rows="8" class="form-control" 
-                      placeholder="Share {{ memorial.first_name }}'s life story here... 
-                      
-• When and where they were born
-• Their family relationships
-• Education and career
-• Hobbies and passions
-• Special memories or qualities
-• What they meant to their loved ones">
-              {{ memorial.biography }}
-            </textarea>
-            <div class="form-text mt-2">
-              This biography will appear at the top of the memorial page.
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" 
-                    data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Biography</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tributes Section -->
-  <section class="tributes-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
-           data-memorial-id="{{ memorial.pk }}"
-           data-delete-tribute-url="{% url 'memorials:delete_tribute' 0 %}">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="section-title fs-3 fw-bold text-dark">Tributes</h2>
-      <button id="open-tribute-form" class="btn btn-primary rounded-pill px-3" 
-              data-bs-toggle="modal" data-bs-target="#tributeFormModal"
-              aria-label="Create new tribute">
-        <i class="fas fa-plus me-2"></i>Create Tribute
-      </button>
-    </div>
-
-    <!-- Tribute Form Modal -->
-    <div class="modal fade" id="tributeFormModal" tabindex="-1" 
-         aria-labelledby="tributeFormModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-light">
-            <h3 class="modal-title fs-5" id="tributeFormModalLabel">Share Your Tribute</h3>
-            <button type="button" class="btn-close" 
-                    data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="tribute-form" method="POST" 
-                  action="{% url 'memorials:create_tribute' memorial.pk %}">
-              {% csrf_token %}
-              <div class="mb-3">
-                <label for="author_name" class="form-label fw-semibold">Your Name</label>
-                <input type="text" class="form-control py-2" id="author_name" 
-                       name="author_name" required
-                       placeholder="Enter your name" 
-                       value="{{ request.user.first_name|default:request.user.first_name }}">
-              </div>
-              <div class="mb-4">
-                <label for="message" class="form-label fw-semibold">Your Tribute</label>
-                <textarea class="form-control py-2" id="message" name="message" 
-                          rows="5" required
-                          placeholder="Share your memories, thoughts, or condolences...">
-                </textarea>
-                <div class="form-text">
-                  Your tribute will be visible to all visitors of this memorial.
-                </div>
-              </div>
-              <div class="d-flex justify-content-end gap-3">
-                <button type="button" class="btn btn-outline-secondary px-4" 
-                        data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary px-4">Post Tribute</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tribute List -->
-    <div id="tribute-list" class="row g-4">
-      <!-- First 3 visible tributes -->
-      <div id="visible-tributes">
-        {% for tribute in memorial.tributes.all|slice:":3" %}
-          <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}">
-            <div class="card tribute-card h-100 border-0 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
-                  <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
-                </div>
-                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
-                  {{ tribute.message|linebreaksbr }}
-                </div>
-                {% if request.user == memorial.user or request.user == tribute.user %}
-                  <div class="mt-auto text-end" data-user-can-edit="true">
-                    <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
-                            data-tribute-id="{{ tribute.id }}"
-                            data-author-name="{{ tribute.author_name }}"
-                            data-message="{{ tribute.message }}"
-                            aria-label="Edit tribute">
-                      <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                            data-tribute-id="{{ tribute.id }}"
-                            aria-label="Delete tribute">
-                      <i class="fas fa-trash me-1"></i> Delete
-                    </button>
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        {% empty %}
-          <div class="col-12" id="empty-tributes-message">
-            <div class="empty-tributes text-center py-5">
-              <i class="fas fa-heart text-muted fa-4x mb-4"></i>
-              <h3 class="h5 text-muted mb-3">No tributes yet</h3>
-              <p class="text-muted mb-4">
-                Be the first to share your memories of {{ memorial.first_name }}
-              </p>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-
-      <!-- Hidden additional tributes -->
-      <div id="hidden-tributes" class="row g-4 d-none">
-        {% for tribute in memorial.tributes.all|slice:"3:" %}
-          <div class="col-12 tribute-item tribute-special" data-tribute-id="{{ tribute.id }}">
-            <div class="card tribute-card h-100 border-0 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
-                  <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
-                </div>
-                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
-                  {{ tribute.message|linebreaksbr }}
-                </div>
-                {% if request.user == memorial.user or request.user == tribute.user %}
-                  <div class="mt-auto text-end" data-user-can-edit="true">
-                    <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
-                            data-tribute-id="{{ tribute.id }}"
-                            data-author-name="{{ tribute.author_name }}"
-                            data-message="{{ tribute.message }}"
-                            aria-label="Edit tribute">
-                      <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                            data-tribute-id="{{ tribute.id }}"
-                            aria-label="Delete tribute">
-                      <i class="fas fa-trash me-1"></i> Delete
-                    </button>
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-
-    {% if memorial.tributes.count > 3 %}
-      <div class="text-center mt-4">
-        <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
-          <i class="fas fa-chevron-down me-2"></i>View All Tributes
-        </button>
-      </div>
-    {% endif %}
-  </section>
-
-  <!-- Edit Tribute Modal -->
-  <div class="modal fade" id="editTributeModal" tabindex="-1" 
-       aria-labelledby="editTributeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
+<!-- Biography Edit Modal - FIXED -->
+<div class="modal fade" id="biographyEditModal" tabindex="-1" 
+     aria-labelledby="biographyEditModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="biography-edit-form" method="POST" 
+            action="{% url 'memorials:update_biography' memorial.pk %}">
+        {% csrf_token %}
         <div class="modal-header bg-light">
-          <h3 class="modal-title fs-5" id="editTributeModalLabel">Edit Tribute</h3>
+          <h5 class="modal-title" id="biographyEditModalLabel">Edit Biography</h5>
           <button type="button" class="btn-close" 
                   data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="edit-tribute-form" method="POST">
+          <textarea name="biography" rows="8" class="form-control biography-textarea" 
+                    placeholder="Share {{ memorial.first_name }}'s life story here...&#10;&#10;&bull; When and where they were born&#10;&bull; Their family relationships&#10;&bull; Education and career&#10;&bull; Hobbies and passions&#10;&bull; Special memories or qualities&#10;&bull; What they meant to their loved ones">{{ memorial.biography|default:"" }}</textarea>
+          <div class="form-text mt-2">
+            This biography will appear at the top of the memorial page.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" 
+                  data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Biography</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+ <!-- Tributes Section -->
+<section class="tributes-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
+         data-memorial-id="{{ memorial.pk }}"
+         data-delete-tribute-url="{% url 'memorials:delete_tribute' 0 %}">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title fs-3 fw-bold text-dark">Tributes</h2>
+    <button id="open-tribute-form" class="btn btn-primary rounded-pill px-3" 
+            data-bs-toggle="modal" data-bs-target="#tributeFormModal"
+            aria-label="Create new tribute">
+      <i class="fas fa-plus me-2"></i>Create Tribute
+    </button>
+  </div>
+
+  <!-- Tribute Form Modal -->
+  <div class="modal fade" id="tributeFormModal" tabindex="-1" 
+       aria-labelledby="tributeFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h3 class="modal-title fs-5" id="tributeFormModalLabel">Share Your Tribute</h3>
+          <button type="button" class="btn-close" 
+                  data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="tribute-form" method="POST" 
+                action="{% url 'memorials:create_tribute' memorial.pk %}">
             {% csrf_token %}
-            <input type="hidden" id="edit-tribute-id" name="tribute_id">
             <div class="mb-3">
-              <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
-              <input type="text" class="form-control py-2" id="edit-author-name" 
-                     name="author_name" required>
+              <label for="author_name" class="form-label fw-semibold">Your Name</label>
+              <input type="text" class="form-control py-2" id="author_name" 
+                     name="author_name" required
+                     placeholder="Enter your name" 
+                     value="{{ request.user.first_name|default:request.user.first_name }}">
             </div>
             <div class="mb-4">
-              <label for="edit-message" class="form-label fw-semibold">Your Tribute</label>
-              <textarea class="form-control py-2" id="edit-message" 
-                        name="message" rows="5" required></textarea>
+              <label for="message" class="form-label fw-semibold">Your Tribute</label>
+              <textarea class="form-control py-2" id="message" name="message" 
+                        rows="5" required
+                        placeholder="Share your memories, thoughts, or condolences..."></textarea>
+              <div class="form-text">
+                Your tribute will be reviewed by the memorial owner before being published.
+              </div>
             </div>
             <div class="d-flex justify-content-end gap-3">
               <button type="button" class="btn btn-outline-secondary px-4" 
                       data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+              <button type="submit" class="btn btn-primary px-4">Submit for Approval</button>
             </div>
           </form>
         </div>
@@ -471,31 +365,280 @@
     </div>
   </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div class="modal fade" id="deleteTributeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header border-0">
-          <h3 class="modal-title fs-5">Confirm Deletion</h3>
-          <button type="button" class="btn-close" 
-                  data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body py-4">
-          <p class="mb-2">Are you sure you want to delete this tribute?</p>
-          <div class="alert alert-light mt-3">
-            <strong id="delete-tribute-author"></strong>
-            <p id="delete-tribute-message" class="mb-0"></p>
+  <!-- Tribute List -->
+  <div id="tribute-list" class="row g-4">
+    <!-- First 3 visible tributes -->
+    <div id="visible-tributes">
+      {% for tribute in memorial.tributes.all|slice:":3" %}
+        <!-- Only show to memorial owner OR approved tributes to others -->
+        {% if request.user == memorial.user or tribute.status == 'approved' %}
+          <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}" data-status="{{ tribute.status }}">
+            <div class="card tribute-card h-100 border-0 shadow-sm 
+                        {% if tribute.status == 'pending' %}border-warning border-2 
+                        {% elif tribute.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if tribute.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif tribute.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h3 class="card-title mb-0 fs-5 fw-semibold text-truncate">{{ tribute.author_name }}</h3>
+                  <small class="text-muted ms-2">{{ tribute.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                  {{ tribute.message|linebreaksbr }}
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Approve tribute">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Reject tribute">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif tribute.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete rejected tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if tribute.status == 'approved' or tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                    </div>
+                  {% elif request.user == tribute.user %}
+                    <!-- Tribute Author Controls (only for their own approved tributes) -->
+                    {% if tribute.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
           </div>
-          <p class="text-danger mt-3">This action cannot be undone.</p>
+        {% endif %}
+      {% empty %}
+        <div class="col-12" id="empty-tributes-message">
+          <div class="empty-tributes text-center py-5">
+            <i class="fas fa-heart text-muted fa-4x mb-4"></i>
+            <h3 class="h5 text-muted mb-3">No tributes yet</h3>
+            <p class="text-muted mb-4">
+              Be the first to share your memories of {{ memorial.first_name }}
+            </p>
+          </div>
         </div>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-outline-secondary" 
-                  data-bs-dismiss="modal">Cancel</button>
-          <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
-        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Hidden additional tributes -->
+    <div id="hidden-tributes" class="row g-4 d-none">
+      {% for tribute in memorial.tributes.all|slice:"3:" %}
+        <!-- Only show to memorial owner OR approved tributes to others -->
+        {% if request.user == memorial.user or tribute.status == 'approved' %}
+          <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}" data-status="{{ tribute.status }}">
+            <div class="card tribute-card h-100 border-0 shadow-sm 
+                        {% if tribute.status == 'pending' %}border-warning border-2 
+                        {% elif tribute.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if tribute.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif tribute.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h3 class="card-title mb-0 fs-5 fw-semibold text-truncate">{{ tribute.author_name }}</h3>
+                  <small class="text-muted ms-2">{{ tribute.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                  {{ tribute.message|linebreaksbr }}
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Approve tribute">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Reject tribute">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif tribute.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete rejected tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if tribute.status == 'approved' or tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                    </div>
+                  {% elif request.user == tribute.user %}
+                    <!-- Tribute Author Controls (only for their own approved tributes) -->
+                    {% if tribute.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if memorial.tributes.count > 3 %}
+    <div class="text-center mt-4">
+      <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
+        <i class="fas fa-chevron-down me-2"></i>View All Tributes
+      </button>
+    </div>
+  {% endif %}
+</section>
+
+<!-- Edit Tribute Modal -->
+<div class="modal fade" id="editTributeModal" tabindex="-1" 
+     aria-labelledby="editTributeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h3 class="modal-title fs-5" id="editTributeModalLabel">Edit Tribute</h3>
+        <button type="button" class="btn-close" 
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-tribute-form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="edit-tribute-id" name="tribute_id">
+          <div class="mb-3">
+            <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
+            <input type="text" class="form-control py-2" id="edit-author-name" 
+                   name="author_name" required>
+          </div>
+          <div class="mb-4">
+            <label for="edit-message" class="form-label fw-semibold">Your Tribute</label>
+            <textarea class="form-control py-2" id="edit-message" 
+                      name="message" rows="5" required></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-3">
+            <button type="button" class="btn btn-outline-secondary px-4" 
+                    data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteTributeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h3 class="modal-title fs-5">Confirm Deletion</h3>
+        <button type="button" class="btn-close" 
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-4">
+        <p class="mb-2">Are you sure you want to delete this tribute?</p>
+        <div class="alert alert-light mt-3">
+          <strong id="delete-tribute-author"></strong>
+          <p id="delete-tribute-message" class="mb-0"></p>
+        </div>
+        <p class="text-danger mt-3">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" 
+                data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Music Section -->
   <div class="music-section container text-center mt-4">
@@ -1260,6 +1403,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 <script>
+// Tribute Approval System JavaScript
 document.addEventListener('DOMContentLoaded', () => {
   // Safely get elements with null checks
   const memorialSection = document.querySelector('.tributes-section');
@@ -1310,38 +1454,121 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Generates HTML for a tribute card
    */
-  function generateTributeCard(tribute, canEdit = false) {
+  function generateTributeCard(tribute, isOwner = false, isAuthor = false) {
     const dateStr = new Date(tribute.created_at).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
 
+    let statusBadge = '';
+    let borderClass = '';
+    let actionButtons = '';
+    
+    // Status badge and border
+    if (tribute.status === 'pending') {
+      statusBadge = '<span class="badge bg-warning text-dark mb-2 align-self-start status-badge"><i class="fas fa-clock me-1"></i> Awaiting Approval</span>';
+      borderClass = 'border-warning border-2';
+    } else if (tribute.status === 'rejected') {
+      statusBadge = '<span class="badge bg-danger text-white mb-2 align-self-start status-badge"><i class="fas fa-times-circle me-1"></i> Rejected</span>';
+      borderClass = 'border-danger border-2';
+    } else {
+      borderClass = 'border-success border-1';
+    }
+
+    // Action buttons based on user role and status
+    if (isOwner) {
+      // Memorial owner buttons
+      if (tribute.status === 'pending') {
+        actionButtons = `
+          <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <button class="btn btn-sm btn-success approve-tribute" 
+                    data-tribute-id="${tribute.id}"
+                    aria-label="Approve tribute">
+              <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+            </button>
+            <button class="btn btn-sm btn-danger reject-tribute" 
+                    data-tribute-id="${tribute.id}"
+                    aria-label="Reject tribute">
+              <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+            </button>
+            <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                    data-tribute-id="${tribute.id}"
+                    data-author-name="${escapeHTML(tribute.author_name)}"
+                    data-message="${escapeHTML(tribute.message)}"
+                    aria-label="Edit tribute">
+              <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+            </button>
+            <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                    data-tribute-id="${tribute.id}"
+                    aria-label="Delete tribute">
+              <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+            </button>
+          </div>
+        `;
+      } else if (tribute.status === 'rejected') {
+        actionButtons = `
+          <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <button class="btn btn-sm btn-outline-danger delete-rejected-tribute" 
+                    data-tribute-id="${tribute.id}"
+                    aria-label="Delete rejected tribute">
+              <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+            </button>
+          </div>
+        `;
+      } else if (tribute.status === 'approved') {
+        actionButtons = `
+          <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                    data-tribute-id="${tribute.id}"
+                    data-author-name="${escapeHTML(tribute.author_name)}"
+                    data-message="${escapeHTML(tribute.message)}"
+                    aria-label="Edit tribute">
+              <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+            </button>
+            <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                    data-tribute-id="${tribute.id}"
+                    aria-label="Delete tribute">
+              <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+            </button>
+          </div>
+        `;
+      }
+    } else if (isAuthor && tribute.status === 'approved') {
+      // Tribute author buttons (only for approved tributes)
+      actionButtons = `
+        <div class="d-flex flex-wrap gap-2 justify-content-end">
+          <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                  data-tribute-id="${tribute.id}"
+                  data-author-name="${escapeHTML(tribute.author_name)}"
+                  data-message="${escapeHTML(tribute.message)}"
+                  aria-label="Edit tribute">
+            <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+          </button>
+          <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                  data-tribute-id="${tribute.id}"
+                  aria-label="Delete tribute">
+            <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+          </button>
+        </div>
+      `;
+    }
+
     return `
-      <div class="col-12 tribute-item" data-tribute-id="${tribute.id}">
-        <div class="card tribute-card h-100 border-0 shadow-sm">
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <h3 class="card-title mb-0 fs-5 fw-semibold">${escapeHTML(tribute.author_name)}</h3>
-              <small class="text-muted">${dateStr}</small>
+      <div class="col-12 tribute-item" data-tribute-id="${tribute.id}" data-status="${tribute.status}">
+        <div class="card tribute-card h-100 border-0 shadow-sm ${borderClass}">
+          <div class="card-body d-flex flex-column p-3">
+            ${statusBadge}
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h3 class="card-title mb-0 fs-5 fw-semibold text-truncate">${escapeHTML(tribute.author_name)}</h3>
+              <small class="text-muted ms-2">${dateStr}</small>
             </div>
             <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
               ${escapeHTML(tribute.message).replace(/\n/g, '<br>')}
             </div>
-            ${canEdit ? `
-            <div class="mt-auto text-end" data-user-can-edit="true">
-              <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
-                      data-tribute-id="${tribute.id}"
-                      data-author-name="${escapeHTML(tribute.author_name)}"
-                      data-message="${escapeHTML(tribute.message)}"
-                      aria-label="Edit tribute">
-                <i class="fas fa-edit me-1"></i> Edit
-              </button>
-              <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                      data-tribute-id="${tribute.id}"
-                      aria-label="Delete tribute">
-                <i class="fas fa-trash me-1"></i> Delete
-              </button>
+            ${actionButtons ? `
+            <div class="mt-auto pt-2 border-top">
+              ${actionButtons}
             </div>
             ` : ''}
           </div>
@@ -1357,7 +1584,7 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   openTributeFormBtn.addEventListener('click', () => {
     tributeForm.reset();
-    tributeForm.action = `/memorials/${memorialId}/tributes/create/`;
+    tributeForm.action = `/memorials/tributes/create/${memorialId}/`;
     tributeFormModal.show();
     const firstInput = tributeForm.querySelector('input, textarea, select');
     firstInput?.focus();
@@ -1390,12 +1617,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (emptyMessage) emptyMessage.remove();
 
         // Add new tribute to the top
-        tributeList.insertAdjacentHTML('afterbegin', generateTributeCard(data.tribute, data.can_edit));
+        const isOwner = data.can_edit; // Check if user can edit (owner or author)
+        tributeList.insertAdjacentHTML('afterbegin', generateTributeCard(data.tribute, isOwner, true));
         
         // Close modal and reset
         tributeFormModal.hide();
         tributeForm.reset();
         openTributeFormBtn.focus();
+        
+        // Show success message
+        alert(data.message || 'Tribute submitted for approval!');
       } else {
         throw new Error(data.error || 'Failed to create tribute');
       }
@@ -1406,11 +1637,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /**
-   * Handles edit/delete button clicks via delegation
+   * Handles all tribute button clicks via delegation
    */
   tributeList.addEventListener('click', (e) => {
     const editBtn = e.target.closest('.edit-tribute');
     const deleteBtn = e.target.closest('.delete-tribute');
+    const approveBtn = e.target.closest('.approve-tribute');
+    const rejectBtn = e.target.closest('.reject-tribute');
+    const deleteRejectedBtn = e.target.closest('.delete-rejected-tribute');
 
     if (editBtn) {
       // Set up edit form
@@ -1427,6 +1661,21 @@ document.addEventListener('DOMContentLoaded', () => {
       // Confirm before deleting
       if (confirm('Are you sure you want to delete this tribute?')) {
         deleteTribute(deleteBtn.dataset.tributeId);
+      }
+    }
+    else if (approveBtn) {
+      if (confirm('Approve this tribute?')) {
+        approveTribute(approveBtn.dataset.tributeId);
+      }
+    }
+    else if (rejectBtn) {
+      if (confirm('Reject this tribute?')) {
+        rejectTribute(rejectBtn.dataset.tributeId);
+      }
+    }
+    else if (deleteRejectedBtn) {
+      if (confirm('Permanently delete this rejected tribute?')) {
+        deleteRejectedTribute(deleteRejectedBtn.dataset.tributeId);
       }
     }
   });
@@ -1456,12 +1705,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         // Update the tribute in the list
         const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
+        const isOwner = tributeElem ? tributeElem.closest('.tributes-section').dataset.memorialOwner === 'true' : false;
+        const isAuthor = data.can_edit;
+        
         if (tributeElem) {
-          tributeElem.outerHTML = generateTributeCard(data.tribute, data.can_edit);
+          tributeElem.outerHTML = generateTributeCard(data.tribute, isOwner, isAuthor);
         }
         
         // Close modal
         editTributeModal.hide();
+        alert('Tribute updated successfully!');
       } else {
         throw new Error(data.error || 'Failed to update tribute');
       }
@@ -1497,11 +1750,166 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!document.querySelector('.tribute-item')) {
           document.getElementById('empty-tributes-message')?.classList.remove('d-none');
         }
+        alert('Tribute deleted successfully!');
       } else {
         throw new Error(data.error || 'Failed to delete tribute');
       }
     } catch (error) {
       console.error('Tribute deletion error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Approves a tribute
+   */
+  async function approveTribute(tributeId) {
+    try {
+      const response = await fetch(`/memorials/tributes/${tributeId}/approve/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the tribute card
+        const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
+        if (tributeElem) {
+          tributeElem.setAttribute('data-status', 'approved');
+          const card = tributeElem.querySelector('.card');
+          card.classList.remove('border-warning', 'border-2');
+          card.classList.add('border-success', 'border-1');
+          
+          // Remove status badge
+          const statusBadge = tributeElem.querySelector('.status-badge');
+          if (statusBadge) statusBadge.remove();
+          
+          // Update buttons to show edit/delete only
+          const actionContainer = tributeElem.querySelector('.mt-auto.pt-2.border-top');
+          if (actionContainer) {
+            actionContainer.innerHTML = `
+              <div class="d-flex flex-wrap gap-2 justify-content-end">
+                <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                        data-tribute-id="${tributeId}"
+                        data-author-name="${tributeElem.querySelector('.card-title').textContent.trim()}"
+                        data-message="${tributeElem.querySelector('.tribute-message').textContent.trim()}"
+                        aria-label="Edit tribute">
+                  <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                        data-tribute-id="${tributeId}"
+                        aria-label="Delete tribute">
+                  <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                </button>
+              </div>
+            `;
+          }
+        }
+        alert('Tribute approved successfully!');
+      } else {
+        throw new Error(data.error || 'Failed to approve tribute');
+      }
+    } catch (error) {
+      console.error('Tribute approval error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Rejects a tribute
+   */
+  async function rejectTribute(tributeId) {
+    try {
+      const response = await fetch(`/memorials/tributes/${tributeId}/reject/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the tribute card
+        const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
+        if (tributeElem) {
+          tributeElem.setAttribute('data-status', 'rejected');
+          const card = tributeElem.querySelector('.card');
+          card.classList.remove('border-warning', 'border-2');
+          card.classList.add('border-danger', 'border-2');
+          
+          // Update status badge
+          const statusBadge = tributeElem.querySelector('.status-badge');
+          if (statusBadge) {
+            statusBadge.className = 'badge bg-danger text-white mb-2 align-self-start status-badge';
+            statusBadge.innerHTML = '<i class="fas fa-times-circle me-1"></i> Rejected';
+          }
+          
+          // Update buttons to show delete only
+          const actionContainer = tributeElem.querySelector('.mt-auto.pt-2.border-top');
+          if (actionContainer) {
+            actionContainer.innerHTML = `
+              <div class="d-flex flex-wrap gap-2 justify-content-end">
+                <button class="btn btn-sm btn-outline-danger delete-rejected-tribute" 
+                        data-tribute-id="${tributeId}"
+                        aria-label="Delete rejected tribute">
+                  <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                </button>
+              </div>
+            `;
+          }
+        }
+        alert('Tribute rejected');
+      } else {
+        throw new Error(data.error || 'Failed to reject tribute');
+      }
+    } catch (error) {
+      console.error('Tribute rejection error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Deletes a rejected tribute
+   */
+  async function deleteRejectedTribute(tributeId) {
+    try {
+      const response = await fetch(`/memorials/tributes/${tributeId}/delete-rejected/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove tribute from DOM
+        const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
+        tributeElem?.remove();
+        
+        // Show empty state if no tributes left
+        if (!document.querySelector('.tribute-item')) {
+          document.getElementById('empty-tributes-message')?.classList.remove('d-none');
+        }
+        alert('Rejected tribute deleted permanently');
+      } else {
+        throw new Error(data.error || 'Failed to delete rejected tribute');
+      }
+    } catch (error) {
+      console.error('Delete rejected tribute error:', error);
       alert(`Error: ${error.message}`);
     }
   }
@@ -1514,10 +1922,16 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleTributesBtn.addEventListener('click', function() {
       hiddenTributes.classList.toggle('d-none');
       
-      // Update button text
-      this.innerHTML = hiddenTributes.classList.contains('d-none') 
-        ? '<i class="fas fa-chevron-down me-2"></i>View More'
-        : '<i class="fas fa-chevron-up me-2"></i>View Less';
+      // Update button text and icon
+      const icon = this.querySelector('i');
+      const text = this.querySelector('span');
+      if (hiddenTributes.classList.contains('d-none')) {
+        icon.className = 'fas fa-chevron-down me-2';
+        text.textContent = 'View All Tributes';
+      } else {
+        icon.className = 'fas fa-chevron-up me-2';
+        text.textContent = 'View Less';
+      }
     });
   }
 });

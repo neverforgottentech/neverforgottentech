@@ -173,4 +173,12 @@ urlpatterns = [
         name='terms_and_conditions',
     ),
 
+    path('tributes/create/<int:pk>/', views.create_tribute, name='create_tribute'),
+    path('tributes/<int:pk>/edit/', views.edit_tribute, name='edit_tribute'),
+    path('tributes/<int:pk>/delete/', views.delete_tribute, name='delete_tribute'),
+    path('tributes/<int:pk>/approve/', views.approve_tribute, name='approve_tribute'),
+    path('tributes/<int:pk>/reject/', views.reject_tribute, name='reject_tribute'),
+    path('tributes/<int:pk>/delete-rejected/', views.delete_rejected_tribute, name='delete_rejected_tribute'),
+    path('tributes/<int:pk>/', views.get_tributes, name='get_tributes'),
+
 ]

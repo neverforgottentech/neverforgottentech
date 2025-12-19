@@ -213,14 +213,15 @@ body {
 .profile-pic-wrapper {
   left: 50%;
   transform: translateX(-50%);
-  bottom: 150px;
-  width: 200px;
-  height: 200px;
+  bottom: 170px;
+  width: 180px;
+  height: 215px;
   border-radius: 50%;
   overflow: hidden;
   border: 5px solid rgba(255, 249, 230, 0.95);
   background: #d97b37;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateX(-50%) scaleY(1.2);
 }
 
 .profile-pic-wrapper-detail {
@@ -228,13 +229,14 @@ body {
   left: 50%;
   transform: translateX(-50%);
   bottom: 475px;
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 215px;
   border-radius: 50%;
   overflow: hidden;
   border: 5px solid rgba(255, 249, 230, 0.95);
   background: #d97b37;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateX(-50%) scaleY(1.2);
 }
 
 .profile-pic-wrapper-detail img,
@@ -243,11 +245,12 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block; /* Remove default spacing */
+  object-position: center 30%;
+  display: block;
 }
 
 .profile-pic-wrapper:hover {
-  transform: translateX(-50%) scale(1.03);
+  transform: translateX(-50%) scaleY(1.2) scale(1.03);
 }
 
 /* ===================== */
@@ -269,12 +272,13 @@ body {
 
 .upload-icon {
   position: absolute;
-  bottom: 60px;
-  right: 60px;
+  bottom: 50%;
+  left: 50%;
+  transform: translate(-50%, 50%);
   color: #d97b37;
   border-radius: 50%;
   padding: 6px 8px;
-  font-size: 3rem;
+  font-size: 2.5rem;
   pointer-events: none;
   user-select: none;
 }
@@ -394,37 +398,253 @@ body {
 }
 
 /* ==================== */
+/* === NAME & DATES === */
+/* ==================== */
+
+/* Container styling */
+.container.text-center.mt-0 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px; /* Reduced margin */
+}
+
+/* Name styling */
+#editable-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3rem; /* Slightly smaller */
+  font-weight: 700;
+  color: #3e2f1c;
+  margin-bottom: 0.3rem; /* Reduced gap */
+  position: relative;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  line-height: 1.2;
+}
+
+/* Dates container - inline layout */
+#editable-dates {
+  font-family: 'Lora', serif;
+  font-size: 1.2rem;
+  color: rgba(62, 47, 28, 0.85);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-align: center;
+  line-height: 1.4;
+  margin-top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px; /* Space between date elements */
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Individual date items with icons */
+.birth-date,
+.death-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+}
+
+/* Icons */
+.birth-date i,
+.death-date i {
+  font-size: 1rem;
+  color: rgba(217, 123, 55, 0.7);
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+/* Date separator */
+.date-separator {
+  color: rgba(62, 47, 28, 0.5);
+  font-weight: 300;
+  margin: 0 5px; /* Reduced margin */
+}
+
+/* Edit icon styling */
+#editable-name .fa-edit,
+#editable-dates .fa-edit {
+  color: rgba(217, 123, 55, 0.7);
+  transition: all 0.3s ease;
+  vertical-align: middle;
+  margin-left: 8px;
+  font-size: 0.7em;
+}
+
+#editable-name:hover .fa-edit,
+#editable-dates:hover .fa-edit {
+  opacity: 0.9;
+  transform: scale(1.1);
+}
+
+/* Hover effects */
+#editable-name:hover {
+  color: #2a1f12;
+  transition: color 0.3s ease;
+}
+
+#editable-dates:hover {
+  color: rgba(62, 47, 28, 1);
+  transition: color 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  #editable-name {
+    font-size: 2.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  #editable-dates {
+    font-size: 1.1rem;
+    gap: 8px;
+  }
+  
+  .birth-date i,
+  .death-date i {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #editable-name {
+    font-size: 2.2rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  #editable-dates {
+    font-size: 1rem;
+    gap: 6px;
+    flex-direction: column; /* Stack on very small screens */
+    align-items: center;
+  }
+  
+  .birth-date i,
+  .death-date i {
+    font-size: 0.85rem;
+  }
+  
+  .date-separator {
+    display: none; /* Hide separator when stacked */
+  }
+}
+
+@media (max-width: 576px) {
+  #editable-name {
+    font-size: 1.8rem;
+  }
+  
+  #editable-dates {
+    font-size: 0.95rem;
+    gap: 5px;
+  }
+  
+  .birth-date i,
+  .death-date i {
+    font-size: 0.8rem;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 400px) {
+  #editable-name {
+    font-size: 1.6rem;
+  }
+  
+  #editable-dates {
+    font-size: 0.9rem;
+  }
+}
+
+/* ==================== */
 /* === BUTTON STYLES === */
 /* ==================== */
 .share-button,
 .view-btn,
 .post-tribute-btn {
-  width: 80%;
-  max-width: 600px;
-  padding: 12px 20px;
-  font-size: 1.1rem;
+  min-width: 180px;
+  padding: 12px 24px;
+  font-size: 1rem;
   font-family: 'Lora', serif;
-  background-color: #d97b37;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  background-color: rgba(217, 123, 55, 0.9); /* Orange with slight transparency */
   color: #fffaf3;
   border: none;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   text-align: center;
+  box-shadow: 0 3px 8px rgba(217, 123, 55, 0.2);
+  flex-shrink: 0;
+  margin: 5px;
 }
 
 .share-button:hover,
 .view-btn:hover,
 .post-tribute-btn:hover {
-  background-color: #b86528;
+  background-color: rgba(184, 101, 40, 0.95); /* Slightly darker orange */
   color: #fffaf3;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(217, 123, 55, 0.3);
 }
 
+.share-button:active,
+.view-btn:active,
+.post-tribute-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(217, 123, 55, 0.2);
+}
+
+/* Icon styling */
+.share-button i,
+.view-btn i,
+.post-tribute-btn i {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+/* Optional: Add a subtle inner glow on focus */
+.share-button:focus,
+.view-btn:focus,
 .post-tribute-btn:focus {
-  background-color: #b86528;
-  box-shadow: 0 4px 12px rgba(217, 123, 55, 0.6);
   outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 250, 243, 0.3), 
+              0 5px 15px rgba(217, 123, 55, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .d-flex.justify-content-center {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .share-button,
+  .view-btn,
+  .post-tribute-btn {
+    width: 90%;
+    max-width: 300px;
+    margin: 8px 0;
+  }
+  
+  .share-button {
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .share-button,
+  .view-btn,
+  .post-tribute-btn {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    min-width: 160px;
+  }
 }
 
 /* ==================== */
@@ -440,39 +660,148 @@ body {
 
 .quote-content-wrapper {
   position: relative;
-  width: 75%;
+  width: 85%;
   margin: 0 auto;
   padding: 40px 0;
 }
 
 .quote-icon {
   position: absolute;
-  color: rgba(217, 123, 55, 0.3);
-  font-size: 4rem;
+  color: rgba(217, 123, 55, 0.4);
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
   z-index: 0;
 }
 
-.quote-icon:first-child {
-  top: 0;
-  left: -25px;
+/* Desktop: quotes at corners */
+@media (min-width: 769px) {
+  .quote-top-left {
+    top: -5px;
+    left: -25px;
+    font-size: 3.5rem;
+  }
+  
+  .quote-bottom-right {
+    bottom: -15px;
+    right: -25px;
+    font-size: 3.5rem;
+  }
+  
+  .quote-text {
+    font-size: 2rem;
+    padding: 0 30px;
+  }
 }
 
-.quote-icon:last-child {
-  bottom: -10px;
-  right: -25px;
+/* Tablet: quotes stay positioned properly */
+@media (max-width: 768px) and (min-width: 577px) {
+  .quote-content-wrapper {
+    width: 90%;
+    padding: 30px 0;
+  }
+  
+  .quote-top-left {
+    top: -5px;
+    left: -10px; /* Closer to text */
+    font-size: 2.8rem;
+  }
+  
+  .quote-bottom-right {
+    bottom: -10px; /* Raised up */
+    right: -10px; /* Closer to text */
+    font-size: 2.8rem;
+  }
+  
+  .quote-text {
+    font-size: 1.7rem;
+    padding: 0 25px; /* More padding for quotes */
+  }
 }
 
+/* Mobile: quotes on left side, above/below text */
+@media (max-width: 576px) {
+  .quote-content-wrapper {
+    width: 95%;
+    padding: 25px 0 20px; /* Reduced bottom padding */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .quote-icon {
+    position: relative;
+    display: block;
+    margin: 0;
+    align-self: flex-start;
+  }
+  
+  .quote-top-left {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-bottom: 5px;
+    font-size: 2.2rem;
+  }
+  
+  .quote-bottom-right {
+    position: relative;
+    bottom: 0;
+    right: 0;
+    margin-top: 5px;
+    align-self: flex-end;
+    font-size: 2.2rem;
+  }
+  
+  .quote-text {
+    font-size: 1.4rem;
+    line-height: 1.4;
+    padding: 10px 0; /* Reduced padding */
+    text-align: left;
+    width: 100%;
+  }
+  
+  /* Reorder the elements */
+  .quote-top-left {
+    order: 1;
+  }
+  
+  .quote-text {
+    order: 2;
+  }
+  
+  .quote-bottom-right {
+    order: 3;
+  }
+  
+  .quote-container {
+    padding: 20px 15px 15px; /* Reduced bottom padding */
+  }
+}
+
+/* Base styles for quote text */
 .quote-text {
   font-weight: 600;
   color: rgba(62, 47, 28, 0.85);
-  font-size: 2.2rem;
   line-height: 1.5;
   margin: 0;
-  padding: 0 15px;
   position: relative;
   z-index: 1;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   letter-spacing: 0.3px;
+  font-style: italic;
+  text-align: center;
+}
+
+.quote-text .edit-icon {
+  font-size: 0.8em;
+  opacity: 0.6;
+  color: rgba(217, 123, 55, 0.7);
+  margin-left: 10px;
+  transition: opacity 0.3s ease;
+}
+
+.quote-text:hover .edit-icon {
+  opacity: 0.9;
 }
 
 .blockquote-footer {
@@ -480,19 +809,56 @@ body {
   font-size: 1.1rem;
   font-style: italic;
   margin-top: 20px;
+  font-weight: 500;
 }
 
 .quote-container {
   background-color: #fffaf3;
-  border: 1px solid #d97b37;
+  border: 1px solid rgba(217, 123, 55, 0.3);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   width: 90vw;
   max-width: 900px;
   margin: 30px auto;
-  padding: 40px;
+  padding: 40px 30px;
   border-radius: 10px;
   position: relative;
   overflow: hidden;
+}
+
+/* Decorative elements */
+.quote-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(217, 123, 55, 0.3), rgba(217, 123, 55, 0.1));
+  border-radius: 10px 10px 0 0;
+}
+
+/* Small mobile screens */
+@media (max-width: 400px) {
+  .quote-text {
+    font-size: 1.2rem;
+    padding: 8px 0;
+  }
+  
+  .quote-icon {
+    font-size: 1.8rem;
+  }
+  
+  .quote-top-left {
+    margin-bottom: 3px;
+  }
+  
+  .quote-bottom-right {
+    margin-top: 3px;
+  }
+  
+  .quote-container {
+    padding: 15px 12px 12px;
+  }
 }
 
 /* ======================== */
@@ -548,6 +914,144 @@ body {
   font-size: 1.2rem;
 }
 
+/* ============================= */
+/* === TEXTAREA PLACEHOLDERS === */
+/* ============================= */
+
+/* Biography textarea specific styling */
+.biography-textarea {
+  font-family: 'Lora', serif;
+  line-height: 1.6;
+}
+
+/* Placeholder styling for biography textarea */
+.biography-textarea::placeholder {
+  color: #888;
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  white-space: pre-wrap; /* This is KEY - preserves line breaks */
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+/* Bullet styling in placeholder */
+.biography-textarea::placeholder .bullet {
+  display: inline-block;
+  margin-left: 20px;
+}
+
+/* Focus state */
+.biography-textarea:focus::placeholder {
+  opacity: 0.5;
+}
+
+/* Desktop - show full formatted placeholder */
+@media (min-width: 769px) {
+  .biography-textarea {
+    min-height: 200px;
+  }
+  
+  .biography-textarea::placeholder {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+}
+
+/* Tablet - adjust formatting */
+@media (max-width: 768px) and (min-width: 577px) {
+  .biography-container {
+    padding: 30px 25px;
+  }
+  
+  .biography-title {
+    font-size: 1.9rem;
+  }
+  
+  .biography-textarea {
+    min-height: 180px;
+  }
+  
+  .biography-textarea::placeholder {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
+/* Mobile - maintain vertical layout */
+@media (max-width: 576px) {
+  .biography-container {
+    padding: 25px 20px;
+  }
+  
+  .biography-title {
+    font-size: 1.6rem;
+  }
+  
+  .biography-textarea {
+    min-height: 160px;
+  }
+  
+  .biography-textarea::placeholder {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap; /* Still preserve line breaks */
+    word-break: break-word;
+  }
+  
+  /* Ensure bullets are visible on mobile */
+  .biography-textarea::placeholder {
+    content: "Share {{ memorial.first_name }}'s life story here...\A\A• When and where they were born\A• Their family relationships\A• Education and career\A• Hobbies and passions\A• Special memories or qualities\A• What they meant to their loved ones";
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 400px) {
+  .biography-container {
+    padding: 20px 15px;
+  }
+  
+  .biography-title {
+    font-size: 1.4rem;
+  }
+  
+  .biography-textarea {
+    min-height: 150px;
+    font-size: 0.9rem;
+  }
+  
+  .biography-textarea::placeholder {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+}
+
+/* Fix for all textareas and inputs */
+textarea.form-control::placeholder,
+input.form-control::placeholder {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Ensure proper textarea behavior */
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+  max-height: 400px;
+}
+
+/* Animation for better UX */
+.biography-textarea {
+  transition: all 0.3s ease;
+}
+
+.biography-textarea:focus {
+  border-color: #d97b37;
+  box-shadow: 0 0 0 0.25rem rgba(217, 123, 55, 0.25);
+  outline: none;
+}
+
 /* ======================= */
 /* === TRIBUTES STYLES === */
 /* ======================= */
@@ -587,21 +1091,15 @@ body {
 }
 
 .tribute-item,
-.story-item,
-.tribute-special,
-.story-special {
+.story-item {
   background-color: #fffaf3;
-  border: 1px solid #d97b37;
   border-radius: 10px;
-  padding: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .tribute-card,
 .story-card {
   background-color: #fffaf3;
-  border: 1px solid rgba(217, 123, 55, 0.3);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
@@ -612,7 +1110,6 @@ body {
 .story-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 16px rgba(217, 123, 55, 0.15);
-  border-color: rgba(217, 123, 55, 0.5);
 }
 
 .tribute-card .card-body,
@@ -634,11 +1131,74 @@ body {
   margin-bottom: 15px;
 }
 
-.story-card .story-author {
-  color: #6c584c;
-  font-style: italic;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+/* Status badges */
+.status-badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Button Styles */
+.approve-tribute,
+.reject-tribute,
+.edit-tribute,
+.delete-tribute,
+.delete-rejected-tribute {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  border: 1px solid transparent;
+}
+
+.approve-tribute {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.approve-tribute:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.reject-tribute {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.reject-tribute:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.edit-tribute {
+  background-color: transparent;
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.edit-tribute:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.delete-tribute,
+.delete-rejected-tribute {
+  background-color: transparent;
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.delete-tribute:hover,
+.delete-rejected-tribute:hover {
+  background-color: #dc3545;
+  color: white;
 }
 
 .empty-tributes,
@@ -660,10 +1220,7 @@ body {
   font-size: 1.1rem;
 }
 
-#open-tribute-form,
-#open-tribute-form-empty,
-#open-story-form,
-#open-story-form-empty {
+#open-tribute-form {
   background-color: #d97b37;
   border: none;
   color: #fffaf3;
@@ -675,17 +1232,12 @@ body {
   transition: all 0.3s ease;
 }
 
-#open-tribute-form:hover,
-#open-tribute-form-empty:hover,
-#open-story-form:hover,
-#open-story-form-empty:hover {
+#open-tribute-form:hover {
   background-color: #b86528;
   box-shadow: 0 4px 12px rgba(217, 123, 55, 0.6);
 }
 
-#toggle-tributes-btn,
-#toggle-stories-btn,
-#load-more-btn {
+#toggle-tributes-btn {
   background-color: transparent;
   border: 2px solid #d97b37;
   color: #d97b37;
@@ -696,67 +1248,130 @@ body {
   transition: all 0.3s ease;
 }
 
-#toggle-tributes-btn:hover,
-#toggle-stories-btn:hover,
-#load-more-btn:hover {
+#toggle-tributes-btn:hover {
   background-color: #d97b37;
   color: #fffaf3;
 }
 
-.edit-tribute,
-.delete-tribute,
-.edit-story,
-.delete-story {
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 60px;
-  text-align: center;
-  justify-content: center;
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .tributes-section,
+  .stories-section {
+    padding: 20px;
+    width: 95vw;
+    margin: 20px auto;
+  }
+  
+  .tributes-section h2,
+  .stories-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .tribute-card .card-body,
+  .story-card .card-body {
+    padding: 15px;
+  }
+  
+  /* Smaller buttons on mobile */
+  .approve-tribute,
+  .reject-tribute,
+  .edit-tribute,
+  .delete-tribute,
+  .delete-rejected-tribute {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    min-width: 70px;
+  }
+  
+  .btn-text {
+    display: inline;
+  }
+  
+  /* Button icons only on very small screens */
+  @media (max-width: 480px) {
+    .btn-text {
+      display: none;
+    }
+    
+    .approve-tribute,
+    .reject-tribute,
+    .edit-tribute,
+    .delete-tribute,
+    .delete-rejected-tribute {
+      min-width: 40px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      justify-content: center;
+      padding: 0;
+    }
+    
+    .approve-tribute i,
+    .reject-tribute i,
+    .edit-tribute i,
+    .delete-tribute i,
+    .delete-rejected-tribute i {
+      margin: 0;
+    }
+  }
+  
+  .status-badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+  
+  .tribute-card .card-title {
+    font-size: 1rem;
+  }
+  
+  .tribute-card .card-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  #open-tribute-form {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+  
+  #toggle-tributes-btn {
+    padding: 6px 16px;
+    font-size: 0.9rem;
+  }
 }
 
-.delete-tribute,
-.delete-story {
-  color: #dc3545;
-  border: 1px solid #dc3545;
-}
-
-.delete-tribute:hover,
-.delete-story:hover {
-  background-color: #dc3545;
-  color: white;
-}
-
-.edit-tribute,
-.edit-story {
-  color: #0d6efd;
-  border: 1px solid #0d6efd;
-}
-
-.edit-tribute:hover,
-.edit-story:hover {
-  background-color: #0d6efd;
-  color: white;
-}
-
-.story-content {
-  font-family: 'Lora', serif;
-  line-height: 1.8;
-  color: #3e2f1c;
-}
-
-.story-content p {
-  margin-bottom: 1rem;
-}
-
-.story-title {
-  font-weight: 700;
-  color: #3e2f1c;
-  margin-bottom: 0.5rem;
+@media (max-width: 576px) {
+  .tribute-card .card-body {
+    padding: 12px;
+  }
+  
+  .d-flex.flex-wrap.gap-2 {
+    gap: 6px !important;
+  }
+  
+  /* Stack buttons on very small screens */
+  @media (max-width: 400px) {
+    .d-flex.flex-wrap {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .approve-tribute,
+    .reject-tribute,
+    .edit-tribute,
+    .delete-tribute,
+    .delete-rejected-tribute {
+      width: 100%;
+      margin-bottom: 5px;
+      border-radius: 6px;
+      justify-content: flex-start;
+      padding: 8px 12px;
+    }
+    
+    .btn-text {
+      display: inline;
+    }
+  }
 }
 
 /* ===================== */

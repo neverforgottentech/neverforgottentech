@@ -163,26 +163,46 @@ class Memorial(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
+# In your models.py, update the Tribute model to have nullable user field
 class Tribute(models.Model):
-    """
-    Model for memorial tributes/messages.
-    Allows users to leave messages for the memorialized individual.
-    """
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+    ]
+    
     memorial = models.ForeignKey(
-        Memorial, related_name='tributes', on_delete=models.CASCADE
+        'Memorial', 
+        on_delete=models.CASCADE, 
+        related_name='tributes'
     )
+    # Make user nullable initially
     user = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL,  # Changed to SET_NULL
+        null=True,  # Make it nullable
+        blank=True,  # Also allow blank
+        related_name='tributes'
     )
-    author_name = models.CharField(max_length=100)
-    message = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        ordering = ['-created_at']
+    author_name = models.CharField(max_length=200)
+    message = models.TextField(max_length=2000)
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default=STATUS_APPROVED
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Tribute by {self.author_name} for {self.memorial}"
+
+    class Meta:
+        ordering = ['-created_at']
 
 
 class GalleryImage(models.Model):

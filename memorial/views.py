@@ -450,8 +450,14 @@ def upload_profile_picture(request, pk):
 
 
 # ---------------------------
-# Tribute Views
+# Tribute Views with Approval System
 # ---------------------------
+
+# Add these imports at the top of your views.py if not already there
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.urls import reverse
 
 @require_POST
 @login_required
@@ -482,10 +488,14 @@ def create_tribute(request, pk):
         tribute = memorial.tributes.create(
             user=request.user,
             author_name=author_name,
-            message=message
+            message=message,
+            status=Tribute.STATUS_PENDING  # New tributes are pending
         )
 
-        messages.success(request, 'Tribute added successfully!')
+        # Send email notification to memorial owner
+        send_tribute_notification_email(request, tribute, memorial)
+
+        messages.success(request, 'Tribute submitted for approval!')
 
         can_edit = (
             request.user == memorial.user or
@@ -494,10 +504,12 @@ def create_tribute(request, pk):
 
         return JsonResponse({
             'success': True,
+            'message': 'Tribute submitted for approval. The memorial owner will review it.',
             'tribute': {
                 'id': tribute.id,
                 'author_name': tribute.author_name,
                 'message': tribute.message,
+                'status': tribute.status,
                 'created_at': tribute.created_at.strftime("%b %d, %Y")
             },
             'can_edit': can_edit
@@ -554,6 +566,7 @@ def edit_tribute(request, pk):
                 'id': tribute.id,
                 'author_name': tribute.author_name,
                 'message': tribute.message,
+                'status': tribute.status,
                 'created_at': tribute.created_at.strftime("%b %d, %Y")
             },
             'can_edit': True
@@ -597,20 +610,212 @@ def get_tributes(request, pk):
     offset = int(request.GET.get('offset', 0))
     limit = 3
 
-    tributes = (
-        memorial.tributes.all()
-        .order_by('-created_at')[offset:offset + limit]
-    )
+    # If user is memorial owner, show all tributes
+    # If not, show only approved tributes
+    if request.user == memorial.user:
+        tributes = memorial.tributes.all()
+    else:
+        tributes = memorial.tributes.filter(status=Tribute.STATUS_APPROVED)
+    
+    tributes = tributes.order_by('-created_at')[offset:offset + limit]
 
     return JsonResponse({
         'tributes': [{
             'id': t.id,
             'author_name': t.author_name,
             'message': t.message,
+            'status': t.status,
             'created_at': t.created_at.strftime("%b %d, %Y")
         } for t in tributes],
         'is_owner': request.user == memorial.user
     })
+
+
+# NEW VIEWS FOR APPROVAL SYSTEM
+
+@require_POST
+@login_required
+def approve_tribute(request, pk):
+    """Approve a pending tribute."""
+    try:
+        tribute = Tribute.objects.get(id=pk)
+        
+        # Check if user is the memorial owner
+        if request.user != tribute.memorial.user:
+            return JsonResponse(
+                {'success': False, 'error': 'Permission denied'},
+                status=403
+            )
+        
+        tribute.status = Tribute.STATUS_APPROVED
+        tribute.save()
+        
+        # Optional: Send notification to tribute author
+        # send_tribute_approved_email(request, tribute)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Tribute approved successfully',
+            'tribute_id': tribute.id
+        })
+        
+    except Tribute.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'error': 'Tribute not found'},
+            status=404
+        )
+
+
+@require_POST
+@login_required
+def reject_tribute(request, pk):
+    """Reject a pending tribute."""
+    try:
+        tribute = Tribute.objects.get(id=pk)
+        
+        # Check if user is the memorial owner
+        if request.user != tribute.memorial.user:
+            return JsonResponse(
+                {'success': False, 'error': 'Permission denied'},
+                status=403
+            )
+        
+        tribute.status = Tribute.STATUS_REJECTED
+        tribute.save()
+        
+        # Optional: Send notification to tribute author
+        # send_tribute_rejected_email(request, tribute)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Tribute rejected',
+            'tribute_id': tribute.id
+        })
+        
+    except Tribute.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'error': 'Tribute not found'},
+            status=404
+        )
+
+
+@require_POST
+@login_required
+def delete_rejected_tribute(request, pk):
+    """Permanently delete a rejected tribute."""
+    try:
+        tribute = Tribute.objects.get(id=pk)
+        
+        # Check if user is the memorial owner and tribute is rejected
+        if (request.user != tribute.memorial.user or 
+                tribute.status != Tribute.STATUS_REJECTED):
+            return JsonResponse(
+                {'success': False, 'error': 'Permission denied'},
+                status=403
+            )
+        
+        tribute.delete()
+        return JsonResponse({
+            'success': True,
+            'message': 'Tribute deleted permanently'
+        })
+        
+    except Tribute.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'error': 'Tribute not found'},
+            status=404
+        )
+
+
+# EMAIL HELPER FUNCTIONS
+
+def send_tribute_notification_email(request, tribute, memorial):
+    """Send email to memorial owner about new tribute."""
+    try:
+        # Memorial owner's email
+        recipient_email = memorial.user.email
+        
+        # Create email content
+        memorial_url = request.build_absolute_uri(
+            reverse('memorials:memorial_edit', args=[memorial.pk])
+        )
+        
+        subject = f'New Tribute Pending Approval for {memorial.first_name} {memorial.last_name}'
+        
+        html_message = render_to_string('emails/tribute_notification.html', {
+            'tribute': tribute,
+            'memorial': memorial,
+            'memorial_url': memorial_url,
+            'site_name': 'NeverForgotten',
+        })
+        
+        plain_message = strip_tags(html_message)
+        
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            html_message=html_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient_email],
+            fail_silently=False,
+        )
+        
+    except Exception as e:
+        # Log the error but don't break the tribute creation
+        print(f"Failed to send email: {e}")
+        # You might want to log this to a proper logging system
+
+
+def send_tribute_approved_email(request, tribute):
+    """Optional: Send email to tribute author when approved."""
+    try:
+        if tribute.user and tribute.user.email:
+            subject = f'Your Tribute Has Been Approved'
+            
+            html_message = render_to_string('emails/tribute_approved.html', {
+                'tribute': tribute,
+                'memorial': tribute.memorial,
+                'site_name': 'NeverForgotten',
+            })
+            
+            plain_message = strip_tags(html_message)
+            
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                html_message=html_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[tribute.user.email],
+                fail_silently=False,
+            )
+    except Exception as e:
+        print(f"Failed to send approval email: {e}")
+
+
+def send_tribute_rejected_email(request, tribute):
+    """Optional: Send email to tribute author when rejected."""
+    try:
+        if tribute.user and tribute.user.email:
+            subject = f'Update on Your Tribute Submission'
+            
+            html_message = render_to_string('emails/tribute_rejected.html', {
+                'tribute': tribute,
+                'memorial': tribute.memorial,
+                'site_name': 'NeverForgotten',
+            })
+            
+            plain_message = strip_tags(html_message)
+            
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                html_message=html_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[tribute.user.email],
+                fail_silently=False,
+            )
+    except Exception as e:
+        print(f"Failed to send rejection email: {e}")
 
 
 @login_required
