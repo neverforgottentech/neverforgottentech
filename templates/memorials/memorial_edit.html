@@ -1443,6 +1443,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Get form elements
   const tributeList = document.getElementById('tribute-list');
+  const visibleTributes = document.getElementById('visible-tributes');
   const openTributeFormBtn = document.getElementById('open-tribute-form');
   const tributeForm = document.getElementById('tribute-form');
   const editTributeForm = document.getElementById('edit-tribute-form');
@@ -1469,11 +1470,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Generates HTML for a tribute card
    */
   function generateTributeCard(tribute, isOwner = false, isAuthor = false) {
-    const dateStr = new Date(tribute.created_at).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const dateStr = tribute.created_at;
 
     let statusBadge = '';
     let borderClass = '';
@@ -1598,8 +1595,6 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   openTributeFormBtn.addEventListener('click', () => {
     tributeForm.reset();
-    // FIXED: Correct URL pattern based on your urls.py
-    // Your pattern: 'memorials/<int:pk>/tributes/create/'
     tributeForm.action = `/memorials/${memorialId}/tributes/create/`;
     tributeFormModal.show();
     const firstInput = tributeForm.querySelector('input, textarea, select');
@@ -1630,7 +1625,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (!response.ok) {
-        // Try to get error details from response
         let errorMessage = `Network error: ${response.status} ${response.statusText}`;
         try {
           const errorData = await response.json();
@@ -1648,12 +1642,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const emptyMessage = document.getElementById('empty-tributes-message');
         if (emptyMessage) emptyMessage.remove();
 
-        // Add new tribute to the top
-        // Note: You need to determine if current user is owner/author
-        // This depends on your view response
-        const isOwner = memorialSection.dataset.isOwner === 'true';
-        const isAuthor = data.can_edit; // Assuming this indicates author
-        tributeList.insertAdjacentHTML('afterbegin', generateTributeCard(data.tribute, isOwner, isAuthor));
+        // Check if user is the memorial owner from the response
+        const isOwner = data.is_owner || false;
+        const isAuthor = data.can_edit || false;
+        
+        // Generate and add the new tribute card
+        const newTributeHTML = generateTributeCard(data.tribute, isOwner, isAuthor);
+        
+        // Insert at the beginning of visible tributes
+        if (visibleTributes) {
+          visibleTributes.insertAdjacentHTML('afterbegin', newTributeHTML);
+        } else {
+          tributeList.insertAdjacentHTML('afterbegin', newTributeHTML);
+        }
         
         // Close modal and reset
         tributeFormModal.hide();
@@ -1661,7 +1662,7 @@ document.addEventListener('DOMContentLoaded', () => {
         openTributeFormBtn.focus();
         
         // Show success message
-        alert(data.message || 'Tribute submitted for approval!');
+        alert(data.message || 'Tribute submitted successfully!');
       } else {
         throw new Error(data.error || 'Failed to create tribute');
       }
@@ -1746,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         // Update the tribute in the list
         const tributeElem = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
-        const isOwner = memorialSection.dataset.isOwner === 'true';
+        const isOwner = data.is_owner || false;
         const isAuthor = data.can_edit;
         
         if (tributeElem) {
@@ -1789,7 +1790,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Show empty state if no tributes left
         if (!document.querySelector('.tribute-item')) {
-          document.getElementById('empty-tributes-message')?.classList.remove('d-none');
+          const emptyHTML = `
+            <div class="col-12" id="empty-tributes-message">
+              <div class="empty-tributes text-center py-5">
+                <i class="fas fa-heart text-muted fa-4x mb-4"></i>
+                <h3 class="h5 text-muted mb-3">No tributes yet</h3>
+                <p class="text-muted mb-4">
+                  Be the first to share your memories
+                </p>
+              </div>
+            </div>
+          `;
+          if (visibleTributes) {
+            visibleTributes.innerHTML = emptyHTML;
+          } else {
+            tributeList.innerHTML = emptyHTML;
+          }
         }
         alert('Tribute deleted successfully!');
       } else {
@@ -1831,6 +1847,10 @@ document.addEventListener('DOMContentLoaded', () => {
           const statusBadge = tributeElem.querySelector('.status-badge');
           if (statusBadge) statusBadge.remove();
           
+          // Get current tribute data for buttons
+          const authorName = tributeElem.querySelector('.card-title').textContent.trim();
+          const message = tributeElem.querySelector('.tribute-message').textContent.trim();
+          
           // Update buttons to show edit/delete only
           const actionContainer = tributeElem.querySelector('.mt-auto.pt-2.border-top');
           if (actionContainer) {
@@ -1838,8 +1858,8 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="d-flex flex-wrap gap-2 justify-content-end">
                 <button class="btn btn-sm btn-outline-primary edit-tribute" 
                         data-tribute-id="${tributeId}"
-                        data-author-name="${tributeElem.querySelector('.card-title').textContent.trim()}"
-                        data-message="${tributeElem.querySelector('.tribute-message').textContent.trim()}"
+                        data-author-name="${authorName}"
+                        data-message="${message}"
                         aria-label="Edit tribute">
                   <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
                 </button>
@@ -1943,7 +1963,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Show empty state if no tributes left
         if (!document.querySelector('.tribute-item')) {
-          document.getElementById('empty-tributes-message')?.classList.remove('d-none');
+          const emptyHTML = `
+            <div class="col-12" id="empty-tributes-message">
+              <div class="empty-tributes text-center py-5">
+                <i class="fas fa-heart text-muted fa-4x mb-4"></i>
+                <h3 class="h5 text-muted mb-3">No tributes yet</h3>
+                <p class="text-muted mb-4">
+                  Be the first to share your memories
+                </p>
+              </div>
+            </div>
+          `;
+          if (visibleTributes) {
+            visibleTributes.innerHTML = emptyHTML;
+          } else {
+            tributeList.innerHTML = emptyHTML;
+          }
         }
         alert('Rejected tribute deleted permanently');
       } else {
@@ -1965,13 +2000,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Update button text and icon
       const icon = this.querySelector('i');
-      const text = this.querySelector('span');
       if (hiddenTributes.classList.contains('d-none')) {
         icon.className = 'fas fa-chevron-down me-2';
-        text.textContent = 'View All Tributes';
+        this.innerHTML = '<i class="fas fa-chevron-down me-2"></i>View All Tributes';
       } else {
         icon.className = 'fas fa-chevron-up me-2';
-        text.textContent = 'View Less';
+        this.innerHTML = '<i class="fas fa-chevron-up me-2"></i>View Less';
       }
     });
   }
@@ -1980,7 +2014,6 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('Tribute system initialized');
   console.log('Memorial ID:', memorialId);
   console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
-  console.log('Tribute create URL:', `/memorials/${memorialId}/tributes/create/`);
 });
 </script>
 <script>

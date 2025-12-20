@@ -1138,21 +1138,24 @@ textarea.form-control {
   border-radius: 4px;
 }
 
-/* Button Styles */
+/* Button Styles - Improved for better responsiveness */
 .approve-tribute,
 .reject-tribute,
 .edit-tribute,
 .delete-tribute,
 .delete-rejected-tribute {
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 80px;
+  gap: 6px;
   border: 1px solid transparent;
+  white-space: nowrap;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .approve-tribute {
@@ -1164,6 +1167,8 @@ textarea.form-control {
 .approve-tribute:hover {
   background-color: #218838;
   border-color: #1e7e34;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
 .reject-tribute {
@@ -1175,17 +1180,21 @@ textarea.form-control {
 .reject-tribute:hover {
   background-color: #c82333;
   border-color: #bd2130;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .edit-tribute {
   background-color: transparent;
-  color: #0d6efd;
-  border-color: #0d6efd;
+  color: #d97b37;
+  border-color: #d97b37;
 }
 
 .edit-tribute:hover {
-  background-color: #0d6efd;
+  background-color: #d97b37;
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(217, 123, 55, 0.3);
 }
 
 .delete-tribute,
@@ -1199,6 +1208,13 @@ textarea.form-control {
 .delete-rejected-tribute:hover {
   background-color: #dc3545;
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Button container */
+.tribute-card .d-flex.flex-wrap.gap-2 {
+  gap: 8px !important;
 }
 
 .empty-tributes,
@@ -1253,7 +1269,23 @@ textarea.form-control {
   color: #fffaf3;
 }
 
-/* Mobile Responsive Styles */
+/* ======================= */
+/* RESPONSIVE BREAKPOINTS  */
+/* ======================= */
+
+/* Tablet and smaller desktops (1024px and below) */
+@media (max-width: 1024px) {
+  .approve-tribute,
+  .reject-tribute,
+  .edit-tribute,
+  .delete-tribute,
+  .delete-rejected-tribute {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Tablets (768px and below) */
 @media (max-width: 768px) {
   .tributes-section,
   .stories-section {
@@ -1272,47 +1304,14 @@ textarea.form-control {
     padding: 15px;
   }
   
-  /* Smaller buttons on mobile */
   .approve-tribute,
   .reject-tribute,
   .edit-tribute,
   .delete-tribute,
   .delete-rejected-tribute {
-    padding: 4px 8px;
+    padding: 6px 12px;
     font-size: 0.75rem;
-    min-width: 70px;
-  }
-  
-  .btn-text {
-    display: inline;
-  }
-  
-  /* Button icons only on very small screens */
-  @media (max-width: 480px) {
-    .btn-text {
-      display: none;
-    }
-    
-    .approve-tribute,
-    .reject-tribute,
-    .edit-tribute,
-    .delete-tribute,
-    .delete-rejected-tribute {
-      min-width: 40px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      justify-content: center;
-      padding: 0;
-    }
-    
-    .approve-tribute i,
-    .reject-tribute i,
-    .edit-tribute i,
-    .delete-tribute i,
-    .delete-rejected-tribute i {
-      margin: 0;
-    }
+    gap: 4px;
   }
   
   .status-badge {
@@ -1340,37 +1339,126 @@ textarea.form-control {
   }
 }
 
+/* Small tablets and large phones (576px and below) */
 @media (max-width: 576px) {
   .tribute-card .card-body {
     padding: 12px;
   }
   
-  .d-flex.flex-wrap.gap-2 {
+  .tribute-card .d-flex.flex-wrap.gap-2 {
     gap: 6px !important;
   }
   
-  /* Stack buttons on very small screens */
-  @media (max-width: 400px) {
-    .d-flex.flex-wrap {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    
-    .approve-tribute,
-    .reject-tribute,
-    .edit-tribute,
-    .delete-tribute,
-    .delete-rejected-tribute {
-      width: 100%;
-      margin-bottom: 5px;
-      border-radius: 6px;
-      justify-content: flex-start;
-      padding: 8px 12px;
-    }
-    
-    .btn-text {
-      display: inline;
-    }
+  .approve-tribute,
+  .reject-tribute,
+  .edit-tribute,
+  .delete-tribute,
+  .delete-rejected-tribute {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  
+  /* Two buttons per row on small screens */
+  .tribute-card .d-flex.flex-wrap {
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .tribute-card .d-flex.flex-wrap > button {
+    flex: 1 1 calc(50% - 3px);
+    max-width: calc(50% - 3px);
+  }
+}
+
+/* Mobile phones (480px and below) */
+@media (max-width: 480px) {
+  .tributes-section,
+  .stories-section {
+    padding: 15px;
+    width: 98vw;
+  }
+  
+  .approve-tribute,
+  .reject-tribute,
+  .edit-tribute,
+  .delete-tribute,
+  .delete-rejected-tribute {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+  
+  /* Keep text visible but compact */
+  .btn-text {
+    display: inline;
+  }
+  
+  .approve-tribute i,
+  .reject-tribute i,
+  .edit-tribute i,
+  .delete-tribute i,
+  .delete-rejected-tribute i {
+    font-size: 0.85rem;
+  }
+}
+
+/* Very small phones (400px and below) */
+@media (max-width: 400px) {
+  .tribute-card .card-body {
+    padding: 10px;
+  }
+  
+  /* Stack buttons vertically on very small screens */
+  .tribute-card .d-flex.flex-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .tribute-card .d-flex.flex-wrap > button {
+    flex: 1 1 auto;
+    max-width: 100%;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .approve-tribute,
+  .reject-tribute,
+  .edit-tribute,
+  .delete-tribute,
+  .delete-rejected-tribute {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .btn-text {
+    display: inline;
+  }
+}
+
+/* Extra small phones (350px and below) */
+@media (max-width: 350px) {
+  .tributes-section h2,
+  .stories-section h2 {
+    font-size: 1.3rem;
+  }
+  
+  .tribute-card .card-title {
+    font-size: 0.95rem;
+  }
+  
+  .tribute-card .card-text {
+    font-size: 0.85rem;
+  }
+  
+  .approve-tribute,
+  .reject-tribute,
+  .edit-tribute,
+  .delete-tribute,
+  .delete-rejected-tribute {
+    padding: 8px 10px;
+    font-size: 0.75rem;
   }
 }
 

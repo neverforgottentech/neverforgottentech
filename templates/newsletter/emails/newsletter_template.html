@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ newsletter.subject }}</title>
     <style type="text/css">
+        /* Import Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600&display=swap');
+        
         /* Base Styles */
         body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #333333;
-            background-color: #f7f7f7;
+            font-family: 'Lora', serif;
+            line-height: 1.7;
+            color: #3e2f1c;
+            background-color: rgba(255, 249, 230, 0.95);
             margin: 0;
             padding: 0;
         }
@@ -20,82 +23,186 @@
             max-width: 600px;
             margin: 0 auto;
             background: #ffffff;
+            border: 1px solid #f2e5c7;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         /* Header */
         .header {
-            background-color: #d97b37; /* Your brand orange */
-            padding: 30px 20px;
+            background: linear-gradient(135deg, #d96e2b 0%, #b7551e 100%);
+            padding: 40px 30px;
             text-align: center;
+            border-bottom: 3px solid #3e2f1c;
         }
         
         .header h1 {
-            color: white;
+            color: #fff9e6;
             margin: 0;
-            font-size: 24px;
+            font-size: 28px;
+            font-family: 'Lora', serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header-subtitle {
+            color: #fff9e6;
+            font-size: 14px;
+            margin-top: 10px;
+            font-style: italic;
+            opacity: 0.95;
         }
         
         /* Content */
         .content {
-            padding: 30px 20px;
+            padding: 40px 30px;
+            background: #ffffff;
         }
         
-        .content h2 {
-            color: #d97b37;
-            font-size: 20px;
+        .greeting {
+            color: #3e2f1c;
+            font-size: 22px;
+            font-weight: 600;
             margin-top: 0;
+            margin-bottom: 25px;
+            font-family: 'Montserrat', sans-serif;
         }
         
         .content p {
             margin-bottom: 20px;
+            color: #3e2f1c;
+            font-size: 16px;
         }
         
-        /* Features List */
+        /* Features Box */
         .features {
-            background: #f9f9f9;
-            border-left: 4px solid #d97b37;
-            padding: 15px 20px;
-            margin: 20px 0;
+            background: linear-gradient(135deg, #fff9e6 0%, #f5e6cc 100%);
+            border-left: 5px solid #d96e2b;
+            border-radius: 8px;
+            padding: 25px 30px;
+            margin: 30px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .features h3 {
+            color: #3e2f1c;
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
         }
         
         .features ul {
             padding-left: 20px;
             margin: 0;
+            color: #3e2f1c;
+        }
+        
+        .features li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #d96e2b 0%, #b7551e 100%);
+            color: #ffffff !important;
+            padding: 15px 35px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            margin: 20px 0;
+            border: 2px solid #3e2f1c;
+            box-shadow: 0 4px 12px rgba(217, 110, 43, 0.3);
+            transition: all 0.3s ease;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #f2e5c7, transparent);
+            margin: 30px 0;
         }
         
         /* Footer */
         .footer {
-            background-color: #eeeeee;
-            padding: 20px;
+            background: linear-gradient(135deg, #3e2f1c 0%, #2a2115 100%);
+            padding: 30px;
             text-align: center;
-            font-size: 12px;
-            color: #777777;
+            font-size: 13px;
+            color: #f2e5c7;
+            border-top: 3px solid #d96e2b;
+        }
+        
+        .footer p {
+            margin: 10px 0;
+            line-height: 1.6;
         }
         
         .footer a {
-            color: #d97b37;
+            color: #d96e2b;
             text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
         
-        /* Button */
-        .cta-button {
-            display: inline-block;
-            background-color: #d97b37;
-            color: white !important;
-            padding: 12px 25px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            margin: 15px 0;
+        .footer a:hover {
+            color: #fff9e6;
+        }
+        
+        .footer-logo {
+            font-family: 'Lora', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            color: #fff9e6;
+        }
+        
+        /* Accent Line */
+        .accent-line {
+            width: 60px;
+            height: 3px;
+            background: #d96e2b;
+            margin: 20px auto;
         }
         
         /* Responsive */
         @media screen and (max-width: 480px) {
             .header {
-                padding: 20px 15px;
+                padding: 30px 20px;
             }
+            
+            .header h1 {
+                font-size: 22px;
+                letter-spacing: 2px;
+            }
+            
             .content {
-                padding: 20px 15px;
+                padding: 30px 20px;
+            }
+            
+            .greeting {
+                font-size: 20px;
+            }
+            
+            .features {
+                padding: 20px;
+            }
+            
+            .cta-button {
+                padding: 12px 25px;
+                font-size: 15px;
+            }
+            
+            .footer {
+                padding: 25px 20px;
             }
         }
     </style>
@@ -104,40 +211,49 @@
     <div class="email-container">
         <!-- Header -->
         <div class="header">
-            <h1>NeverForgotten Memorials</h1>
+            <h1>NeverForgotten</h1>
+            <div class="header-subtitle">Preserving Memories, Honoring Lives</div>
         </div>
         
         <!-- Main Content -->
         <div class="content">
-            <h2>Hello {% if subscriber.first_name %}{{ subscriber.first_name }}{% else %}Subscriber{% endif %},</h2>
+            <h2 class="greeting">Hello {% if subscriber.first_name %}{{ subscriber.first_name }}{% else %}Dear Friend{% endif %},</h2>
             
             <div>
                 {{ newsletter.content|safe }}
             </div>
             
+            <div class="divider"></div>
+            
             <div class="features">
-                <h3>In this newsletter:</h3>
+                <h3>In This Newsletter:</h3>
                 <ul>
-                    <li>New memorial features</li>
-                    <li>Community stories</li>
-                    <li>Special announcements</li>
+                    <li>New memorial features to honor your loved ones</li>
+                    <li>Heartfelt stories from our community</li>
+                    <li>Special announcements and updates</li>
                 </ul>
             </div>
             
             {% if cta_link %}
-            <a href="{{ cta_link }}" class="cta-button">
-                {{ cta_text|default:"Learn More" }}
-            </a>
+            <div style="text-align: center;">
+                <a href="{{ cta_link }}" class="cta-button">
+                    {{ cta_text|default:"Learn More" }}
+                </a>
+            </div>
             {% endif %}
         </div>
         
         <!-- Footer -->
         <div class="footer">
+            <div class="footer-logo">NEVERFORGOTTEN</div>
+            <div class="accent-line"></div>
             <p>
-                &copy; {% now "Y" %} NeverForgotten Memorials. All rights reserved.<br>
-                <a href="{{ unsubscribe_url }}">Unsubscribe</a> from these emails.
+                &copy; {% now "Y" %} NeverForgotten Memorials. All rights reserved.
             </p>
             <p>
+                <a href="{{ unsubscribe_url }}">Unsubscribe</a> from these emails
+            </p>
+            <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
                 Our address: 123 Memorial Lane, City, Country
             </p>
         </div>

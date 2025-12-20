@@ -1,38 +1,384 @@
-<!-- templates/newsletter/emails/newsletter_template.html -->
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to NeverForgotten</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { color: #d97b37; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .content { padding: 20px 0; }
-        .footer { font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
-        .unsubscribe { margin-top: 20px; font-size: 12px; color: #999; }
+    <style type="text/css">
+        /* Import Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600&display=swap');
+        
+        /* Base Styles */
+        body {
+            font-family: 'Lora', serif;
+            line-height: 1.7;
+            color: #3e2f1c;
+            background-color: rgba(255, 249, 230, 0.95);
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Email Container */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #f2e5c7;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Hero Header */
+        .hero-header {
+            background: linear-gradient(135deg, #d96e2b 0%, #b7551e 100%);
+            padding: 50px 30px;
+            text-align: center;
+            border-bottom: 3px solid #3e2f1c;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 249, 230, 0.1) 0%, transparent 70%);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-header h1 {
+            color: #fff9e6;
+            margin: 0 0 10px 0;
+            font-size: 32px;
+            font-family: 'Lora', serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero-subtitle {
+            color: #fff9e6;
+            font-size: 18px;
+            margin: 15px 0 0 0;
+            font-style: italic;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+        
+        .welcome-badge {
+            display: inline-block;
+            background: rgba(255, 249, 230, 0.2);
+            color: #fff9e6;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            margin-top: 20px;
+            border: 2px solid rgba(255, 249, 230, 0.4);
+        }
+        
+        /* Content */
+        .content {
+            padding: 45px 35px;
+            background: #ffffff;
+        }
+        
+        .greeting {
+            color: #3e2f1c;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+        }
+        
+        .intro-text {
+            text-align: center;
+            font-size: 17px;
+            color: #3e2f1c;
+            margin-bottom: 35px;
+            line-height: 1.8;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+            color: #3e2f1c;
+            font-size: 16px;
+        }
+        
+        /* What to Expect Section */
+        .expectations-section {
+            background: linear-gradient(135deg, #fff9e6 0%, #f5e6cc 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border: 2px solid #f2e5c7;
+        }
+        
+        .expectations-section h2 {
+            color: #3e2f1c;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 18px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 8px;
+            border-left: 4px solid #d96e2b;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .feature-icon {
+            color: #d96e2b;
+            font-size: 24px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+        
+        .feature-text {
+            color: #3e2f1c;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        /* Divider */
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #d96e2b, transparent);
+            margin: 35px 0;
+        }
+        
+        /* Call to Action Box */
+        .cta-box {
+            background: linear-gradient(135deg, #3e2f1c 0%, #2a2115 100%);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            border: 2px solid #d96e2b;
+        }
+        
+        .cta-box h3 {
+            color: #fff9e6;
+            font-size: 20px;
+            margin: 0 0 15px 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .cta-box p {
+            color: #f2e5c7;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #d96e2b 0%, #b7551e 100%);
+            color: #ffffff !important;
+            padding: 15px 35px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            border: 2px solid #fff9e6;
+            box-shadow: 0 4px 12px rgba(217, 110, 43, 0.4);
+            font-size: 16px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #3e2f1c 0%, #2a2115 100%);
+            padding: 35px 30px;
+            text-align: center;
+            border-top: 3px solid #d96e2b;
+        }
+        
+        .footer-logo {
+            font-family: 'Lora', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            color: #fff9e6;
+        }
+        
+        .accent-line {
+            width: 60px;
+            height: 3px;
+            background: #d96e2b;
+            margin: 15px auto 20px auto;
+        }
+        
+        .footer p {
+            margin: 10px 0;
+            line-height: 1.6;
+            color: #f2e5c7;
+            font-size: 13px;
+        }
+        
+        .footer a {
+            color: #d96e2b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .footer a:hover {
+            color: #fff9e6;
+        }
+        
+        .unsubscribe {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(242, 229, 199, 0.3);
+        }
+        
+        /* Responsive */
+        @media screen and (max-width: 480px) {
+            .hero-header {
+                padding: 40px 20px;
+            }
+            
+            .hero-header h1 {
+                font-size: 26px;
+                letter-spacing: 2px;
+            }
+            
+            .hero-subtitle {
+                font-size: 16px;
+            }
+            
+            .content {
+                padding: 35px 25px;
+            }
+            
+            .greeting {
+                font-size: 22px;
+            }
+            
+            .intro-text {
+                font-size: 16px;
+            }
+            
+            .expectations-section {
+                padding: 25px 20px;
+            }
+            
+            .feature-item {
+                padding: 12px;
+            }
+            
+            .cta-box {
+                padding: 25px 20px;
+            }
+            
+            .cta-button {
+                padding: 12px 25px;
+                font-size: 15px;
+            }
+            
+            .footer {
+                padding: 30px 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Welcome {% if subscriber.first_name %}{{ subscriber.first_name }}{% else %}Subscriber{% endif %}!</h1>
+    <div class="email-container">
+        <!-- Hero Header -->
+        <div class="hero-header">
+            <div class="hero-content">
+                <h1>NeverForgotten</h1>
+                <p class="hero-subtitle">Preserving Memories, Honoring Lives</p>
+                <div class="welcome-badge">Welcome to Our Community</div>
+            </div>
         </div>
         
+        <!-- Main Content -->
         <div class="content">
-            <p>Thank you for subscribing to NeverForgotten Memorials.</p>
-            <p>You'll receive updates about:</p>
-            <ul>
-                <li>New memorial features</li>
-                <li>Community stories</li>
-                <li>Special announcements</li>
-            </ul>
+            <h2 class="greeting">Welcome{% if subscriber.first_name %}, {{ subscriber.first_name }}{% endif %}!</h2>
+            
+            <p class="intro-text">
+                Thank you for joining NeverForgotten Memorials. We're honored to have you as part of our community dedicated to preserving cherished memories and celebrating the lives of those we love.
+            </p>
+            
+            <div class="expectations-section">
+                <h2>What You'll Receive:</h2>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <span class="feature-icon">✦</span>
+                        <span class="feature-text"><strong>New Memorial Features</strong> – Discover the latest tools and updates to help you create meaningful tributes</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">✦</span>
+                        <span class="feature-text"><strong>Community Stories</strong> – Read heartfelt stories and experiences shared by our community members</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">✦</span>
+                        <span class="feature-text"><strong>Special Announcements</strong> – Stay informed about important updates, events, and resources</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="cta-box">
+                <h3>Ready to Get Started?</h3>
+                <p>Explore our platform and discover how NeverForgotten can help you honor and remember your loved ones.</p>
+                <a href="https://neverforgotten.com" class="cta-button">Visit NeverForgotten</a>
+            </div>
+            
+            <p style="text-align: center; margin-top: 30px; font-style: italic; color: #5a4a30;">
+                We're here to support you every step of the way.
+            </p>
         </div>
         
+        <!-- Footer -->
         <div class="footer">
-            <p>If you didn't request this subscription, please ignore this email.</p>
-            <p class="unsubscribe">
-                <a href="{{ unsubscribe_url }}">Click here to unsubscribe</a> from our newsletter.
+            <div class="footer-logo">NEVERFORGOTTEN</div>
+            <div class="accent-line"></div>
+            <p>
+                Thank you for trusting us with your memories.
             </p>
+            <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
+                Our address: 123 Memorial Lane, City, Country
+            </p>
+            <div class="unsubscribe">
+                <p>
+                    If you didn't request this subscription, please ignore this email.
+                </p>
+                <p>
+                    <a href="{{ unsubscribe_url }}">Click here to unsubscribe</a> from our newsletter.
+                </p>
+            </div>
         </div>
     </div>
 </body>

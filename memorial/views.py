@@ -485,17 +485,28 @@ def create_tribute(request, pk):
         )
 
     try:
+        # Auto-approve if the user is the memorial owner
+        if request.user == memorial.user:
+            status = Tribute.STATUS_APPROVED
+            success_message = 'Your tribute has been posted!'
+            response_message = 'Your tribute has been posted successfully.'
+        else:
+            status = Tribute.STATUS_PENDING
+            success_message = 'Tribute submitted for approval!'
+            response_message = 'Tribute submitted for approval. The memorial owner will review it.'
+
         tribute = memorial.tributes.create(
             user=request.user,
             author_name=author_name,
             message=message,
-            status=Tribute.STATUS_PENDING  # New tributes are pending
+            status=status  # Use the status determined above
         )
 
-        # Send email notification to memorial owner
-        send_tribute_notification_email(request, tribute, memorial)
+        # Only send email notification if it's NOT the memorial owner
+        if request.user != memorial.user:
+            send_tribute_notification_email(request, tribute, memorial)
 
-        messages.success(request, 'Tribute submitted for approval!')
+        messages.success(request, success_message)
 
         can_edit = (
             request.user == memorial.user or
@@ -504,15 +515,16 @@ def create_tribute(request, pk):
 
         return JsonResponse({
             'success': True,
-            'message': 'Tribute submitted for approval. The memorial owner will review it.',
+            'message': response_message,
             'tribute': {
                 'id': tribute.id,
                 'author_name': tribute.author_name,
                 'message': tribute.message,
-                'status': tribute.status,
+                'status': tribute.status,  # This will be 'approved' for owner
                 'created_at': tribute.created_at.strftime("%b %d, %Y")
             },
-            'can_edit': can_edit
+            'can_edit': can_edit,
+            'is_owner': request.user == memorial.user  # Important for JavaScript
         })
 
     except Exception as e:
