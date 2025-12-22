@@ -226,6 +226,16 @@ class Story(models.Model):
     Model for longer memorial stories.
     Allows for more detailed narratives about the memorialized individual.
     """
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+    ]
+    
     memorial = models.ForeignKey(
         Memorial, related_name='stories', on_delete=models.CASCADE
     )
@@ -235,7 +245,13 @@ class Story(models.Model):
     author_name = models.CharField(max_length=100)
     title = models.CharField(max_length=200)
     content = models.TextField()
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default=STATUS_APPROVED
+    )
     created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']

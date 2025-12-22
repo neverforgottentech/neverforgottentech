@@ -1026,7 +1026,7 @@ def delete_gallery_image(request, memorial_id, image_id):
 
 
 # ---------------------------
-# Story Views
+# Story Views with Approval System
 # ---------------------------
 
 @require_POST
@@ -1061,14 +1061,29 @@ def create_story(request, pk):
         )
 
     try:
+        # Auto-approve if the user is the memorial owner
+        if request.user == memorial.user:
+            status = Story.STATUS_APPROVED
+            success_message = 'Your story has been posted!'
+            response_message = 'Your story has been posted successfully.'
+        else:
+            status = Story.STATUS_PENDING
+            success_message = 'Story submitted for approval!'
+            response_message = 'Story submitted for approval. The memorial owner will review it.'
+
         story = memorial.stories.create(
             user=request.user,
             author_name=author_name,
             title=title,
-            content=content
+            content=content,
+            status=status
         )
 
-        messages.success(request, 'Story added successfully!')
+        # Only send email notification if it's NOT the memorial owner
+        if request.user != memorial.user:
+            send_story_notification_email(request, story, memorial)
+
+        messages.success(request, success_message)
 
         can_edit = (
             request.user == memorial.user or
@@ -1077,14 +1092,17 @@ def create_story(request, pk):
 
         return JsonResponse({
             'success': True,
+            'message': response_message,
             'story': {
                 'id': story.id,
                 'author_name': story.author_name,
                 'title': story.title,
                 'content': story.content,
+                'status': story.status,
                 'created_at': story.created_at.strftime("%b %d, %Y")
             },
-            'can_edit': can_edit
+            'can_edit': can_edit,
+            'is_owner': request.user == memorial.user
         })
 
     except Exception as e:
@@ -1136,9 +1154,11 @@ def edit_story(request, pk):
                 'author_name': story.author_name,
                 'title': story.title,
                 'content': story.content,
+                'status': story.status,
                 'created_at': story.created_at.strftime("%b %d, %Y")
             },
-            'can_edit': True
+            'can_edit': True,
+            'is_owner': request.user == story.memorial.user
         })
     except Story.DoesNotExist:
         return JsonResponse(
@@ -1179,10 +1199,14 @@ def get_stories(request, pk):
     offset = int(request.GET.get('offset', 0))
     limit = 3
 
-    stories = (
-        memorial.stories.all()
-        .order_by('-created_at')[offset:offset + limit]
-    )
+    # If user is memorial owner, show all stories
+    # If not, show only approved stories
+    if request.user == memorial.user:
+        stories = memorial.stories.all()
+    else:
+        stories = memorial.stories.filter(status=Story.STATUS_APPROVED)
+    
+    stories = stories.order_by('-created_at')[offset:offset + limit]
 
     return JsonResponse({
         'stories': [{
@@ -1190,10 +1214,139 @@ def get_stories(request, pk):
             'author_name': s.author_name,
             'title': s.title,
             'content': s.content,
+            'status': s.status,
             'created_at': s.created_at.strftime("%b %d, %Y")
         } for s in stories],
         'is_owner': request.user == memorial.user
     })
+
+
+# NEW VIEWS FOR STORY APPROVAL SYSTEM
+
+@require_POST
+@login_required
+def approve_story(request, pk):
+    """Approve a pending story."""
+    try:
+        story = Story.objects.get(id=pk)
+        
+        # Check if user is the memorial owner
+        if request.user != story.memorial.user:
+            return JsonResponse(
+                {'success': False, 'error': 'Permission denied'},
+                status=403
+            )
+        
+        story.status = Story.STATUS_APPROVED
+        story.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Story approved successfully',
+            'story_id': story.id
+        })
+        
+    except Story.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'error': 'Story not found'},
+            status=404
+        )
+
+
+@require_POST
+@login_required
+def reject_story(request, pk):
+    """Reject a pending story."""
+    try:
+        story = Story.objects.get(id=pk)
+        
+        # Check if user is the memorial owner
+        if request.user != story.memorial.user:
+            return JsonResponse(
+                {'success': False, 'error': 'Permission denied'},
+                status=403
+            )
+        
+        story.status = Story.STATUS_REJECTED
+        story.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Story rejected',
+            'story_id': story.id
+        })
+        
+    except Story.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'error': 'Story not found'},
+            status=404
+        )
+
+
+@require_POST
+@login_required
+def delete_rejected_story(request, pk):
+    """Permanently delete a rejected story."""
+    try:
+        story = Story.objects.get(id=pk)
+        
+        # Check if user is the memorial owner and story is rejected
+        if (request.user != story.memorial.user or 
+                story.status != Story.STATUS_REJECTED):
+            return JsonResponse(
+                {'success': False, 'error': 'Permission denied'},
+                status=403
+            )
+        
+        story.delete()
+        return JsonResponse({
+            'success': True,
+            'message': 'Story deleted permanently'
+        })
+        
+    except Story.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'error': 'Story not found'},
+            status=404
+        )
+
+
+# EMAIL HELPER FUNCTION
+
+def send_story_notification_email(request, story, memorial):
+    """Send email to memorial owner about new story."""
+    try:
+        # Memorial owner's email
+        recipient_email = memorial.user.email
+        
+        # Create email content
+        memorial_url = request.build_absolute_uri(
+            reverse('memorials:memorial_edit', args=[memorial.pk])
+        )
+        
+        subject = f'New Story Pending Approval for {memorial.first_name} {memorial.last_name}'
+        
+        html_message = render_to_string('newsletter/emails/story_notification.html', {
+            'story': story,
+            'memorial': memorial,
+            'memorial_url': memorial_url,
+            'site_name': 'NeverForgotten',
+        })
+        
+        plain_message = strip_tags(html_message)
+        
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            html_message=html_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient_email],
+            fail_silently=False,
+        )
+        
+    except Exception as e:
+        # Log the error but don't break the story creation
+        print(f"Failed to send email: {e}")
 
 
 # ---------------------------

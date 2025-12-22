@@ -919,48 +919,53 @@
          data-delete-story-url="{% url 'memorials:delete_story' 0 %}">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="section-title fs-3 fw-bold text-dark">Stories</h2>
-    <!-- Updated Share Story Button -->
     <button id="open-story-form" class="btn btn-primary rounded-pill px-3" 
-            data-bs-toggle="modal" 
-            data-bs-target="#storyFormModal"
+            data-bs-toggle="modal" data-bs-target="#storyFormModal"
             aria-label="Create new story">
       <i class="fas fa-plus me-2"></i>Share Story
     </button>
   </div>
 
-  
   <!-- Story Form Modal -->
-  <div class="modal fade" id="storyFormModal" tabindex="-1" aria-labelledby="storyFormModalLabel" aria-hidden="true">
+  <div class="modal fade" id="storyFormModal" tabindex="-1" 
+       aria-labelledby="storyFormModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header bg-light">
           <h3 class="modal-title fs-5" id="storyFormModalLabel">Share Your Story</h3>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" 
+                  data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="story-form" method="POST" action="{% url 'memorials:create_story' memorial.pk %}">
+          <form id="story-form" method="POST" 
+                action="{% url 'memorials:create_story' memorial.pk %}">
             {% csrf_token %}
             <div class="mb-3">
               <label for="author_name" class="form-label fw-semibold">Your Name</label>
-              <input type="text" class="form-control py-2" id="author_name" name="author_name" required
-                     placeholder="Enter your name" value="{{ request.user.first_name|default:request.user.first_name }}">
+              <input type="text" class="form-control py-2" id="author_name" 
+                     name="author_name" required
+                     placeholder="Enter your name" 
+                     value="{{ request.user.first_name|default:request.user.first_name }}">
             </div>
             <div class="mb-3">
               <label for="title" class="form-label fw-semibold">Story Title</label>
-              <input type="text" class="form-control py-2" id="title" name="title" required
+              <input type="text" class="form-control py-2" id="title" 
+                     name="title" required
                      placeholder="Give your story a title">
             </div>
             <div class="mb-4">
               <label for="content" class="form-label fw-semibold">Your Story</label>
-              <textarea class="form-control py-2" id="content" name="content" rows="5" required
+              <textarea class="form-control py-2" id="content" name="content" 
+                        rows="5" required
                         placeholder="Share your memories and stories..."></textarea>
-              <div class="form-text">Your story will be visible to all visitors of this memorial.</div>
+              <div class="form-text">
+                Your story will be reviewed by the memorial owner before being published.
+              </div>
             </div>
             <div class="d-flex justify-content-end gap-3">
-              <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary px-4" id="submit-story-btn">
-              <span class="btn-text">Share Story</span>
-              </button>
+              <button type="button" class="btn btn-outline-secondary px-4" 
+                      data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary px-4">Submit for Approval</button>
             </div>
           </form>
         </div>
@@ -973,45 +978,109 @@
     <!-- First 3 visible stories -->
     <div id="visible-stories">
       {% for story in memorial.stories.all|slice:":3" %}
-        <div class="col-12 story-item" data-story-id="{{ story.id }}">
-          <div class="card story-card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
-                  <p class="text-muted mb-0">by {{ story.author_name }}</p>
+        <!-- Only show to memorial owner OR approved stories to others -->
+        {% if request.user == memorial.user or story.status == 'approved' %}
+          <div class="col-12 story-item" data-story-id="{{ story.id }}" data-status="{{ story.status }}">
+            <div class="card story-card h-100 border-0 shadow-sm 
+                        {% if story.status == 'pending' %}border-warning border-2 
+                        {% elif story.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if story.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif story.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                    <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                  </div>
+                  <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
                 </div>
-                <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
-              </div>
-              <div class="card-text flex-grow-1 mb-3 lh-base story-content">
-                {{ story.content|linebreaksbr }}
-              </div>
-              {% if request.user == memorial.user or request.user == story.user %}
-                <div class="mt-auto text-end" data-user-can-edit="true">
-                  <button class="btn btn-sm btn-outline-primary edit-story me-2" 
-                          data-story-id="{{ story.id }}"
-                          data-author-name="{{ story.author_name }}"
-                          data-title="{{ story.title }}"
-                          data-content="{{ story.content }}"
-                          aria-label="Edit story">
-                    <i class="fas fa-edit me-1"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger delete-story" 
-                          data-story-id="{{ story.id }}"
-                          aria-label="Delete story">
-                    <i class="fas fa-trash me-1"></i> Delete
-                  </button>
+                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                  {{ story.content|linebreaksbr }}
                 </div>
-              {% endif %}
+                
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if story.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Approve story">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Reject story">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif story.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete rejected story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if story.status == 'approved' or story.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                    </div>
+                  {% elif request.user == story.user %}
+                    <!-- Story Author Controls (only for their own approved stories) -->
+                    {% if story.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        {% endif %}
       {% empty %}
         <div class="col-12" id="empty-stories-message">
           <div class="empty-stories text-center py-5">
             <i class="fas fa-book-open text-muted fa-4x mb-4"></i>
             <h3 class="h5 text-muted mb-3">No stories yet</h3>
-            <p class="text-muted mb-4">Be the first to share a story about {{ memorial.first_name }}</p>
+            <p class="text-muted mb-4">
+              Be the first to share a story about {{ memorial.first_name }}
+            </p>
           </div>
         </div>
       {% endfor %}
@@ -1020,39 +1089,101 @@
     <!-- Hidden additional stories -->
     <div id="hidden-stories" class="row g-4 d-none">
       {% for story in memorial.stories.all|slice:"3:" %}
-        <div class="col-12 story-item story-special" data-story-id="{{ story.id }}">
-          <div class="card story-card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
-                  <p class="text-muted mb-0">by {{ story.author_name }}</p>
+        <!-- Only show to memorial owner OR approved stories to others -->
+        {% if request.user == memorial.user or story.status == 'approved' %}
+          <div class="col-12 story-item" data-story-id="{{ story.id }}" data-status="{{ story.status }}">
+            <div class="card story-card h-100 border-0 shadow-sm 
+                        {% if story.status == 'pending' %}border-warning border-2 
+                        {% elif story.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if story.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif story.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                    <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                  </div>
+                  <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
                 </div>
-                <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
-              </div>
-              <div class="card-text flex-grow-1 mb-3 lh-base story-content">
-                {{ story.content|linebreaksbr }}
-              </div>
-              {% if request.user == memorial.user or request.user == story.user %}
-                <div class="mt-auto text-end" data-user-can-edit="true">
-                  <button class="btn btn-sm btn-outline-primary edit-story me-2" 
-                          data-story-id="{{ story.id }}"
-                          data-author-name="{{ story.author_name }}"
-                          data-title="{{ story.title }}"
-                          data-content="{{ story.content }}"
-                          aria-label="Edit story">
-                    <i class="fas fa-edit me-1"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger delete-story" 
-                          data-story-id="{{ story.id }}"
-                          aria-label="Delete story">
-                    <i class="fas fa-trash me-1"></i> Delete
-                  </button>
+                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                  {{ story.content|linebreaksbr }}
                 </div>
-              {% endif %}
+                
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if story.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Approve story">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Reject story">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif story.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete rejected story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if story.status == 'approved' or story.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                    </div>
+                  {% elif request.user == story.user %}
+                    <!-- Story Author Controls (only for their own approved stories) -->
+                    {% if story.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        {% endif %}
       {% endfor %}
     </div>
   </div>
@@ -1067,12 +1198,14 @@
 </section>
 
 <!-- Edit Story Modal -->
-<div class="modal fade" id="editStoryModal" tabindex="-1" aria-labelledby="editStoryModalLabel" aria-hidden="true">
+<div class="modal fade" id="editStoryModal" tabindex="-1" 
+     aria-labelledby="editStoryModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-light">
         <h3 class="modal-title fs-5" id="editStoryModalLabel">Edit Story</h3>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" 
+                data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="edit-story-form" method="POST">
@@ -1080,18 +1213,22 @@
           <input type="hidden" id="edit-story-id" name="story_id">
           <div class="mb-3">
             <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
-            <input type="text" class="form-control py-2" id="edit-author-name" name="author_name" required>
+            <input type="text" class="form-control py-2" id="edit-author-name" 
+                   name="author_name" required>
           </div>
           <div class="mb-3">
             <label for="edit-title" class="form-label fw-semibold">Story Title</label>
-            <input type="text" class="form-control py-2" id="edit-title" name="title" required>
+            <input type="text" class="form-control py-2" id="edit-title" 
+                   name="title" required>
           </div>
           <div class="mb-4">
             <label for="edit-content" class="form-label fw-semibold">Your Story</label>
-            <textarea class="form-control py-2" id="edit-content" name="content" rows="5" required></textarea>
+            <textarea class="form-control py-2" id="edit-content" 
+                      name="content" rows="5" required></textarea>
           </div>
           <div class="d-flex justify-content-end gap-3">
-            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-outline-secondary px-4" 
+                    data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-primary px-4">Save Changes</button>
           </div>
         </form>
@@ -1106,19 +1243,21 @@
     <div class="modal-content">
       <div class="modal-header border-0">
         <h3 class="modal-title fs-5">Confirm Deletion</h3>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" 
+                data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body py-4">
         <p class="mb-2">Are you sure you want to delete this story?</p>
         <div class="alert alert-light mt-3">
           <strong id="delete-story-title"></strong>
           <p class="mb-1"><small>by <span id="delete-story-author"></span></small></p>
-          <p id="delete-story-content" class="mb-0 text-truncate"></p>
+          <p id="delete-story-content" class="mb-0"></p>
         </div>
         <p class="text-danger mt-3">This action cannot be undone.</p>
       </div>
       <div class="modal-footer border-0">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" 
+                data-bs-dismiss="modal">Cancel</button>
         <button type="button" id="confirm-story-delete" class="btn btn-danger">Delete</button>
       </div>
     </div>
@@ -2211,6 +2350,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
+// Add the missing getCookie function at the top
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+// Story Approval System JavaScript
 document.addEventListener('DOMContentLoaded', () => {
   // Safely get elements with null checks
   const storiesSection = document.querySelector('.stories-section');
@@ -2220,7 +2368,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const memorialId = storiesSection.dataset.memorialId;
-  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+  // Get CSRF token using getCookie function
+  const csrfToken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+  
+  if (!csrfToken) {
+    console.error('CSRF token not found');
+  }
 
   // Safely initialize modals
   const storyFormModalEl = document.getElementById('storyFormModal');
@@ -2236,6 +2389,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Get form elements
   const storyList = document.getElementById('story-list');
+  const visibleStories = document.getElementById('visible-stories');
   const openStoryFormBtn = document.getElementById('open-story-form');
   const storyForm = document.getElementById('story-form');
   const editStoryForm = document.getElementById('edit-story-form');
@@ -2261,17 +2415,110 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Generates HTML for a story card
    */
-  function generateStoryCard(story, canEdit = false) {
-    const dateStr = new Date(story.created_at).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+  function generateStoryCard(story, isOwner = false, isAuthor = false) {
+    const dateStr = story.created_at;
+
+    let statusBadge = '';
+    let borderClass = '';
+    let actionButtons = '';
+    
+    // Status badge and border
+    if (story.status === 'pending') {
+      statusBadge = '<span class="badge bg-warning text-dark mb-2 align-self-start status-badge"><i class="fas fa-clock me-1"></i> Awaiting Approval</span>';
+      borderClass = 'border-warning border-2';
+    } else if (story.status === 'rejected') {
+      statusBadge = '<span class="badge bg-danger text-white mb-2 align-self-start status-badge"><i class="fas fa-times-circle me-1"></i> Rejected</span>';
+      borderClass = 'border-danger border-2';
+    } else {
+      borderClass = 'border-success border-1';
+    }
+
+    // Action buttons based on user role and status
+    if (isOwner) {
+      // Memorial owner buttons
+      if (story.status === 'pending') {
+        actionButtons = `
+          <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <button class="btn btn-sm btn-success approve-story" 
+                    data-story-id="${story.id}"
+                    aria-label="Approve story">
+              <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+            </button>
+            <button class="btn btn-sm btn-danger reject-story" 
+                    data-story-id="${story.id}"
+                    aria-label="Reject story">
+              <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+            </button>
+            <button class="btn btn-sm btn-outline-primary edit-story" 
+                    data-story-id="${story.id}"
+                    data-author-name="${escapeHTML(story.author_name)}"
+                    data-title="${escapeHTML(story.title)}"
+                    data-content="${escapeHTML(story.content)}"
+                    aria-label="Edit story">
+              <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+            </button>
+            <button class="btn btn-sm btn-outline-danger delete-story" 
+                    data-story-id="${story.id}"
+                    aria-label="Delete story">
+              <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+            </button>
+          </div>
+        `;
+      } else if (story.status === 'rejected') {
+        actionButtons = `
+          <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <button class="btn btn-sm btn-outline-danger delete-rejected-story" 
+                    data-story-id="${story.id}"
+                    aria-label="Delete rejected story">
+              <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+            </button>
+          </div>
+        `;
+      } else if (story.status === 'approved') {
+        actionButtons = `
+          <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <button class="btn btn-sm btn-outline-primary edit-story" 
+                    data-story-id="${story.id}"
+                    data-author-name="${escapeHTML(story.author_name)}"
+                    data-title="${escapeHTML(story.title)}"
+                    data-content="${escapeHTML(story.content)}"
+                    aria-label="Edit story">
+              <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+            </button>
+            <button class="btn btn-sm btn-outline-danger delete-story" 
+                    data-story-id="${story.id}"
+                    aria-label="Delete story">
+              <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+            </button>
+          </div>
+        `;
+      }
+    } else if (isAuthor && story.status === 'approved') {
+      // Story author buttons (only for approved stories)
+      actionButtons = `
+        <div class="d-flex flex-wrap gap-2 justify-content-end">
+          <button class="btn btn-sm btn-outline-primary edit-story" 
+                  data-story-id="${story.id}"
+                  data-author-name="${escapeHTML(story.author_name)}"
+                  data-title="${escapeHTML(story.title)}"
+                  data-content="${escapeHTML(story.content)}"
+                  aria-label="Edit story">
+            <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+          </button>
+          <button class="btn btn-sm btn-outline-danger delete-story" 
+                  data-story-id="${story.id}"
+                  aria-label="Delete story">
+            <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+          </button>
+        </div>
+      `;
+    }
 
     return `
-      <div class="col-12 story-item" data-story-id="${story.id}">
-        <div class="card story-card h-100 border-0 shadow-sm">
-          <div class="card-body d-flex flex-column">
+      <div class="col-12 story-item" data-story-id="${story.id}" data-status="${story.status}">
+        <div class="card story-card h-100 border-0 shadow-sm ${borderClass}">
+          <div class="card-body d-flex flex-column p-3">
+            ${statusBadge}
             <div class="d-flex justify-content-between align-items-start mb-3">
               <div>
                 <h3 class="card-title mb-1 fs-5 fw-semibold">${escapeHTML(story.title)}</h3>
@@ -2282,21 +2529,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-text flex-grow-1 mb-3 lh-base story-content">
               ${escapeHTML(story.content).replace(/\n/g, '<br>')}
             </div>
-            ${canEdit ? `
-            <div class="mt-auto text-end" data-user-can-edit="true">
-              <button class="btn btn-sm btn-outline-primary edit-story me-2" 
-                      data-story-id="${story.id}"
-                      data-author-name="${escapeHTML(story.author_name)}"
-                      data-title="${escapeHTML(story.title)}"
-                      data-content="${escapeHTML(story.content)}"
-                      aria-label="Edit story">
-                <i class="fas fa-edit me-1"></i> Edit
-              </button>
-              <button class="btn btn-sm btn-outline-danger delete-story" 
-                      data-story-id="${story.id}"
-                      aria-label="Delete story">
-                <i class="fas fa-trash me-1"></i> Delete
-              </button>
+            ${actionButtons ? `
+            <div class="mt-auto pt-2 border-top">
+              ${actionButtons}
             </div>
             ` : ''}
           </div>
@@ -2323,6 +2558,12 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   storyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!csrfToken) {
+      alert('CSRF token missing. Please refresh the page and try again.');
+      return;
+    }
+
     const formData = new FormData(storyForm);
 
     try {
@@ -2335,7 +2576,16 @@ document.addEventListener('DOMContentLoaded', () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) {
+        let errorMessage = `Network error: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (e) {
+          // Couldn't parse JSON response
+        }
+        throw new Error(errorMessage);
+      }
 
       const data = await response.json();
 
@@ -2344,13 +2594,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const emptyMessage = document.getElementById('empty-stories-message');
         if (emptyMessage) emptyMessage.remove();
 
-        // Add new story to the top
-        storyList.insertAdjacentHTML('afterbegin', generateStoryCard(data.story, data.can_edit));
+        // Check if user is the memorial owner from the response
+        const isOwner = data.is_owner || false;
+        const isAuthor = data.can_edit || false;
+        
+        // Generate and add the new story card
+        const newStoryHTML = generateStoryCard(data.story, isOwner, isAuthor);
+        
+        // Insert at the beginning of visible stories
+        if (visibleStories) {
+          visibleStories.insertAdjacentHTML('afterbegin', newStoryHTML);
+        } else {
+          storyList.insertAdjacentHTML('afterbegin', newStoryHTML);
+        }
         
         // Close modal and reset
         storyFormModal.hide();
         storyForm.reset();
         openStoryFormBtn.focus();
+        
+        // Show success message
+        alert(data.message || 'Story submitted successfully!');
       } else {
         throw new Error(data.error || 'Failed to create story');
       }
@@ -2361,11 +2625,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /**
-   * Handles edit/delete button clicks via delegation
+   * Handles all story button clicks via delegation
    */
   storyList.addEventListener('click', (e) => {
     const editBtn = e.target.closest('.edit-story');
     const deleteBtn = e.target.closest('.delete-story');
+    const approveBtn = e.target.closest('.approve-story');
+    const rejectBtn = e.target.closest('.reject-story');
+    const deleteRejectedBtn = e.target.closest('.delete-rejected-story');
 
     if (editBtn) {
       // Set up edit form
@@ -2380,20 +2647,25 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('edit-title').focus();
     } 
     else if (deleteBtn) {
-      // Set up delete confirmation modal
-      document.getElementById('delete-story-title').textContent = deleteBtn.dataset.title;
-      document.getElementById('delete-story-author').textContent = deleteBtn.dataset.authorName;
-      document.getElementById('delete-story-content').textContent = deleteBtn.dataset.content;
-      
-      // Show confirmation modal
-      const deleteModal = new bootstrap.Modal(document.getElementById('deleteStoryModal'));
-      deleteModal.show();
-      
-      // Set up confirm delete button
-      document.getElementById('confirm-story-delete').onclick = () => {
+      // Confirm before deleting
+      if (confirm('Are you sure you want to delete this story?')) {
         deleteStory(deleteBtn.dataset.storyId);
-        deleteModal.hide();
-      };
+      }
+    }
+    else if (approveBtn) {
+      if (confirm('Approve this story?')) {
+        approveStory(approveBtn.dataset.storyId);
+      }
+    }
+    else if (rejectBtn) {
+      if (confirm('Reject this story?')) {
+        rejectStory(rejectBtn.dataset.storyId);
+      }
+    }
+    else if (deleteRejectedBtn) {
+      if (confirm('Permanently delete this rejected story?')) {
+        deleteRejectedStory(deleteRejectedBtn.dataset.storyId);
+      }
     }
   });
 
@@ -2402,6 +2674,12 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   editStoryForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!csrfToken) {
+      alert('CSRF token missing. Please refresh the page.');
+      return;
+    }
+
     const formData = new FormData(editStoryForm);
     const storyId = formData.get('story_id');
 
@@ -2422,12 +2700,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         // Update the story in the list
         const storyElem = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
+        const isOwner = data.is_owner || false;
+        const isAuthor = data.can_edit;
+        
         if (storyElem) {
-          storyElem.outerHTML = generateStoryCard(data.story, data.can_edit);
+          storyElem.outerHTML = generateStoryCard(data.story, isOwner, isAuthor);
         }
         
         // Close modal
         editStoryModal.hide();
+        alert('Story updated successfully!');
       } else {
         throw new Error(data.error || 'Failed to update story');
       }
@@ -2461,13 +2743,204 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Show empty state if no stories left
         if (!document.querySelector('.story-item')) {
-          document.getElementById('empty-stories-message')?.classList.remove('d-none');
+          const emptyHTML = `
+            <div class="col-12" id="empty-stories-message">
+              <div class="empty-stories text-center py-5">
+                <i class="fas fa-book-open text-muted fa-4x mb-4"></i>
+                <h3 class="h5 text-muted mb-3">No stories yet</h3>
+                <p class="text-muted mb-4">
+                  Be the first to share a story
+                </p>
+              </div>
+            </div>
+          `;
+          if (visibleStories) {
+            visibleStories.innerHTML = emptyHTML;
+          } else {
+            storyList.innerHTML = emptyHTML;
+          }
         }
+        alert('Story deleted successfully!');
       } else {
         throw new Error(data.error || 'Failed to delete story');
       }
     } catch (error) {
       console.error('Story deletion error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Approves a story
+   */
+  async function approveStory(storyId) {
+    try {
+      const response = await fetch(`/memorials/stories/${storyId}/approve/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the story card
+        const storyElem = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
+        if (storyElem) {
+          storyElem.setAttribute('data-status', 'approved');
+          const card = storyElem.querySelector('.card');
+          card.classList.remove('border-warning', 'border-2');
+          card.classList.add('border-success', 'border-1');
+          
+          // Remove status badge
+          const statusBadge = storyElem.querySelector('.status-badge');
+          if (statusBadge) statusBadge.remove();
+          
+          // Get current story data for buttons
+          const title = storyElem.querySelector('.card-title').textContent.trim();
+          const authorName = storyElem.querySelector('.text-muted').textContent.replace('by ', '').trim();
+          const content = storyElem.querySelector('.story-content').textContent.trim();
+          
+          // Update buttons to show edit/delete only
+          const actionContainer = storyElem.querySelector('.mt-auto.pt-2.border-top');
+          if (actionContainer) {
+            actionContainer.innerHTML = `
+              <div class="d-flex flex-wrap gap-2 justify-content-end">
+                <button class="btn btn-sm btn-outline-primary edit-story" 
+                        data-story-id="${storyId}"
+                        data-author-name="${authorName}"
+                        data-title="${title}"
+                        data-content="${content}"
+                        aria-label="Edit story">
+                  <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-story" 
+                        data-story-id="${storyId}"
+                        aria-label="Delete story">
+                  <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                </button>
+              </div>
+            `;
+          }
+        }
+        alert('Story approved successfully!');
+      } else {
+        throw new Error(data.error || 'Failed to approve story');
+      }
+    } catch (error) {
+      console.error('Story approval error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Rejects a story
+   */
+  async function rejectStory(storyId) {
+    try {
+      const response = await fetch(`/memorials/stories/${storyId}/reject/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the story card
+        const storyElem = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
+        if (storyElem) {
+          storyElem.setAttribute('data-status', 'rejected');
+          const card = storyElem.querySelector('.card');
+          card.classList.remove('border-warning', 'border-2');
+          card.classList.add('border-danger', 'border-2');
+          
+          // Update status badge
+          const statusBadge = storyElem.querySelector('.status-badge');
+          if (statusBadge) {
+            statusBadge.className = 'badge bg-danger text-white mb-2 align-self-start status-badge';
+            statusBadge.innerHTML = '<i class="fas fa-times-circle me-1"></i> Rejected';
+          }
+          
+          // Update buttons to show delete only
+          const actionContainer = storyElem.querySelector('.mt-auto.pt-2.border-top');
+          if (actionContainer) {
+            actionContainer.innerHTML = `
+              <div class="d-flex flex-wrap gap-2 justify-content-end">
+                <button class="btn btn-sm btn-outline-danger delete-rejected-story" 
+                        data-story-id="${storyId}"
+                        aria-label="Delete rejected story">
+                  <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                </button>
+              </div>
+            `;
+          }
+        }
+        alert('Story rejected');
+      } else {
+        throw new Error(data.error || 'Failed to reject story');
+      }
+    } catch (error) {
+      console.error('Story rejection error:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Deletes a rejected story
+   */
+  async function deleteRejectedStory(storyId) {
+    try {
+      const response = await fetch(`/memorials/stories/${storyId}/delete-rejected/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove story from DOM
+        const storyElem = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
+        storyElem?.remove();
+        
+        // Show empty state if no stories left
+        if (!document.querySelector('.story-item')) {
+          const emptyHTML = `
+            <div class="col-12" id="empty-stories-message">
+              <div class="empty-stories text-center py-5">
+                <i class="fas fa-book-open text-muted fa-4x mb-4"></i>
+                <h3 class="h5 text-muted mb-3">No stories yet</h3>
+                <p class="text-muted mb-4">
+                  Be the first to share a story
+                </p>
+              </div>
+            </div>
+          `;
+          if (visibleStories) {
+            visibleStories.innerHTML = emptyHTML;
+          } else {
+            storyList.innerHTML = emptyHTML;
+          }
+        }
+        alert('Rejected story deleted permanently');
+      } else {
+        throw new Error(data.error || 'Failed to delete rejected story');
+      }
+    } catch (error) {
+      console.error('Delete rejected story error:', error);
       alert(`Error: ${error.message}`);
     }
   }
@@ -2480,12 +2953,22 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleStoriesBtn.addEventListener('click', function() {
       hiddenStories.classList.toggle('d-none');
       
-      // Update button text
-      this.innerHTML = hiddenStories.classList.contains('d-none') 
-        ? '<i class="fas fa-chevron-down me-2"></i>View More Stories'
-        : '<i class="fas fa-chevron-up me-2"></i>View Less';
+      // Update button text and icon
+      const icon = this.querySelector('i');
+      if (hiddenStories.classList.contains('d-none')) {
+        icon.className = 'fas fa-chevron-down me-2';
+        this.innerHTML = '<i class="fas fa-chevron-down me-2"></i>View All Stories';
+      } else {
+        icon.className = 'fas fa-chevron-up me-2';
+        this.innerHTML = '<i class="fas fa-chevron-up me-2"></i>View Less';
+      }
     });
   }
+
+  // Debug: Log current state
+  console.log('Story system initialized');
+  console.log('Memorial ID:', memorialId);
+  console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
 });
 </script>
 <script>

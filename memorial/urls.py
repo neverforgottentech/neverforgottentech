@@ -6,7 +6,7 @@ from .views import (
     update_dates, update_banner, update_quote, memorial_detail, edit_tribute,
     delete_tribute, create_tribute, get_tributes, create_story, edit_story,
     delete_story, get_stories, UpgradeMemorialView, update_biography, plans,
-    approve_tribute, reject_tribute, delete_rejected_tribute  # Added these imports
+    approve_tribute, reject_tribute, delete_rejected_tribute, approve_story, reject_story, delete_rejected_story
 )
 
 
@@ -174,7 +174,21 @@ urlpatterns = [
         get_stories,
         name='get_stories',
     ),
-
+    path(
+        'memorials/stories/<int:pk>/approve/',
+        approve_story,
+        name='approve_story',
+    ),
+    path(
+        'memorials/stories/<int:pk>/reject/',
+        reject_story,
+        name='reject_story',
+    ),
+    path(
+        'memorials/stories/<int:pk>/delete-rejected/',
+        delete_rejected_story,
+        name='delete_rejected_story',
+    ),
     # Upgrade Memorial
     path(
         'memorials/<int:pk>/upgrade/',
