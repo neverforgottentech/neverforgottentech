@@ -214,8 +214,8 @@ body {
   left: 50%;
   transform: translateX(-50%);
   bottom: 170px;
-  width: 180px;
-  height: 215px;
+  width: 170px;  /* Increased for mobile */
+  height: 200px;
   border-radius: 50%;
   overflow: hidden;
   border: 5px solid rgba(255, 249, 230, 0.95);
@@ -229,8 +229,8 @@ body {
   left: 50%;
   transform: translateX(-50%);
   bottom: 475px;
-  width: 180px;
-  height: 215px;
+  width: 170px;  /* Increased for mobile */
+  height: 200px;
   border-radius: 50%;
   overflow: hidden;
   border: 5px solid rgba(255, 249, 230, 0.95);
@@ -251,6 +251,96 @@ body {
 
 .profile-pic-wrapper:hover {
   transform: translateX(-50%) scaleY(1.2) scale(1.03);
+}
+
+/* =========================== */
+/* === RESPONSIVE ADJUSTMENTS === */
+/* =========================== */
+
+/* Tablet screens (768px and up) - Slightly larger than mobile */
+@media (min-width: 768px) {
+  .profile-pic-wrapper,
+  .profile-pic-wrapper-detail {
+    width: 180px;  /* Only slightly larger on tablets */
+    height: 215px;
+  }
+  
+  .profile-pic-wrapper {
+    bottom: 175px;
+  }
+  
+  .profile-pic-wrapper-detail {
+    bottom: 480px;
+  }
+}
+
+/* Desktop screens (992px and up) - Larger */
+@media (min-width: 992px) {
+  .profile-pic-wrapper,
+  .profile-pic-wrapper-detail {
+    width: 190px;  /* Larger for desktop */
+    height: 225px;
+  }
+  
+  .profile-pic-wrapper {
+    bottom: 180px;
+  }
+  
+  .profile-pic-wrapper-detail {
+    bottom: 490px;
+  }
+}
+
+/* Large desktop screens (1200px and up) */
+@media (min-width: 1200px) {
+  .profile-pic-wrapper,
+  .profile-pic-wrapper-detail {
+    width: 200px;
+    height: 235px;
+  }
+  
+  .profile-pic-wrapper {
+    bottom: 185px;
+  }
+  
+  .profile-pic-wrapper-detail {
+    bottom: 495px;
+  }
+}
+
+/* Extra large screens (1400px and up) */
+@media (min-width: 1400px) {
+  .profile-pic-wrapper,
+  .profile-pic-wrapper-detail {
+    width: 210px;  /* Maximum size for extra large */
+    height: 250px;
+  }
+  
+  .profile-pic-wrapper {
+    bottom: 190px;
+  }
+  
+  .profile-pic-wrapper-detail {
+    bottom: 500px;
+  }
+}
+
+/* Small mobile screens - override for very small devices */
+@media (max-width: 480px) {
+  .profile-pic-wrapper,
+  .profile-pic-wrapper-detail {
+    width: 160px;  /* Slightly smaller for very small screens */
+    height: 190px;
+    border-width: 4px;
+  }
+  
+  .profile-pic-wrapper {
+    bottom: 165px;
+  }
+  
+  .profile-pic-wrapper-detail {
+    bottom: 465px;
+  }
 }
 
 /* ===================== */

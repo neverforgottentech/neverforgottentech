@@ -91,42 +91,56 @@
     </div>
   </div>
 
+  <br>
+
   {# ------------------------ Name and Dates Section ------------------------ #}
-  <div class="container text-center mt-0" style="bottom: 100px;">
+  <div class="container text-center mt-0" style="margin-bottom: 20px;">
     <h1 class="fw-bold">
       {{ memorial.first_name }} 
       {% if memorial.middle_name %}{{ memorial.middle_name }} {% endif %}
       {{ memorial.last_name }}
     </h1>
-    <br>
-    <p class="dates">
-      {{ memorial.date_of_birth|date:"F j, Y" }} - {{ memorial.date_of_death|date:"F j, Y" }}
-    </p>
-  </div>
-
-  {# ------------------------ Share Button ------------------------ #}
-  <div class="d-flex justify-content-center my-4">
-    <button id="shareButton" 
-            class="btn btn-outline-primary share-button">
-      <i class="fas fa-share-alt me-2"></i> Share Memorial Page
-    </button>
-  </div>
-
-  {# ------------------------ Edit Button (for owner) ------------------------ #}
-  {% if request.user == memorial.user %}
-    <div class="d-flex justify-content-center mb-4">
-      <a href="{% url 'memorials:memorial_edit' pk=memorial.pk %}" 
-         class="view-btn btn btn-primary">
-        <i class="fas fa-edit"></i> Edit Memorial
-      </a>
+    
+    {# Dates with inline icons #}
+    <div id="editable-dates">
+      {# Birth date with cake icon #}
+      <span class="birth-date">
+        <i class="fas fa-birthday-cake"></i>
+        {{ memorial.date_of_birth|date:"F j, Y" }}
+      </span>
+      
+      {# Separator #}
+      <span class="date-separator">-</span>
+      
+      {# Death date with cross icon #}
+      <span class="death-date">
+        <i class="fas fa-cross"></i>
+        {{ memorial.date_of_death|date:"F j, Y" }}
+      </span>
     </div>
-  {% endif %}
+  </div>
+
+  {# ------------------------ Button Container - Side by Side ------------------------ #}
+  <div class="d-flex justify-content-center align-items-center my-4 flex-wrap">
+    {# Share Button #}
+    <button id="shareButton" class="btn share-button me-3">
+      <i class="fas fa-share-alt me-2"></i> Share Memorial
+    </button>
+
+    {# Edit Memorial Button (for owner) #}
+    {% if request.user == memorial.user %}
+      <a href="{% url 'memorials:memorial_edit' pk=memorial.pk %}" 
+         class="btn view-btn">
+        <i class="fas fa-edit me-2"></i> Edit Memorial
+      </a>
+    {% endif %}
+  </div>
 
   {# ------------------------ Quote Section ------------------------ #}
   <div class="quote-container container text-center my-5">
     <blockquote class="memorial-quote">
       <div class="quote-content-wrapper">
-        <i class="fas fa-quote-left quote-icon"></i>
+        <i class="fas fa-quote-left quote-icon quote-top-left"></i>
         <p class="quote-text">
           {% if memorial.quote %}
             {{ memorial.quote }}
@@ -134,7 +148,7 @@
             In Loving Memory of {{ memorial.first_name }}
           {% endif %}
         </p>
-        <i class="fas fa-quote-right quote-icon"></i>
+        <i class="fas fa-quote-right quote-icon quote-bottom-right"></i>
       </div>
       {% if memorial.quote_author %}
         <footer class="blockquote-footer mt-3">
@@ -216,7 +230,7 @@
                           placeholder="Share your memories, thoughts, or condolences...">
                 </textarea>
                 <div class="form-text">
-                  Your tribute will be visible to all visitors of this memorial.
+                  Your tribute will be reviewed by the memorial owner before being published.
                 </div>
               </div>
               <div class="d-flex justify-content-end gap-3">
@@ -225,7 +239,7 @@
                         data-bs-dismiss="modal">
                   Cancel
                 </button>
-                <button type="submit" class="btn btn-primary px-4">Post Tribute</button>
+                <button type="submit" class="btn btn-primary px-4">Submit for Approval</button>
               </div>
             </form>
           </div>
@@ -233,40 +247,44 @@
       </div>
     </div>
 
-    {# ------------------------ Tribute List ------------------------ #}
+    {# ------------------------ Tribute List (APPROVED ONLY) ------------------------ #}
     <div id="tribute-list" class="row g-4">
-      {# Visible tributes (first 3) #}
+      {# Visible tributes (first 3 approved) #}
       <div id="visible-tributes">
         {% for tribute in memorial.tributes.all|slice:":3" %}
-          <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}">
-            <div class="card tribute-card h-100 border-0 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
-                  <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
-                </div>
-                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
-                  {{ tribute.message|linebreaksbr }}
-                </div>
-                {% if request.user == memorial.user or request.user == tribute.user %}
-                  <div class="mt-auto text-end" data-user-can-edit="true">
-                    <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
-                            data-tribute-id="{{ tribute.id }}"
-                            data-author-name="{{ tribute.author_name }}"
-                            data-message="{{ tribute.message }}"
-                            aria-label="Edit tribute">
-                      <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                            data-tribute-id="{{ tribute.id }}"
-                            aria-label="Delete tribute">
-                      <i class="fas fa-trash me-1"></i> Delete
-                    </button>
+          {# Only show approved tributes to non-owners #}
+          {% if tribute.status == 'approved' %}
+            <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}">
+              <div class="card tribute-card h-100 border-0 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
+                    <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
                   </div>
-                {% endif %}
+                  <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                    {{ tribute.message|linebreaksbr }}
+                  </div>
+                  {# Only show edit/delete if user is the tribute author #}
+                  {% if request.user == tribute.user %}
+                    <div class="mt-auto text-end" data-user-can-edit="true">
+                      <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                              data-tribute-id="{{ tribute.id }}"
+                              data-author-name="{{ tribute.author_name }}"
+                              data-message="{{ tribute.message }}"
+                              aria-label="Edit tribute">
+                        <i class="fas fa-edit me-1"></i> Edit
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                              data-tribute-id="{{ tribute.id }}"
+                              aria-label="Delete tribute">
+                        <i class="fas fa-trash me-1"></i> Delete
+                      </button>
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
-          </div>
+          {% endif %}
         {% empty %}
           <div class="col-12" id="empty-tributes-message">
             <div class="empty-tributes text-center py-5">
@@ -280,50 +298,56 @@
         {% endfor %}
       </div>
 
-      {# Hidden additional tributes #}
+      {# Hidden additional tributes (APPROVED ONLY) #}
       <div id="hidden-tributes" class="row g-4 d-none">
         {% for tribute in memorial.tributes.all|slice:"3:" %}
-          <div class="col-12 tribute-item tribute-special" data-tribute-id="{{ tribute.id }}">
-            <div class="card tribute-card h-100 border-0 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
-                  <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
-                </div>
-                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
-                  {{ tribute.message|linebreaksbr }}
-                </div>
-                {% if request.user == memorial.user or request.user == tribute.user %}
-                  <div class="mt-auto text-end" data-user-can-edit="true">
-                    <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
-                            data-tribute-id="{{ tribute.id }}"
-                            data-author-name="{{ tribute.author_name }}"
-                            data-message="{{ tribute.message }}"
-                            aria-label="Edit tribute">
-                      <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                            data-tribute-id="{{ tribute.id }}"
-                            aria-label="Delete tribute">
-                      <i class="fas fa-trash me-1"></i> Delete
-                    </button>
+          {# Only show approved tributes to non-owners #}
+          {% if tribute.status == 'approved' %}
+            <div class="col-12 tribute-item tribute-special" data-tribute-id="{{ tribute.id }}">
+              <div class="card tribute-card h-100 border-0 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
+                    <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
                   </div>
-                {% endif %}
+                  <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                    {{ tribute.message|linebreaksbr }}
+                  </div>
+                  {# Only show edit/delete if user is the tribute author #}
+                  {% if request.user == tribute.user %}
+                    <div class="mt-auto text-end" data-user-can-edit="true">
+                      <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                              data-tribute-id="{{ tribute.id }}"
+                              data-author-name="{{ tribute.author_name }}"
+                              data-message="{{ tribute.message }}"
+                              aria-label="Edit tribute">
+                        <i class="fas fa-edit me-1"></i> Edit
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                              data-tribute-id="{{ tribute.id }}"
+                              aria-label="Delete tribute">
+                        <i class="fas fa-trash me-1"></i> Delete
+                      </button>
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
-          </div>
+          {% endif %}
         {% endfor %}
       </div>
     </div>
 
-    {# View All Tributes Button #}
-    {% if memorial.tributes.count > 3 %}
-      <div class="text-center mt-4">
-        <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
-          <i class="fas fa-chevron-down me-2"></i>View All Tributes
-        </button>
-      </div>
-    {% endif %}
+    {# View All Tributes Button - only show if there are more than 3 approved tributes #}
+    {% with approved_count=memorial.tributes.filter.count %}
+      {% if approved_count > 3 %}
+        <div class="text-center mt-4">
+          <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
+            <i class="fas fa-chevron-down me-2"></i>View All Tributes
+          </button>
+        </div>
+      {% endif %}
+    {% endwith %}
   </section>
 
   {# ------------------------ Edit Tribute Modal ------------------------ #}
@@ -377,54 +401,21 @@
     </div>
   </div>
 
-  {# ------------------------ Delete Tribute Modal ------------------------ #}
-  <div class="modal fade" 
-       id="deleteTributeModal" 
-       tabindex="-1" 
-       aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header border-0">
-          <h3 class="modal-title fs-5">Confirm Deletion</h3>
-          <button type="button" 
-                  class="btn-close" 
-                  data-bs-dismiss="modal" 
-                  aria-label="Close">
-          </button>
-        </div>
-        <div class="modal-body py-4">
-          <p class="mb-2">Are you sure you want to delete this tribute?</p>
-          <div class="alert alert-light mt-3">
-            <strong id="delete-tribute-author"></strong>
-            <p id="delete-tribute-message" class="mb-0"></p>
-          </div>
-          <p class="text-danger mt-3">This action cannot be undone.</p>
-        </div>
-        <div class="modal-footer border-0">
-          <button type="button" 
-                  class="btn btn-outline-secondary" 
-                  data-bs-dismiss="modal">
-            Cancel
-          </button>
-          <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   {# ======================== MUSIC SECTION ======================== #}
-  <div class="music-section container text-center mt-4">
-    <h2 class="music-title">Memorial Music</h2>
+  {% if memorial.plan and memorial.plan.name|lower != 'free' %}
+    <div class="music-section container text-center mt-4">
+      <h2 class="music-title">Memorial Music</h2>
 
-    {% if memorial.audio_file %}
-      <audio controls class="mt-3">
-        <source src="{{ memorial.audio_file.url }}" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-    {% else %}
-      <p class="text-muted mt-3">No music has been added to this memorial.</p>
-    {% endif %}
-  </div>
+      {% if memorial.audio_file %}
+        <audio controls class="mt-3">
+          <source src="{{ memorial.audio_file.url }}" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
+      {% else %}
+        <p class="text-muted mt-3">No music has been added to this memorial.</p>
+      {% endif %}
+    </div>
+  {% endif %}
 
   {# ======================== GALLERY SECTION ======================== #}
   <section class="gallery-section container mt-5 p-4 rounded-3 shadow-sm bg-light">
@@ -546,7 +537,7 @@
     </div>
   </div>
 
-  {# ======================== STORIES SECTION ======================== #}
+   {# ======================== STORIES SECTION ======================== #}
   <section class="stories-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
            data-memorial-id="{{ memorial.pk }}"
            data-delete-story-url="{% url 'memorials:delete_story' 0 %}">
@@ -611,7 +602,7 @@
                           placeholder="Share your memories and stories...">
                 </textarea>
                 <div class="form-text">
-                  Your story will be visible to all visitors of this memorial.
+                  Your story will be reviewed by the memorial owner before being published.
                 </div>
               </div>
               <div class="d-flex justify-content-end gap-3">
@@ -621,7 +612,7 @@
                   Cancel
                 </button>
                 <button type="submit" class="btn btn-primary px-4" id="submit-story-btn">
-                  <span class="btn-text">Share Story</span>
+                  <span class="btn-text">Submit for Approval</span>
                 </button>
               </div>
             </form>
@@ -630,44 +621,48 @@
       </div>
     </div>
 
-    {# ------------------------ Story List ------------------------ #}
+    {# ------------------------ Story List (APPROVED ONLY) ------------------------ #}
     <div id="story-list" class="row g-4">
-      {# Visible stories (first 3) #}
+      {# Visible stories (first 3 approved) #}
       <div id="visible-stories">
         {% for story in memorial.stories.all|slice:":3" %}
-          <div class="col-12 story-item" data-story-id="{{ story.id }}">
-            <div class="card story-card h-100 border-0 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <div>
-                    <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
-                    <p class="text-muted mb-0">by {{ story.author_name }}</p>
+          {# Only show approved stories to non-owners #}
+          {% if story.status == 'approved' %}
+            <div class="col-12 story-item" data-story-id="{{ story.id }}">
+              <div class="card story-card h-100 border-0 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                      <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                    </div>
+                    <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
                   </div>
-                  <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
-                </div>
-                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
-                  {{ story.content|linebreaksbr }}
-                </div>
-                {% if request.user == memorial.user or request.user == story.user %}
-                  <div class="mt-auto text-end" data-user-can-edit="true">
-                    <button class="btn btn-sm btn-outline-primary edit-story me-2" 
-                            data-story-id="{{ story.id }}"
-                            data-author-name="{{ story.author_name }}"
-                            data-title="{{ story.title }}"
-                            data-content="{{ story.content }}"
-                            aria-label="Edit story">
-                      <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-story" 
-                            data-story-id="{{ story.id }}"
-                            aria-label="Delete story">
-                      <i class="fas fa-trash me-1"></i> Delete
-                    </button>
+                  <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                    {{ story.content|linebreaksbr }}
                   </div>
-                {% endif %}
+                  {# Only show edit/delete if user is the story author #}
+                  {% if request.user == story.user %}
+                    <div class="mt-auto text-end" data-user-can-edit="true">
+                      <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                              data-story-id="{{ story.id }}"
+                              data-author-name="{{ story.author_name }}"
+                              data-title="{{ story.title }}"
+                              data-content="{{ story.content }}"
+                              aria-label="Edit story">
+                        <i class="fas fa-edit me-1"></i> Edit
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger delete-story" 
+                              data-story-id="{{ story.id }}"
+                              aria-label="Delete story">
+                        <i class="fas fa-trash me-1"></i> Delete
+                      </button>
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
-          </div>
+          {% endif %}
         {% empty %}
           <div class="col-12" id="empty-stories-message">
             <div class="empty-stories text-center py-5">
@@ -681,54 +676,60 @@
         {% endfor %}
       </div>
 
-      {# Hidden additional stories #}
+      {# Hidden additional stories (APPROVED ONLY) #}
       <div id="hidden-stories" class="row g-4 d-none">
         {% for story in memorial.stories.all|slice:"3:" %}
-          <div class="col-12 story-item story-special" data-story-id="{{ story.id }}">
-            <div class="card story-card h-100 border-0 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <div>
-                    <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
-                    <p class="text-muted mb-0">by {{ story.author_name }}</p>
+          {# Only show approved stories to non-owners #}
+          {% if story.status == 'approved' %}
+            <div class="col-12 story-item story-special" data-story-id="{{ story.id }}">
+              <div class="card story-card h-100 border-0 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                      <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                    </div>
+                    <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
                   </div>
-                  <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
-                </div>
-                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
-                  {{ story.content|linebreaksbr }}
-                </div>
-                {% if request.user == memorial.user or request.user == story.user %}
-                  <div class="mt-auto text-end" data-user-can-edit="true">
-                    <button class="btn btn-sm btn-outline-primary edit-story me-2" 
-                            data-story-id="{{ story.id }}"
-                            data-author-name="{{ story.author_name }}"
-                            data-title="{{ story.title }}"
-                            data-content="{{ story.content }}"
-                            aria-label="Edit story">
-                      <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-story" 
-                            data-story-id="{{ story.id }}"
-                            aria-label="Delete story">
-                      <i class="fas fa-trash me-1"></i> Delete
-                    </button>
+                  <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                    {{ story.content|linebreaksbr }}
                   </div>
-                {% endif %}
+                  {# Only show edit/delete if user is the story author #}
+                  {% if request.user == story.user %}
+                    <div class="mt-auto text-end" data-user-can-edit="true">
+                      <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                              data-story-id="{{ story.id }}"
+                              data-author-name="{{ story.author_name }}"
+                              data-title="{{ story.title }}"
+                              data-content="{{ story.content }}"
+                              aria-label="Edit story">
+                        <i class="fas fa-edit me-1"></i> Edit
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger delete-story" 
+                              data-story-id="{{ story.id }}"
+                              aria-label="Delete story">
+                        <i class="fas fa-trash me-1"></i> Delete
+                      </button>
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
-          </div>
+          {% endif %}
         {% endfor %}
       </div>
     </div>
 
-    {# View All Stories Button #}
-    {% if memorial.stories.count > 3 %}
-      <div class="text-center mt-4">
-        <button id="toggle-stories-btn" class="btn btn-secondary rounded-pill px-4">
-          <i class="fas fa-chevron-down me-2"></i>View All Stories
-        </button>
-      </div>
-    {% endif %}
+    {# View All Stories Button - only show if there are more than 3 approved stories #}
+    {% with approved_count=memorial.stories.filter.count %}
+      {% if approved_count > 3 %}
+        <div class="text-center mt-4">
+          <button id="toggle-stories-btn" class="btn btn-secondary rounded-pill px-4">
+            <i class="fas fa-chevron-down me-2"></i>View All Stories
+          </button>
+        </div>
+      {% endif %}
+    {% endwith %}
   </section>
 
   {# ------------------------ Edit Story Modal ------------------------ #}
@@ -785,46 +786,6 @@
               <button type="submit" class="btn btn-primary px-4">Save Changes</button>
             </div>
           </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {# ------------------------ Delete Story Modal ------------------------ #}
-  <div class="modal fade" 
-       id="deleteStoryModal" 
-       tabindex="-1" 
-       aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header border-0">
-          <h3 class="modal-title fs-5">Confirm Deletion</h3>
-          <button type="button" 
-                  class="btn-close" 
-                  data-bs-dismiss="modal" 
-                  aria-label="Close">
-          </button>
-        </div>
-        <div class="modal-body py-4">
-          <p class="mb-2">Are you sure you want to delete this story?</p>
-          <div class="alert alert-light mt-3">
-            <strong id="delete-story-title"></strong>
-            <p class="mb-1">
-              <small>by <span id="delete-story-author"></span></small>
-            </p>
-            <p id="delete-story-content" class="mb-0 text-truncate"></p>
-          </div>
-          <p class="text-danger mt-3">This action cannot be undone.</p>
-        </div>
-        <div class="modal-footer border-0">
-          <button type="button" 
-                  class="btn btn-outline-secondary" 
-                  data-bs-dismiss="modal">
-            Cancel
-          </button>
-          <button type="button" id="confirm-story-delete" class="btn btn-danger">
-            Delete
-          </button>
         </div>
       </div>
     </div>
@@ -1290,7 +1251,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         } else {
           throw new Error(data.error || 'Failed to delete story');
-        }
+          }
       } catch (error) {
         console.error('Error:', error);
         alert(`Error: ${error.message}`);
