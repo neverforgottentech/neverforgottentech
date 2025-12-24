@@ -174,222 +174,241 @@
     </div>
   </div>
 
-  {# ======================== TRIBUTES SECTION ======================== #}
-  {# This section shows: #}
-  {# - All APPROVED tributes (visible to everyone) #}
-  {# - Current user's own PENDING tributes (only visible to that user) #}
-  {# - Edit/Delete buttons only for user's own tributes #}
-  
-  <section class="tributes-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
-           data-memorial-id="{{ memorial.pk }}">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="section-title fs-3 fw-bold text-dark">Tributes</h2>
-      <button id="open-tribute-form" 
-              class="btn btn-primary rounded-pill px-3" 
-              data-bs-toggle="modal" 
-              data-bs-target="#tributeFormModal"
-              aria-label="Create new tribute">
+  <!-- ======================= -->
+<!-- TRIBUTES SECTION -->
+<!-- ======================= -->
+<section class="tributes-section py-5" data-memorial-id="{{ memorial.id }}">
+  <div class="container">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+      <h2 class="section-title mb-0">
+        <i class="fas fa-heart me-2 text-primary"></i>Tributes
+      </h2>
+      {% if user.is_authenticated %}
+      <button type="button" class="btn btn-primary" id="open-tribute-form">
         <i class="fas fa-plus me-2"></i>Leave a Tribute
       </button>
+      {% else %}
+      <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-outline-primary">
+        <i class="fas fa-sign-in-alt me-2"></i>Login to Leave a Tribute
+      </a>
+      {% endif %}
     </div>
 
-    {# ------------------------ Tribute Form Modal ------------------------ #}
-    <div class="modal fade" 
-         id="tributeFormModal" 
-         tabindex="-1" 
-         aria-labelledby="tributeFormModalLabel" 
-         aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-light">
-            <h3 class="modal-title fs-5" id="tributeFormModalLabel">Share Your Tribute</h3>
-            <button type="button" 
-                    class="btn-close" 
-                    data-bs-dismiss="modal" 
-                    aria-label="Close">
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="tribute-form" 
-                  method="POST" 
-                  action="{% url 'memorials:create_tribute' memorial.pk %}">
-              {% csrf_token %}
-              <div class="mb-3">
-                <label for="tribute_author_name" class="form-label fw-semibold">Your Name</label>
-                <input type="text" 
-                       class="form-control py-2" 
-                       id="tribute_author_name" 
-                       name="author_name" 
-                       required
-                       placeholder="Enter your name" 
-                       value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}">
-              </div>
-              <div class="mb-4">
-                <label for="tribute_message" class="form-label fw-semibold">Your Tribute</label>
-                <textarea class="form-control py-2" 
-                          id="tribute_message" 
-                          name="message" 
-                          rows="5" 
-                          required
-                          placeholder="Share your memories, thoughts, or condolences..."></textarea>
-                <div class="form-text">
-                  <i class="fas fa-info-circle me-1"></i>
-                  Your tribute will be reviewed by the memorial owner before being published.
-                </div>
-              </div>
-              <div class="d-flex justify-content-end gap-3">
-                <button type="button" 
-                        class="btn btn-outline-secondary px-4" 
-                        data-bs-dismiss="modal">
-                  Cancel
-                </button>
-                <button type="submit" class="btn btn-primary px-4">
-                  <i class="fas fa-paper-plane me-2"></i>Submit Tribute
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# ------------------------ Tribute List ------------------------ #}
     <div id="tribute-list" class="row g-4">
-      <div id="visible-tributes">
-        {% with shown_count=0 %}
-        {% for tribute in memorial.tributes.all %}
-          {# Show if: approved OR (pending AND user is the tribute author) #}
-          {% if tribute.status == 'approved' or tribute.status == 'pending' and request.user == tribute.user %}
-            <div class="col-12 tribute-item {% if shown_count >= 3 %}tribute-hidden d-none{% endif %}" 
-                 data-tribute-id="{{ tribute.id }}" 
-                 data-status="{{ tribute.status }}">
-              <div class="card tribute-card h-100 border-0 shadow-sm 
-                          {% if tribute.status == 'pending' %}tribute-pending{% endif %}">
-                <div class="card-body d-flex flex-column p-4">
-                  
-                  {# Pending badge - only shown to the tribute author #}
-                  {% if tribute.status == 'pending' and request.user == tribute.user %}
-                    <div class="pending-notice mb-3">
-                      <span class="badge bg-warning text-dark">
-                        <i class="fas fa-clock me-1"></i> Awaiting Approval
-                      </span>
-                      <small class="text-muted d-block mt-1">
-                        Only you can see this tribute until it's approved.
-                      </small>
-                    </div>
-                  {% endif %}
-                  
-                  {# Tribute header #}
-                  <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="tribute-author">
-                      <div class="author-avatar">
-                        <i class="fas fa-user"></i>
-                      </div>
-                      <div class="author-info">
-                        <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
-                        <small class="text-muted">{{ tribute.created_at|date:"F j, Y" }}</small>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {# Tribute message #}
-                  <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
-                    {{ tribute.message|linebreaksbr }}
-                  </div>
-                  
-                  {# Edit/Delete buttons - only for tribute author #}
-                  {% if request.user == tribute.user %}
-                    <div class="mt-auto pt-3 border-top tribute-actions">
-                      <button class="btn btn-sm btn-outline-primary edit-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              data-author-name="{{ tribute.author_name }}"
-                              data-message="{{ tribute.message }}"
-                              aria-label="Edit tribute">
-                        <i class="fas fa-edit me-1"></i> Edit
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete tribute">
-                        <i class="fas fa-trash me-1"></i> Delete
-                      </button>
-                    </div>
-                  {% endif %}
+      {% with visible_tributes=tributes|slice:":3" hidden_tributes=tributes|slice:"3:" %}
+      
+      <!-- Visible Tributes (first 3) -->
+      <div id="visible-tributes" class="row g-4">
+        {% for tribute in visible_tributes %}
+          {% if tribute.status == 'approved' or tribute.user == request.user %}
+          <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}" data-status="{{ tribute.status }}">
+            <div class="card tribute-card h-100 border-0 shadow-sm {% if tribute.status == 'pending' %}tribute-pending{% endif %}">
+              <div class="card-body d-flex flex-column p-4">
+                
+                {% if tribute.status == 'pending' and tribute.user == request.user %}
+                <div class="pending-notice mb-3">
+                  <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                  <small class="text-muted d-block mt-1">
+                    Only you can see this tribute until it's approved.
+                  </small>
                 </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="tribute-author d-flex align-items-center">
+                    <div class="author-avatar me-3">
+                      <i class="fas fa-user"></i>
+                    </div>
+                    <div class="author-info">
+                      <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
+                      <small class="text-muted">{{ tribute.created_at|date:"M d, Y" }}</small>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                  {{ tribute.message|linebreaks }}
+                </div>
+                
+                {% if tribute.user == request.user %}
+                <div class="mt-auto pt-3 border-top tribute-actions">
+                  <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                          data-tribute-id="{{ tribute.id }}"
+                          data-author-name="{{ tribute.author_name }}"
+                          data-message="{{ tribute.message }}"
+                          aria-label="Edit tribute">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                          data-tribute-id="{{ tribute.id }}"
+                          aria-label="Delete tribute">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
+                {% endif %}
               </div>
             </div>
+          </div>
           {% endif %}
         {% empty %}
           <div class="col-12" id="empty-tributes-message">
             <div class="empty-tributes text-center py-5">
-              <i class="fas fa-heart text-muted mb-4"></i>
+              <i class="fas fa-heart fa-3x text-muted mb-4" style="opacity: 0.3;"></i>
               <h3 class="h5 text-muted mb-3">No tributes yet</h3>
-              <p class="text-muted mb-4">
-                Be the first to share your memories of {{ memorial.first_name }}
-              </p>
+              <p class="text-muted mb-4">Be the first to share your memories and pay tribute.</p>
             </div>
           </div>
         {% endfor %}
-        {% endwith %}
       </div>
-    </div>
 
-    {# View All Tributes Button #}
-    <div class="text-center mt-4" id="tribute-toggle-container" style="display: none;">
-      <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
-        <i class="fas fa-chevron-down me-2"></i>View All Tributes
-      </button>
+      <!-- Hidden Tributes (after first 3) -->
+      {% if hidden_tributes %}
+      <div id="hidden-tributes" class="row g-4 d-none">
+        {% for tribute in hidden_tributes %}
+          {% if tribute.status == 'approved' or tribute.user == request.user %}
+          <div class="col-12 tribute-item tribute-hidden" data-tribute-id="{{ tribute.id }}" data-status="{{ tribute.status }}">
+            <div class="card tribute-card h-100 border-0 shadow-sm {% if tribute.status == 'pending' %}tribute-pending{% endif %}">
+              <div class="card-body d-flex flex-column p-4">
+                
+                {% if tribute.status == 'pending' and tribute.user == request.user %}
+                <div class="pending-notice mb-3">
+                  <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                  <small class="text-muted d-block mt-1">
+                    Only you can see this tribute until it's approved.
+                  </small>
+                </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="tribute-author d-flex align-items-center">
+                    <div class="author-avatar me-3">
+                      <i class="fas fa-user"></i>
+                    </div>
+                    <div class="author-info">
+                      <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
+                      <small class="text-muted">{{ tribute.created_at|date:"M d, Y" }}</small>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
+                  {{ tribute.message|linebreaks }}
+                </div>
+                
+                {% if tribute.user == request.user %}
+                <div class="mt-auto pt-3 border-top tribute-actions">
+                  <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                          data-tribute-id="{{ tribute.id }}"
+                          data-author-name="{{ tribute.author_name }}"
+                          data-message="{{ tribute.message }}"
+                          aria-label="Edit tribute">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                          data-tribute-id="{{ tribute.id }}"
+                          aria-label="Delete tribute">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      
+      <!-- Toggle Button -->
+      <div class="col-12 text-center mt-4" id="tribute-toggle-container">
+        <button type="button" class="btn btn-outline-primary" id="toggle-tributes-btn">
+          <i class="fas fa-chevron-down me-2"></i>View All Tributes
+        </button>
+      </div>
+      {% endif %}
+      
+      {% endwith %}
     </div>
-  </section>
+  </div>
+</section>
 
-  {# ------------------------ Edit Tribute Modal ------------------------ #}
-  <div class="modal fade" 
-       id="editTributeModal" 
-       tabindex="-1" 
-       aria-labelledby="editTributeModalLabel" 
-       aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-light">
-          <h3 class="modal-title fs-5" id="editTributeModalLabel">Edit Tribute</h3>
-          <button type="button" 
-                  class="btn-close" 
-                  data-bs-dismiss="modal" 
-                  aria-label="Close">
-          </button>
-        </div>
-        <div class="modal-body">
-          <form id="edit-tribute-form" method="POST">
-            {% csrf_token %}
-            <input type="hidden" id="edit-tribute-id" name="tribute_id">
-            <div class="mb-3">
-              <label for="edit-tribute-author-name" class="form-label fw-semibold">Your Name</label>
-              <input type="text" 
-                     class="form-control py-2" 
-                     id="edit-tribute-author-name" 
-                     name="author_name" 
-                     required>
-            </div>
-            <div class="mb-4">
-              <label for="edit-tribute-message" class="form-label fw-semibold">Your Tribute</label>
-              <textarea class="form-control py-2" 
-                        id="edit-tribute-message" 
-                        name="message" 
-                        rows="5" 
-                        required></textarea>
-            </div>
-            <div class="d-flex justify-content-end gap-3">
-              <button type="button" 
-                      class="btn btn-outline-secondary px-4" 
-                      data-bs-dismiss="modal">
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-primary px-4">Save Changes</button>
-            </div>
-          </form>
-        </div>
+<!-- Create Tribute Modal -->
+<div class="modal fade" id="tributeFormModal" tabindex="-1" aria-labelledby="tributeFormModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="tributeFormModalLabel">
+          <i class="fas fa-heart me-2 text-primary"></i>Leave a Tribute
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="tribute-form" method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="tribute-author-name" class="form-label">Your Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="tribute-author-name" name="author_name" 
+                   placeholder="Enter your name" required maxlength="200">
+          </div>
+          <div class="mb-3">
+            <label for="tribute-message" class="form-label">Your Tribute <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="tribute-message" name="message" rows="5" 
+                      placeholder="Share your memories or a message..." required maxlength="2000"></textarea>
+            <div class="form-text">Maximum 2000 characters</div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-paper-plane me-2"></i>Submit Tribute
+            </button>
+          </div>
+          <p class="text-muted small mt-3 mb-0 text-center">
+            <i class="fas fa-info-circle me-1"></i>
+            Your tribute will be reviewed before appearing publicly.
+          </p>
+        </form>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Edit Tribute Modal -->
+<div class="modal fade" id="editTributeModal" tabindex="-1" aria-labelledby="editTributeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="editTributeModalLabel">
+          <i class="fas fa-edit me-2 text-primary"></i>Edit Tribute
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-tribute-form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="edit-tribute-id" name="tribute_id">
+          <div class="mb-3">
+            <label for="edit-tribute-author-name" class="form-label">Your Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="edit-tribute-author-name" name="author_name" 
+                   required maxlength="200">
+          </div>
+          <div class="mb-3">
+            <label for="edit-tribute-message" class="form-label">Your Tribute <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="edit-tribute-message" name="message" rows="5" 
+                      required maxlength="2000"></textarea>
+            <div class="form-text">Maximum 2000 characters</div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 
   {# ======================== MUSIC SECTION ======================== #}
@@ -528,236 +547,249 @@
     </div>
   </div>
 
-  {# ======================== STORIES SECTION ======================== #}
-  {# This section shows: #}
-  {# - All APPROVED stories (visible to everyone) #}
-  {# - Current user's own PENDING stories (only visible to that user) #}
-  {# - Edit/Delete buttons only for user's own stories #}
-  
-  <section class="stories-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
-           data-memorial-id="{{ memorial.pk }}">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="section-title fs-3 fw-bold text-dark">Stories</h2>
-      <button id="open-story-form" 
-              class="btn btn-primary rounded-pill px-3" 
-              data-bs-toggle="modal" 
-              data-bs-target="#storyFormModal"
-              aria-label="Create new story">
+ <!-- ======================= -->
+<!-- STORIES SECTION -->
+<!-- ======================= -->
+<section class="stories-section py-5 bg-light" data-memorial-id="{{ memorial.id }}">
+  <div class="container">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+      <h2 class="section-title mb-0">
+        <i class="fas fa-book-open me-2 text-primary"></i>Stories & Memories
+      </h2>
+      {% if user.is_authenticated %}
+      <button type="button" class="btn btn-primary" id="open-story-form">
         <i class="fas fa-plus me-2"></i>Share a Story
       </button>
+      {% else %}
+      <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-outline-primary">
+        <i class="fas fa-sign-in-alt me-2"></i>Login to Share a Story
+      </a>
+      {% endif %}
     </div>
 
-    {# ------------------------ Story Form Modal ------------------------ #}
-    <div class="modal fade" 
-         id="storyFormModal" 
-         tabindex="-1" 
-         aria-labelledby="storyFormModalLabel" 
-         aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-light">
-            <h3 class="modal-title fs-5" id="storyFormModalLabel">Share Your Story</h3>
-            <button type="button" 
-                    class="btn-close" 
-                    data-bs-dismiss="modal" 
-                    aria-label="Close">
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="story-form" 
-                  method="POST" 
-                  action="{% url 'memorials:create_story' memorial.pk %}">
-              {% csrf_token %}
-              <div class="mb-3">
-                <label for="story_author_name" class="form-label fw-semibold">Your Name</label>
-                <input type="text" 
-                       class="form-control py-2" 
-                       id="story_author_name" 
-                       name="author_name" 
-                       required
-                       placeholder="Enter your name" 
-                       value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}">
-              </div>
-              <div class="mb-3">
-                <label for="story_title" class="form-label fw-semibold">Story Title</label>
-                <input type="text" 
-                       class="form-control py-2" 
-                       id="story_title" 
-                       name="title" 
-                       required
-                       placeholder="Give your story a title">
-              </div>
-              <div class="mb-4">
-                <label for="story_content" class="form-label fw-semibold">Your Story</label>
-                <textarea class="form-control py-2" 
-                          id="story_content" 
-                          name="content" 
-                          rows="6" 
-                          required
-                          placeholder="Share your memories and stories about {{ memorial.first_name }}..."></textarea>
-                <div class="form-text">
-                  <i class="fas fa-info-circle me-1"></i>
-                  Your story will be reviewed by the memorial owner before being published.
-                </div>
-              </div>
-              <div class="d-flex justify-content-end gap-3">
-                <button type="button" 
-                        class="btn btn-outline-secondary px-4" 
-                        data-bs-dismiss="modal">
-                  Cancel
-                </button>
-                <button type="submit" class="btn btn-primary px-4">
-                  <i class="fas fa-paper-plane me-2"></i>Submit Story
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# ------------------------ Story List ------------------------ #}
     <div id="story-list" class="row g-4">
-      <div id="visible-stories">
-        {% for story in memorial.stories.all %}
-          {# Show if: approved OR (pending AND user is the story author) #}
-          {% if story.status == 'approved' or story.status == 'pending' and request.user == story.user %}
-            <div class="col-12 story-item {% if forloop.counter > 3 %}story-hidden d-none{% endif %}" 
-                 data-story-id="{{ story.id }}" 
-                 data-status="{{ story.status }}">
-              <div class="card story-card h-100 border-0 shadow-sm 
-                          {% if story.status == 'pending' %}story-pending{% endif %}">
-                <div class="card-body d-flex flex-column p-4">
-                  
-                  {# Pending badge - only shown to the story author #}
-                  {% if story.status == 'pending' and request.user == story.user %}
-                    <div class="pending-notice mb-3">
-                      <span class="badge bg-warning text-dark">
-                        <i class="fas fa-clock me-1"></i> Awaiting Approval
-                      </span>
-                      <small class="text-muted d-block mt-1">
-                        Only you can see this story until it's approved.
-                      </small>
-                    </div>
-                  {% endif %}
-                  
-                  {# Story header #}
-                  <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="story-header-info">
-                      <h3 class="card-title mb-1 fs-5 fw-semibold story-title-text">{{ story.title }}</h3>
-                      <p class="text-muted mb-0 story-author-text">
-                        <i class="fas fa-user me-1"></i> by {{ story.author_name }}
-                      </p>
-                    </div>
-                    <small class="text-muted story-date">{{ story.created_at|date:"F j, Y" }}</small>
-                  </div>
-                  
-                  {# Story content #}
-                  <div class="card-text flex-grow-1 mb-3 lh-base story-content">
-                    {{ story.content|linebreaksbr }}
-                  </div>
-                  
-                  {# Edit/Delete buttons - only for story author #}
-                  {% if request.user == story.user %}
-                    <div class="mt-auto pt-3 border-top story-actions">
-                      <button class="btn btn-sm btn-outline-primary edit-story" 
-                              data-story-id="{{ story.id }}"
-                              data-author-name="{{ story.author_name }}"
-                              data-title="{{ story.title }}"
-                              data-content="{{ story.content }}"
-                              aria-label="Edit story">
-                        <i class="fas fa-edit me-1"></i> Edit
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger delete-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete story">
-                        <i class="fas fa-trash me-1"></i> Delete
-                      </button>
-                    </div>
-                  {% endif %}
+      {% with visible_stories=stories|slice:":3" hidden_stories=stories|slice:"3:" %}
+      
+      <!-- Visible Stories (first 3) -->
+      <div id="visible-stories" class="row g-4">
+        {% for story in visible_stories %}
+          {% if story.status == 'approved' or story.user == request.user %}
+          <div class="col-12 story-item" data-story-id="{{ story.id }}" data-status="{{ story.status }}">
+            <div class="card story-card h-100 border-0 shadow-sm {% if story.status == 'pending' %}story-pending{% endif %}">
+              <div class="card-body d-flex flex-column p-4">
+                
+                {% if story.status == 'pending' and story.user == request.user %}
+                <div class="pending-notice mb-3">
+                  <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                  <small class="text-muted d-block mt-1">
+                    Only you can see this story until it's approved.
+                  </small>
                 </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="story-header-info">
+                    <h3 class="card-title mb-1 fs-5 fw-semibold story-title-text">{{ story.title }}</h3>
+                    <p class="text-muted mb-0 story-author-text">
+                      <i class="fas fa-user me-1"></i> by {{ story.author_name }}
+                    </p>
+                  </div>
+                  <small class="text-muted story-date">{{ story.created_at|date:"M d, Y" }}</small>
+                </div>
+                
+                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                  {{ story.content|linebreaks }}
+                </div>
+                
+                {% if story.user == request.user %}
+                <div class="mt-auto pt-3 border-top story-actions">
+                  <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                          data-story-id="{{ story.id }}"
+                          data-author-name="{{ story.author_name }}"
+                          data-title="{{ story.title }}"
+                          data-content="{{ story.content }}"
+                          aria-label="Edit story">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-story" 
+                          data-story-id="{{ story.id }}"
+                          aria-label="Delete story">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
+                {% endif %}
               </div>
             </div>
+          </div>
           {% endif %}
         {% empty %}
           <div class="col-12" id="empty-stories-message">
             <div class="empty-stories text-center py-5">
-              <i class="fas fa-book-open text-muted mb-4"></i>
+              <i class="fas fa-book-open fa-3x text-muted mb-4" style="opacity: 0.3;"></i>
               <h3 class="h5 text-muted mb-3">No stories yet</h3>
-              <p class="text-muted mb-4">
-                Be the first to share a story about {{ memorial.first_name }}
-              </p>
+              <p class="text-muted mb-4">Be the first to share a story or memory.</p>
             </div>
           </div>
         {% endfor %}
       </div>
-    </div>
 
-    {# View All Stories Button #}
-    <div class="text-center mt-4" id="story-toggle-container" style="display: none;">
-      <button id="toggle-stories-btn" class="btn btn-secondary rounded-pill px-4">
-        <i class="fas fa-chevron-down me-2"></i>View All Stories
-      </button>
+      <!-- Hidden Stories (after first 3) -->
+      {% if hidden_stories %}
+      <div id="hidden-stories" class="row g-4 d-none">
+        {% for story in hidden_stories %}
+          {% if story.status == 'approved' or story.user == request.user %}
+          <div class="col-12 story-item story-hidden" data-story-id="{{ story.id }}" data-status="{{ story.status }}">
+            <div class="card story-card h-100 border-0 shadow-sm {% if story.status == 'pending' %}story-pending{% endif %}">
+              <div class="card-body d-flex flex-column p-4">
+                
+                {% if story.status == 'pending' and story.user == request.user %}
+                <div class="pending-notice mb-3">
+                  <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                  <small class="text-muted d-block mt-1">
+                    Only you can see this story until it's approved.
+                  </small>
+                </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="story-header-info">
+                    <h3 class="card-title mb-1 fs-5 fw-semibold story-title-text">{{ story.title }}</h3>
+                    <p class="text-muted mb-0 story-author-text">
+                      <i class="fas fa-user me-1"></i> by {{ story.author_name }}
+                    </p>
+                  </div>
+                  <small class="text-muted story-date">{{ story.created_at|date:"M d, Y" }}</small>
+                </div>
+                
+                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
+                  {{ story.content|linebreaks }}
+                </div>
+                
+                {% if story.user == request.user %}
+                <div class="mt-auto pt-3 border-top story-actions">
+                  <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                          data-story-id="{{ story.id }}"
+                          data-author-name="{{ story.author_name }}"
+                          data-title="{{ story.title }}"
+                          data-content="{{ story.content }}"
+                          aria-label="Edit story">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-story" 
+                          data-story-id="{{ story.id }}"
+                          aria-label="Delete story">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      
+      <!-- Toggle Button -->
+      <div class="col-12 text-center mt-4" id="story-toggle-container">
+        <button type="button" class="btn btn-outline-primary" id="toggle-stories-btn">
+          <i class="fas fa-chevron-down me-2"></i>View All Stories
+        </button>
+      </div>
+      {% endif %}
+      
+      {% endwith %}
     </div>
-  </section>
+  </div>
+</section>
 
-  {# ------------------------ Edit Story Modal ------------------------ #}
-  <div class="modal fade" 
-       id="editStoryModal" 
-       tabindex="-1" 
-       aria-labelledby="editStoryModalLabel" 
-       aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-light">
-          <h3 class="modal-title fs-5" id="editStoryModalLabel">Edit Story</h3>
-          <button type="button" 
-                  class="btn-close" 
-                  data-bs-dismiss="modal" 
-                  aria-label="Close">
-          </button>
-        </div>
-        <div class="modal-body">
-          <form id="edit-story-form" method="POST">
-            {% csrf_token %}
-            <input type="hidden" id="edit-story-id" name="story_id">
-            <div class="mb-3">
-              <label for="edit-story-author-name" class="form-label fw-semibold">Your Name</label>
-              <input type="text" 
-                     class="form-control py-2" 
-                     id="edit-story-author-name" 
-                     name="author_name" 
-                     required>
-            </div>
-            <div class="mb-3">
-              <label for="edit-story-title" class="form-label fw-semibold">Story Title</label>
-              <input type="text" 
-                     class="form-control py-2" 
-                     id="edit-story-title" 
-                     name="title" 
-                     required>
-            </div>
-            <div class="mb-4">
-              <label for="edit-story-content" class="form-label fw-semibold">Your Story</label>
-              <textarea class="form-control py-2" 
-                        id="edit-story-content" 
-                        name="content" 
-                        rows="6" 
-                        required></textarea>
-            </div>
-            <div class="d-flex justify-content-end gap-3">
-              <button type="button" 
-                      class="btn btn-outline-secondary px-4" 
-                      data-bs-dismiss="modal">
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-primary px-4">Save Changes</button>
-            </div>
-          </form>
-        </div>
+<!-- Create Story Modal -->
+<div class="modal fade" id="storyFormModal" tabindex="-1" aria-labelledby="storyFormModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="storyFormModalLabel">
+          <i class="fas fa-book-open me-2 text-primary"></i>Share a Story
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="story-form" method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="story-author-name" class="form-label">Your Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="story-author-name" name="author_name" 
+                   placeholder="Enter your name" required maxlength="100">
+          </div>
+          <div class="mb-3">
+            <label for="story-title" class="form-label">Story Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="story-title" name="title" 
+                   placeholder="Give your story a title" required maxlength="200">
+          </div>
+          <div class="mb-3">
+            <label for="story-content" class="form-label">Your Story <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="story-content" name="content" rows="8" 
+                      placeholder="Share your story or memory..." required maxlength="5000"></textarea>
+            <div class="form-text">Maximum 5000 characters</div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-paper-plane me-2"></i>Submit Story
+            </button>
+          </div>
+          <p class="text-muted small mt-3 mb-0 text-center">
+            <i class="fas fa-info-circle me-1"></i>
+            Your story will be reviewed before appearing publicly.
+          </p>
+        </form>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Edit Story Modal -->
+<div class="modal fade" id="editStoryModal" tabindex="-1" aria-labelledby="editStoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="editStoryModalLabel">
+          <i class="fas fa-edit me-2 text-primary"></i>Edit Story
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-story-form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="edit-story-id" name="story_id">
+          <div class="mb-3">
+            <label for="edit-story-author-name" class="form-label">Your Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="edit-story-author-name" name="author_name" 
+                   required maxlength="100">
+          </div>
+          <div class="mb-3">
+            <label for="edit-story-title" class="form-label">Story Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="edit-story-title" name="title" 
+                   required maxlength="200">
+          </div>
+          <div class="mb-3">
+            <label for="edit-story-content" class="form-label">Your Story <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="edit-story-content" name="content" rows="8" 
+                      required maxlength="5000"></textarea>
+            <div class="form-text">Maximum 5000 characters</div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
   {# ======================== QR CODE SECTION ======================== #}
   <div class="qr-code-section">
@@ -810,12 +842,15 @@ document.addEventListener('DOMContentLoaded', () => {
    * Get CSRF token from cookies or hidden input
    */
   function getCsrfToken() {
+    // Try cookie first
     const cookieValue = document.cookie
       .split('; ')
       .find(row => row.startsWith('csrftoken='))
       ?.split('=')[1];
     
     if (cookieValue) return cookieValue;
+    
+    // Fallback to hidden input
     return document.querySelector('[name=csrfmiddlewaretoken]')?.value;
   }
   
@@ -830,18 +865,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   /**
-   * Format date nicely
-   */
-  function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-  
-  /**
    * Show toast notification
    */
   function showToast(message, type = 'success') {
@@ -849,19 +872,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!toastContainer) {
       toastContainer = document.createElement('div');
       toastContainer.id = 'toast-container';
-      toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999;';
+      toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+      toastContainer.style.zIndex = '9999';
       document.body.appendChild(toastContainer);
     }
     
     const toast = document.createElement('div');
     toast.className = `toast show align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0`;
     toast.setAttribute('role', 'alert');
-    toast.style.cssText = 'min-width: 300px; margin-bottom: 10px;';
+    toast.style.minWidth = '300px';
+    toast.style.marginBottom = '10px';
     toast.innerHTML = `
       <div class="d-flex">
         <div class="toast-body">
           <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} me-2"></i>
-          ${message}
+          ${escapeHTML(message)}
         </div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
       </div>
@@ -907,13 +932,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTributeToggle();
     
     /**
-     * Generate HTML for a tribute card (viewer version)
+     * Generate HTML for a tribute card
      */
-    function generateTributeCard(tribute, canEdit = false, isPending = false) {
-      const dateStr = formatDate(tribute.created_at);
+    function generateTributeCard(tribute, canEdit = false) {
+      const isPending = tribute.status === 'pending';
       
       return `
-        <div class="col-12 tribute-item" data-tribute-id="${tribute.id}" data-status="${tribute.status || 'approved'}">
+        <div class="col-12 tribute-item" data-tribute-id="${tribute.id}" data-status="${tribute.status}">
           <div class="card tribute-card h-100 border-0 shadow-sm ${isPending ? 'tribute-pending' : ''}">
             <div class="card-body d-flex flex-column p-4">
               ${isPending ? `
@@ -928,13 +953,13 @@ document.addEventListener('DOMContentLoaded', () => {
               ` : ''}
               
               <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="tribute-author">
-                  <div class="author-avatar">
+                <div class="tribute-author d-flex align-items-center">
+                  <div class="author-avatar me-3">
                     <i class="fas fa-user"></i>
                   </div>
                   <div class="author-info">
                     <h3 class="card-title mb-0 fs-5 fw-semibold">${escapeHTML(tribute.author_name)}</h3>
-                    <small class="text-muted">${dateStr}</small>
+                    <small class="text-muted">${tribute.created_at}</small>
                   </div>
                 </div>
               </div>
@@ -945,7 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
               
               ${canEdit ? `
                 <div class="mt-auto pt-3 border-top tribute-actions">
-                  <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                  <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
                           data-tribute-id="${tribute.id}"
                           data-author-name="${escapeHTML(tribute.author_name)}"
                           data-message="${escapeHTML(tribute.message)}"
@@ -969,26 +994,18 @@ document.addEventListener('DOMContentLoaded', () => {
      * Setup toggle button for viewing more tributes
      */
     function setupTributeToggle() {
-      const hiddenTributes = document.querySelectorAll('.tribute-hidden');
-      const toggleContainer = document.getElementById('tribute-toggle-container');
+      const hiddenTributes = document.getElementById('hidden-tributes');
       const toggleBtn = document.getElementById('toggle-tributes-btn');
       
-      if (hiddenTributes.length > 0 && toggleContainer) {
-        toggleContainer.style.display = 'block';
-        
-        if (toggleBtn) {
-          toggleBtn.addEventListener('click', function() {
-            const isHidden = hiddenTributes[0].classList.contains('d-none');
-            
-            hiddenTributes.forEach(tribute => {
-              tribute.classList.toggle('d-none');
-            });
-            
-            this.innerHTML = isHidden 
-              ? '<i class="fas fa-chevron-up me-2"></i>View Less'
-              : '<i class="fas fa-chevron-down me-2"></i>View All Tributes';
-          });
-        }
+      if (hiddenTributes && toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+          const isHidden = hiddenTributes.classList.contains('d-none');
+          hiddenTributes.classList.toggle('d-none');
+          
+          this.innerHTML = isHidden 
+            ? '<i class="fas fa-chevron-up me-2"></i>View Less'
+            : '<i class="fas fa-chevron-down me-2"></i>View All Tributes';
+        });
       }
     }
     
@@ -1015,6 +1032,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const submitBtn = tributeForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerHTML;
         
+        // Validate form data
+        const authorName = formData.get('author_name')?.trim();
+        const message = formData.get('message')?.trim();
+        
+        if (!authorName) {
+          showToast('Please enter your name', 'error');
+          return;
+        }
+        if (!message) {
+          showToast('Please enter a message', 'error');
+          return;
+        }
+        
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
         
@@ -1028,13 +1058,23 @@ document.addEventListener('DOMContentLoaded', () => {
             body: formData,
           });
           
-          const data = await response.json();
+          const responseText = await response.text();
+          console.log('Server response:', responseText);
+          
+          let data;
+          try {
+            data = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error('Failed to parse JSON:', responseText);
+            throw new Error('Server returned invalid response');
+          }
           
           if (data.success) {
+            // Remove empty message if it exists
             document.getElementById('empty-tributes-message')?.remove();
             
-            const isPending = data.tribute.status === 'pending';
-            const newTributeHTML = generateTributeCard(data.tribute, data.can_edit, isPending);
+            // Add new tribute to the list
+            const newTributeHTML = generateTributeCard(data.tribute, data.can_edit);
             
             if (visibleTributes) {
               visibleTributes.insertAdjacentHTML('afterbegin', newTributeHTML);
@@ -1045,7 +1085,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tributeFormModal?.hide();
             tributeForm.reset();
             
-            showToast(data.message || 'Your tribute has been submitted and is awaiting approval.', 'success');
+            showToast(data.message || 'Your tribute has been submitted!', 'success');
           } else {
             throw new Error(data.error || 'Failed to submit tribute');
           }
@@ -1115,8 +1155,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (data.success) {
             const tributeEl = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
             if (tributeEl) {
-              const isPending = data.tribute.status === 'pending';
-              tributeEl.outerHTML = generateTributeCard(data.tribute, data.can_edit, isPending);
+              tributeEl.outerHTML = generateTributeCard(data.tribute, data.can_edit);
             }
             
             editTributeModal?.hide();
@@ -1152,15 +1191,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
           document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`)?.remove();
           
+          // Show empty state if no tributes left
           if (!document.querySelector('.tribute-item')) {
             const container = visibleTributes || tributeList;
             if (container) {
               container.innerHTML = `
                 <div class="col-12" id="empty-tributes-message">
                   <div class="empty-tributes text-center py-5">
-                    <i class="fas fa-heart text-muted mb-4"></i>
+                    <i class="fas fa-heart fa-3x text-muted mb-4" style="opacity: 0.3;"></i>
                     <h3 class="h5 text-muted mb-3">No tributes yet</h3>
-                    <p class="text-muted mb-4">Be the first to share your memories</p>
+                    <p class="text-muted mb-4">Be the first to share your memories and pay tribute.</p>
                   </div>
                 </div>
               `;
@@ -1211,13 +1251,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupStoryToggle();
     
     /**
-     * Generate HTML for a story card (viewer version)
+     * Generate HTML for a story card
      */
-    function generateStoryCard(story, canEdit = false, isPending = false) {
-      const dateStr = formatDate(story.created_at);
+    function generateStoryCard(story, canEdit = false) {
+      const isPending = story.status === 'pending';
       
       return `
-        <div class="col-12 story-item" data-story-id="${story.id}" data-status="${story.status || 'approved'}">
+        <div class="col-12 story-item" data-story-id="${story.id}" data-status="${story.status}">
           <div class="card story-card h-100 border-0 shadow-sm ${isPending ? 'story-pending' : ''}">
             <div class="card-body d-flex flex-column p-4">
               ${isPending ? `
@@ -1238,7 +1278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-user me-1"></i> by ${escapeHTML(story.author_name)}
                   </p>
                 </div>
-                <small class="text-muted story-date">${dateStr}</small>
+                <small class="text-muted story-date">${story.created_at}</small>
               </div>
               
               <div class="card-text flex-grow-1 mb-3 lh-base story-content">
@@ -1247,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', () => {
               
               ${canEdit ? `
                 <div class="mt-auto pt-3 border-top story-actions">
-                  <button class="btn btn-sm btn-outline-primary edit-story" 
+                  <button class="btn btn-sm btn-outline-primary edit-story me-2" 
                           data-story-id="${story.id}"
                           data-author-name="${escapeHTML(story.author_name)}"
                           data-title="${escapeHTML(story.title)}"
@@ -1272,26 +1312,18 @@ document.addEventListener('DOMContentLoaded', () => {
      * Setup toggle button for viewing more stories
      */
     function setupStoryToggle() {
-      const hiddenStories = document.querySelectorAll('.story-hidden');
-      const toggleContainer = document.getElementById('story-toggle-container');
+      const hiddenStories = document.getElementById('hidden-stories');
       const toggleBtn = document.getElementById('toggle-stories-btn');
       
-      if (hiddenStories.length > 0 && toggleContainer) {
-        toggleContainer.style.display = 'block';
-        
-        if (toggleBtn) {
-          toggleBtn.addEventListener('click', function() {
-            const isHidden = hiddenStories[0].classList.contains('d-none');
-            
-            hiddenStories.forEach(story => {
-              story.classList.toggle('d-none');
-            });
-            
-            this.innerHTML = isHidden 
-              ? '<i class="fas fa-chevron-up me-2"></i>View Less'
-              : '<i class="fas fa-chevron-down me-2"></i>View All Stories';
-          });
-        }
+      if (hiddenStories && toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+          const isHidden = hiddenStories.classList.contains('d-none');
+          hiddenStories.classList.toggle('d-none');
+          
+          this.innerHTML = isHidden 
+            ? '<i class="fas fa-chevron-up me-2"></i>View Less'
+            : '<i class="fas fa-chevron-down me-2"></i>View All Stories';
+        });
       }
     }
     
@@ -1318,6 +1350,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const submitBtn = storyForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerHTML;
         
+        // Validate form data
+        const authorName = formData.get('author_name')?.trim();
+        const title = formData.get('title')?.trim();
+        const content = formData.get('content')?.trim();
+        
+        if (!authorName) {
+          showToast('Please enter your name', 'error');
+          return;
+        }
+        if (!title) {
+          showToast('Please enter a title', 'error');
+          return;
+        }
+        if (!content) {
+          showToast('Please enter your story', 'error');
+          return;
+        }
+        
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
         
@@ -1331,13 +1381,23 @@ document.addEventListener('DOMContentLoaded', () => {
             body: formData,
           });
           
-          const data = await response.json();
+          const responseText = await response.text();
+          console.log('Server response:', responseText);
+          
+          let data;
+          try {
+            data = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error('Failed to parse JSON:', responseText);
+            throw new Error('Server returned invalid response');
+          }
           
           if (data.success) {
+            // Remove empty message if it exists
             document.getElementById('empty-stories-message')?.remove();
             
-            const isPending = data.story.status === 'pending';
-            const newStoryHTML = generateStoryCard(data.story, data.can_edit, isPending);
+            // Add new story to the list
+            const newStoryHTML = generateStoryCard(data.story, data.can_edit);
             
             if (visibleStories) {
               visibleStories.insertAdjacentHTML('afterbegin', newStoryHTML);
@@ -1348,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             storyFormModal?.hide();
             storyForm.reset();
             
-            showToast(data.message || 'Your story has been submitted and is awaiting approval.', 'success');
+            showToast(data.message || 'Your story has been submitted!', 'success');
           } else {
             throw new Error(data.error || 'Failed to submit story');
           }
@@ -1419,8 +1479,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (data.success) {
             const storyEl = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
             if (storyEl) {
-              const isPending = data.story.status === 'pending';
-              storyEl.outerHTML = generateStoryCard(data.story, data.can_edit, isPending);
+              storyEl.outerHTML = generateStoryCard(data.story, data.can_edit);
             }
             
             editStoryModal?.hide();
@@ -1456,15 +1515,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
           document.querySelector(`.story-item[data-story-id="${storyId}"]`)?.remove();
           
+          // Show empty state if no stories left
           if (!document.querySelector('.story-item')) {
             const container = visibleStories || storyList;
             if (container) {
               container.innerHTML = `
                 <div class="col-12" id="empty-stories-message">
                   <div class="empty-stories text-center py-5">
-                    <i class="fas fa-book-open text-muted mb-4"></i>
+                    <i class="fas fa-book-open fa-3x text-muted mb-4" style="opacity: 0.3;"></i>
                     <h3 class="h5 text-muted mb-3">No stories yet</h3>
-                    <p class="text-muted mb-4">Be the first to share a story</p>
+                    <p class="text-muted mb-4">Be the first to share a story or memory.</p>
                   </div>
                 </div>
               `;
@@ -1489,17 +1549,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const galleryModal = document.getElementById('galleryModal');
   
   if (galleryModal) {
-    const galleryCarousel = bootstrap.Carousel.getOrCreateInstance(
-      document.getElementById('galleryCarousel')
-    );
+    const galleryCarouselEl = document.getElementById('galleryCarousel');
+    if (galleryCarouselEl) {
+      const galleryCarousel = bootstrap.Carousel.getOrCreateInstance(galleryCarouselEl);
 
-    galleryModal.addEventListener('show.bs.modal', function (event) {
-      const trigger = event.relatedTarget;
-      const slideIndex = trigger?.getAttribute('data-bs-slide-to');
-      if (slideIndex !== null) {
-        galleryCarousel.to(parseInt(slideIndex));
-      }
-    });
+      galleryModal.addEventListener('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget;
+        const slideIndex = trigger?.getAttribute('data-bs-slide-to');
+        if (slideIndex !== null) {
+          galleryCarousel.to(parseInt(slideIndex));
+        }
+      });
+    }
 
     // Toggle gallery hidden/visible photos
     const toggleGalleryBtn = document.getElementById('toggle-gallery-btn');
@@ -1541,13 +1602,14 @@ document.getElementById("shareButton")?.addEventListener("click", function () {
         if (!toastContainer) {
           toastContainer = document.createElement('div');
           toastContainer.id = 'toast-container';
-          toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999;';
+          toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+          toastContainer.style.zIndex = '9999';
           document.body.appendChild(toastContainer);
         }
         
         const toast = document.createElement('div');
         toast.className = 'toast show align-items-center text-white bg-success border-0';
-        toast.style.cssText = 'min-width: 300px;';
+        toast.style.minWidth = '300px';
         toast.innerHTML = `
           <div class="d-flex">
             <div class="toast-body">
