@@ -175,9 +175,13 @@
   </div>
 
   {# ======================== TRIBUTES SECTION ======================== #}
+  {# This section shows: #}
+  {# - All APPROVED tributes (visible to everyone) #}
+  {# - Current user's own PENDING tributes (only visible to that user) #}
+  {# - Edit/Delete buttons only for user's own tributes #}
+  
   <section class="tributes-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
-           data-memorial-id="{{ memorial.pk }}"
-           data-delete-tribute-url="{% url 'memorials:delete_tribute' 0 %}">
+           data-memorial-id="{{ memorial.pk }}">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="section-title fs-3 fw-bold text-dark">Tributes</h2>
       <button id="open-tribute-form" 
@@ -185,7 +189,7 @@
               data-bs-toggle="modal" 
               data-bs-target="#tributeFormModal"
               aria-label="Create new tribute">
-        <i class="fas fa-plus me-2"></i>Create Tribute
+        <i class="fas fa-plus me-2"></i>Leave a Tribute
       </button>
     </div>
 
@@ -211,25 +215,25 @@
                   action="{% url 'memorials:create_tribute' memorial.pk %}">
               {% csrf_token %}
               <div class="mb-3">
-                <label for="author_name" class="form-label fw-semibold">Your Name</label>
+                <label for="tribute_author_name" class="form-label fw-semibold">Your Name</label>
                 <input type="text" 
                        class="form-control py-2" 
-                       id="author_name" 
+                       id="tribute_author_name" 
                        name="author_name" 
                        required
                        placeholder="Enter your name" 
                        value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}">
               </div>
               <div class="mb-4">
-                <label for="message" class="form-label fw-semibold">Your Tribute</label>
+                <label for="tribute_message" class="form-label fw-semibold">Your Tribute</label>
                 <textarea class="form-control py-2" 
-                          id="message" 
+                          id="tribute_message" 
                           name="message" 
                           rows="5" 
                           required
-                          placeholder="Share your memories, thoughts, or condolences...">
-                </textarea>
+                          placeholder="Share your memories, thoughts, or condolences..."></textarea>
                 <div class="form-text">
+                  <i class="fas fa-info-circle me-1"></i>
                   Your tribute will be reviewed by the memorial owner before being published.
                 </div>
               </div>
@@ -239,7 +243,9 @@
                         data-bs-dismiss="modal">
                   Cancel
                 </button>
-                <button type="submit" class="btn btn-primary px-4">Submit for Approval</button>
+                <button type="submit" class="btn btn-primary px-4">
+                  <i class="fas fa-paper-plane me-2"></i>Submit Tribute
+                </button>
               </div>
             </form>
           </div>
@@ -247,27 +253,54 @@
       </div>
     </div>
 
-    {# ------------------------ Tribute List (APPROVED ONLY) ------------------------ #}
+    {# ------------------------ Tribute List ------------------------ #}
     <div id="tribute-list" class="row g-4">
-      {# Visible tributes (first 3 approved) #}
       <div id="visible-tributes">
-        {% for tribute in memorial.tributes.all|slice:":3" %}
-          {# Only show approved tributes to non-owners #}
-          {% if tribute.status == 'approved' %}
-            <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}">
-              <div class="card tribute-card h-100 border-0 shadow-sm">
-                <div class="card-body d-flex flex-column">
+        {% with shown_count=0 %}
+        {% for tribute in memorial.tributes.all %}
+          {# Show if: approved OR (pending AND user is the tribute author) #}
+          {% if tribute.status == 'approved' or tribute.status == 'pending' and request.user == tribute.user %}
+            <div class="col-12 tribute-item {% if shown_count >= 3 %}tribute-hidden d-none{% endif %}" 
+                 data-tribute-id="{{ tribute.id }}" 
+                 data-status="{{ tribute.status }}">
+              <div class="card tribute-card h-100 border-0 shadow-sm 
+                          {% if tribute.status == 'pending' %}tribute-pending{% endif %}">
+                <div class="card-body d-flex flex-column p-4">
+                  
+                  {# Pending badge - only shown to the tribute author #}
+                  {% if tribute.status == 'pending' and request.user == tribute.user %}
+                    <div class="pending-notice mb-3">
+                      <span class="badge bg-warning text-dark">
+                        <i class="fas fa-clock me-1"></i> Awaiting Approval
+                      </span>
+                      <small class="text-muted d-block mt-1">
+                        Only you can see this tribute until it's approved.
+                      </small>
+                    </div>
+                  {% endif %}
+                  
+                  {# Tribute header #}
                   <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
-                    <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
+                    <div class="tribute-author">
+                      <div class="author-avatar">
+                        <i class="fas fa-user"></i>
+                      </div>
+                      <div class="author-info">
+                        <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
+                        <small class="text-muted">{{ tribute.created_at|date:"F j, Y" }}</small>
+                      </div>
+                    </div>
                   </div>
+                  
+                  {# Tribute message #}
                   <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
                     {{ tribute.message|linebreaksbr }}
                   </div>
-                  {# Only show edit/delete if user is the tribute author #}
+                  
+                  {# Edit/Delete buttons - only for tribute author #}
                   {% if request.user == tribute.user %}
-                    <div class="mt-auto text-end" data-user-can-edit="true">
-                      <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
+                    <div class="mt-auto pt-3 border-top tribute-actions">
+                      <button class="btn btn-sm btn-outline-primary edit-tribute" 
                               data-tribute-id="{{ tribute.id }}"
                               data-author-name="{{ tribute.author_name }}"
                               data-message="{{ tribute.message }}"
@@ -288,7 +321,7 @@
         {% empty %}
           <div class="col-12" id="empty-tributes-message">
             <div class="empty-tributes text-center py-5">
-              <i class="fas fa-heart text-muted fa-4x mb-4"></i>
+              <i class="fas fa-heart text-muted mb-4"></i>
               <h3 class="h5 text-muted mb-3">No tributes yet</h3>
               <p class="text-muted mb-4">
                 Be the first to share your memories of {{ memorial.first_name }}
@@ -296,58 +329,16 @@
             </div>
           </div>
         {% endfor %}
-      </div>
-
-      {# Hidden additional tributes (APPROVED ONLY) #}
-      <div id="hidden-tributes" class="row g-4 d-none">
-        {% for tribute in memorial.tributes.all|slice:"3:" %}
-          {# Only show approved tributes to non-owners #}
-          {% if tribute.status == 'approved' %}
-            <div class="col-12 tribute-item tribute-special" data-tribute-id="{{ tribute.id }}">
-              <div class="card tribute-card h-100 border-0 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                  <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h3 class="card-title mb-0 fs-5 fw-semibold">{{ tribute.author_name }}</h3>
-                    <small class="text-muted">{{ tribute.created_at|date:"M j, Y" }}</small>
-                  </div>
-                  <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
-                    {{ tribute.message|linebreaksbr }}
-                  </div>
-                  {# Only show edit/delete if user is the tribute author #}
-                  {% if request.user == tribute.user %}
-                    <div class="mt-auto text-end" data-user-can-edit="true">
-                      <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
-                              data-tribute-id="{{ tribute.id }}"
-                              data-author-name="{{ tribute.author_name }}"
-                              data-message="{{ tribute.message }}"
-                              aria-label="Edit tribute">
-                        <i class="fas fa-edit me-1"></i> Edit
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete tribute">
-                        <i class="fas fa-trash me-1"></i> Delete
-                      </button>
-                    </div>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
+        {% endwith %}
       </div>
     </div>
 
-    {# View All Tributes Button - only show if there are more than 3 approved tributes #}
-    {% with approved_count=memorial.tributes.filter.count %}
-      {% if approved_count > 3 %}
-        <div class="text-center mt-4">
-          <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
-            <i class="fas fa-chevron-down me-2"></i>View All Tributes
-          </button>
-        </div>
-      {% endif %}
-    {% endwith %}
+    {# View All Tributes Button #}
+    <div class="text-center mt-4" id="tribute-toggle-container" style="display: none;">
+      <button id="toggle-tributes-btn" class="btn btn-secondary rounded-pill px-4">
+        <i class="fas fa-chevron-down me-2"></i>View All Tributes
+      </button>
+    </div>
   </section>
 
   {# ------------------------ Edit Tribute Modal ------------------------ #}
@@ -371,21 +362,20 @@
             {% csrf_token %}
             <input type="hidden" id="edit-tribute-id" name="tribute_id">
             <div class="mb-3">
-              <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
+              <label for="edit-tribute-author-name" class="form-label fw-semibold">Your Name</label>
               <input type="text" 
                      class="form-control py-2" 
-                     id="edit-author-name" 
+                     id="edit-tribute-author-name" 
                      name="author_name" 
                      required>
             </div>
             <div class="mb-4">
-              <label for="edit-message" class="form-label fw-semibold">Your Tribute</label>
+              <label for="edit-tribute-message" class="form-label fw-semibold">Your Tribute</label>
               <textarea class="form-control py-2" 
-                        id="edit-message" 
+                        id="edit-tribute-message" 
                         name="message" 
                         rows="5" 
-                        required>
-              </textarea>
+                        required></textarea>
             </div>
             <div class="d-flex justify-content-end gap-3">
               <button type="button" 
@@ -400,6 +390,7 @@
       </div>
     </div>
   </div>
+
 
   {# ======================== MUSIC SECTION ======================== #}
   {% if memorial.plan and memorial.plan.name|lower != 'free' %}
@@ -537,10 +528,14 @@
     </div>
   </div>
 
-   {# ======================== STORIES SECTION ======================== #}
+  {# ======================== STORIES SECTION ======================== #}
+  {# This section shows: #}
+  {# - All APPROVED stories (visible to everyone) #}
+  {# - Current user's own PENDING stories (only visible to that user) #}
+  {# - Edit/Delete buttons only for user's own stories #}
+  
   <section class="stories-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
-           data-memorial-id="{{ memorial.pk }}"
-           data-delete-story-url="{% url 'memorials:delete_story' 0 %}">
+           data-memorial-id="{{ memorial.pk }}">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="section-title fs-3 fw-bold text-dark">Stories</h2>
       <button id="open-story-form" 
@@ -548,7 +543,7 @@
               data-bs-toggle="modal" 
               data-bs-target="#storyFormModal"
               aria-label="Create new story">
-        <i class="fas fa-plus me-2"></i>Share Story
+        <i class="fas fa-plus me-2"></i>Share a Story
       </button>
     </div>
 
@@ -574,34 +569,34 @@
                   action="{% url 'memorials:create_story' memorial.pk %}">
               {% csrf_token %}
               <div class="mb-3">
-                <label for="author_name" class="form-label fw-semibold">Your Name</label>
+                <label for="story_author_name" class="form-label fw-semibold">Your Name</label>
                 <input type="text" 
                        class="form-control py-2" 
-                       id="author_name" 
+                       id="story_author_name" 
                        name="author_name" 
                        required
                        placeholder="Enter your name" 
                        value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}">
               </div>
               <div class="mb-3">
-                <label for="title" class="form-label fw-semibold">Story Title</label>
+                <label for="story_title" class="form-label fw-semibold">Story Title</label>
                 <input type="text" 
                        class="form-control py-2" 
-                       id="title" 
+                       id="story_title" 
                        name="title" 
                        required
                        placeholder="Give your story a title">
               </div>
               <div class="mb-4">
-                <label for="content" class="form-label fw-semibold">Your Story</label>
+                <label for="story_content" class="form-label fw-semibold">Your Story</label>
                 <textarea class="form-control py-2" 
-                          id="content" 
+                          id="story_content" 
                           name="content" 
-                          rows="5" 
+                          rows="6" 
                           required
-                          placeholder="Share your memories and stories...">
-                </textarea>
+                          placeholder="Share your memories and stories about {{ memorial.first_name }}..."></textarea>
                 <div class="form-text">
+                  <i class="fas fa-info-circle me-1"></i>
                   Your story will be reviewed by the memorial owner before being published.
                 </div>
               </div>
@@ -611,8 +606,8 @@
                         data-bs-dismiss="modal">
                   Cancel
                 </button>
-                <button type="submit" class="btn btn-primary px-4" id="submit-story-btn">
-                  <span class="btn-text">Submit for Approval</span>
+                <button type="submit" class="btn btn-primary px-4">
+                  <i class="fas fa-paper-plane me-2"></i>Submit Story
                 </button>
               </div>
             </form>
@@ -621,30 +616,51 @@
       </div>
     </div>
 
-    {# ------------------------ Story List (APPROVED ONLY) ------------------------ #}
+    {# ------------------------ Story List ------------------------ #}
     <div id="story-list" class="row g-4">
-      {# Visible stories (first 3 approved) #}
       <div id="visible-stories">
-        {% for story in memorial.stories.all|slice:":3" %}
-          {# Only show approved stories to non-owners #}
-          {% if story.status == 'approved' %}
-            <div class="col-12 story-item" data-story-id="{{ story.id }}">
-              <div class="card story-card h-100 border-0 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                  <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
-                      <p class="text-muted mb-0">by {{ story.author_name }}</p>
+        {% for story in memorial.stories.all %}
+          {# Show if: approved OR (pending AND user is the story author) #}
+          {% if story.status == 'approved' or story.status == 'pending' and request.user == story.user %}
+            <div class="col-12 story-item {% if forloop.counter > 3 %}story-hidden d-none{% endif %}" 
+                 data-story-id="{{ story.id }}" 
+                 data-status="{{ story.status }}">
+              <div class="card story-card h-100 border-0 shadow-sm 
+                          {% if story.status == 'pending' %}story-pending{% endif %}">
+                <div class="card-body d-flex flex-column p-4">
+                  
+                  {# Pending badge - only shown to the story author #}
+                  {% if story.status == 'pending' and request.user == story.user %}
+                    <div class="pending-notice mb-3">
+                      <span class="badge bg-warning text-dark">
+                        <i class="fas fa-clock me-1"></i> Awaiting Approval
+                      </span>
+                      <small class="text-muted d-block mt-1">
+                        Only you can see this story until it's approved.
+                      </small>
                     </div>
-                    <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
+                  {% endif %}
+                  
+                  {# Story header #}
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="story-header-info">
+                      <h3 class="card-title mb-1 fs-5 fw-semibold story-title-text">{{ story.title }}</h3>
+                      <p class="text-muted mb-0 story-author-text">
+                        <i class="fas fa-user me-1"></i> by {{ story.author_name }}
+                      </p>
+                    </div>
+                    <small class="text-muted story-date">{{ story.created_at|date:"F j, Y" }}</small>
                   </div>
+                  
+                  {# Story content #}
                   <div class="card-text flex-grow-1 mb-3 lh-base story-content">
                     {{ story.content|linebreaksbr }}
                   </div>
-                  {# Only show edit/delete if user is the story author #}
+                  
+                  {# Edit/Delete buttons - only for story author #}
                   {% if request.user == story.user %}
-                    <div class="mt-auto text-end" data-user-can-edit="true">
-                      <button class="btn btn-sm btn-outline-primary edit-story me-2" 
+                    <div class="mt-auto pt-3 border-top story-actions">
+                      <button class="btn btn-sm btn-outline-primary edit-story" 
                               data-story-id="{{ story.id }}"
                               data-author-name="{{ story.author_name }}"
                               data-title="{{ story.title }}"
@@ -666,7 +682,7 @@
         {% empty %}
           <div class="col-12" id="empty-stories-message">
             <div class="empty-stories text-center py-5">
-              <i class="fas fa-book-open text-muted fa-4x mb-4"></i>
+              <i class="fas fa-book-open text-muted mb-4"></i>
               <h3 class="h5 text-muted mb-3">No stories yet</h3>
               <p class="text-muted mb-4">
                 Be the first to share a story about {{ memorial.first_name }}
@@ -675,61 +691,14 @@
           </div>
         {% endfor %}
       </div>
-
-      {# Hidden additional stories (APPROVED ONLY) #}
-      <div id="hidden-stories" class="row g-4 d-none">
-        {% for story in memorial.stories.all|slice:"3:" %}
-          {# Only show approved stories to non-owners #}
-          {% if story.status == 'approved' %}
-            <div class="col-12 story-item story-special" data-story-id="{{ story.id }}">
-              <div class="card story-card h-100 border-0 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                  <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
-                      <p class="text-muted mb-0">by {{ story.author_name }}</p>
-                    </div>
-                    <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
-                  </div>
-                  <div class="card-text flex-grow-1 mb-3 lh-base story-content">
-                    {{ story.content|linebreaksbr }}
-                  </div>
-                  {# Only show edit/delete if user is the story author #}
-                  {% if request.user == story.user %}
-                    <div class="mt-auto text-end" data-user-can-edit="true">
-                      <button class="btn btn-sm btn-outline-primary edit-story me-2" 
-                              data-story-id="{{ story.id }}"
-                              data-author-name="{{ story.author_name }}"
-                              data-title="{{ story.title }}"
-                              data-content="{{ story.content }}"
-                              aria-label="Edit story">
-                        <i class="fas fa-edit me-1"></i> Edit
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger delete-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete story">
-                        <i class="fas fa-trash me-1"></i> Delete
-                      </button>
-                    </div>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
     </div>
 
-    {# View All Stories Button - only show if there are more than 3 approved stories #}
-    {% with approved_count=memorial.stories.filter.count %}
-      {% if approved_count > 3 %}
-        <div class="text-center mt-4">
-          <button id="toggle-stories-btn" class="btn btn-secondary rounded-pill px-4">
-            <i class="fas fa-chevron-down me-2"></i>View All Stories
-          </button>
-        </div>
-      {% endif %}
-    {% endwith %}
+    {# View All Stories Button #}
+    <div class="text-center mt-4" id="story-toggle-container" style="display: none;">
+      <button id="toggle-stories-btn" class="btn btn-secondary rounded-pill px-4">
+        <i class="fas fa-chevron-down me-2"></i>View All Stories
+      </button>
+    </div>
   </section>
 
   {# ------------------------ Edit Story Modal ------------------------ #}
@@ -753,29 +722,28 @@
             {% csrf_token %}
             <input type="hidden" id="edit-story-id" name="story_id">
             <div class="mb-3">
-              <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
+              <label for="edit-story-author-name" class="form-label fw-semibold">Your Name</label>
               <input type="text" 
                      class="form-control py-2" 
-                     id="edit-author-name" 
+                     id="edit-story-author-name" 
                      name="author_name" 
                      required>
             </div>
             <div class="mb-3">
-              <label for="edit-title" class="form-label fw-semibold">Story Title</label>
+              <label for="edit-story-title" class="form-label fw-semibold">Story Title</label>
               <input type="text" 
                      class="form-control py-2" 
-                     id="edit-title" 
+                     id="edit-story-title" 
                      name="title" 
                      required>
             </div>
             <div class="mb-4">
-              <label for="edit-content" class="form-label fw-semibold">Your Story</label>
+              <label for="edit-story-content" class="form-label fw-semibold">Your Story</label>
               <textarea class="form-control py-2" 
-                        id="edit-content" 
+                        id="edit-story-content" 
                         name="content" 
-                        rows="5" 
-                        required>
-              </textarea>
+                        rows="6" 
+                        required></textarea>
             </div>
             <div class="d-flex justify-content-end gap-3">
               <button type="button" 
@@ -823,103 +791,233 @@
 {% block extra_js %}
 <script>
 /**
- * Main memorial page functionality including tributes, stories, sharing and gallery.
- * All code runs after DOM is fully loaded.
+ * Memorial Detail Page - Complete JavaScript
+ * Handles tributes, stories, sharing, gallery, and QR code functionality
+ * 
+ * Visibility Rules:
+ * - Shows all APPROVED tributes/stories to everyone
+ * - Shows PENDING tributes/stories ONLY to the author who submitted them
+ * - Edit/Delete buttons only appear for user's own tributes/stories
  */
+
 document.addEventListener('DOMContentLoaded', () => {
-  // ------------------------- TRIBUTES FUNCTIONALITY -------------------------
+  
+  // ========================
+  // === HELPER FUNCTIONS ===
+  // ========================
+  
+  /**
+   * Get CSRF token from cookies or hidden input
+   */
+  function getCsrfToken() {
+    const cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+    
+    if (cookieValue) return cookieValue;
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+  }
+  
+  /**
+   * Escape HTML to prevent XSS
+   */
+  function escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  
+  /**
+   * Format date nicely
+   */
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+  
+  /**
+   * Show toast notification
+   */
+  function showToast(message, type = 'success') {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999;';
+      document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.style.cssText = 'min-width: 300px; margin-bottom: 10px;';
+    toast.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} me-2"></i>
+          ${message}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+      </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.remove();
+    }, 4000);
+  }
+  
+  // ========================
+  // === TRIBUTES SECTION ===
+  // ========================
+  
   const tributesSection = document.querySelector('.tributes-section');
   
   if (tributesSection) {
     const memorialId = tributesSection.dataset.memorialId;
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-
-    // Initialize Bootstrap modals
-    const tributeFormModal = bootstrap.Modal.getOrCreateInstance(
-      document.getElementById('tributeFormModal')
-    );
-    const editTributeModal = bootstrap.Modal.getOrCreateInstance(
-      document.getElementById('editTributeModal')
-    );
-
-    // Cache DOM elements
-    const tributeList = document.getElementById('tribute-list');
-    const openTributeFormBtn = document.getElementById('open-tribute-form');
+    const csrfToken = getCsrfToken();
+    
+    // Get elements
+    const tributeFormModalEl = document.getElementById('tributeFormModal');
+    const editTributeModalEl = document.getElementById('editTributeModal');
     const tributeForm = document.getElementById('tribute-form');
     const editTributeForm = document.getElementById('edit-tribute-form');
-
-    /**
-     * Escapes HTML to prevent XSS attacks
-     * @param {string} str - Input string to escape
-     * @return {string} Escaped HTML string
-     */
-    function escapeHTML(str) {
-      if (!str) return '';
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
+    const tributeList = document.getElementById('tribute-list');
+    const visibleTributes = document.getElementById('visible-tributes');
+    
+    // Initialize modals
+    let tributeFormModal = null;
+    let editTributeModal = null;
+    
+    if (tributeFormModalEl) {
+      tributeFormModal = bootstrap.Modal.getOrCreateInstance(tributeFormModalEl);
     }
-
+    if (editTributeModalEl) {
+      editTributeModal = bootstrap.Modal.getOrCreateInstance(editTributeModalEl);
+    }
+    
+    // Setup toggle button for showing more tributes
+    setupTributeToggle();
+    
     /**
-     * Generates HTML for a tribute card
-     * @param {Object} tribute - Tribute data object
-     * @param {boolean} canEdit - Whether user can edit this tribute
-     * @return {string} HTML string for the tribute card
+     * Generate HTML for a tribute card (viewer version)
      */
-    function generateTributeCard(tribute, canEdit = false) {
-      const dateStr = new Date(tribute.created_at).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-
+    function generateTributeCard(tribute, canEdit = false, isPending = false) {
+      const dateStr = formatDate(tribute.created_at);
+      
       return `
-        <div class="col-12 tribute-item" data-tribute-id="${tribute.id}">
-          <div class="card tribute-card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
+        <div class="col-12 tribute-item" data-tribute-id="${tribute.id}" data-status="${tribute.status || 'approved'}">
+          <div class="card tribute-card h-100 border-0 shadow-sm ${isPending ? 'tribute-pending' : ''}">
+            <div class="card-body d-flex flex-column p-4">
+              ${isPending ? `
+                <div class="pending-notice mb-3">
+                  <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                  <small class="text-muted d-block mt-1">
+                    Only you can see this tribute until it's approved.
+                  </small>
+                </div>
+              ` : ''}
+              
               <div class="d-flex justify-content-between align-items-start mb-3">
-                <h3 class="card-title mb-0 fs-5 fw-semibold">${escapeHTML(tribute.author_name)}</h3>
-                <small class="text-muted">${dateStr}</small>
+                <div class="tribute-author">
+                  <div class="author-avatar">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div class="author-info">
+                    <h3 class="card-title mb-0 fs-5 fw-semibold">${escapeHTML(tribute.author_name)}</h3>
+                    <small class="text-muted">${dateStr}</small>
+                  </div>
+                </div>
               </div>
+              
               <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
                 ${escapeHTML(tribute.message).replace(/\n/g, '<br>')}
               </div>
+              
               ${canEdit ? `
-              <div class="mt-auto text-end" data-user-can-edit="true">
-                <button class="btn btn-sm btn-outline-primary edit-tribute me-2" 
-                        data-tribute-id="${tribute.id}"
-                        data-author-name="${escapeHTML(tribute.author_name)}"
-                        data-message="${escapeHTML(tribute.message)}"
-                        aria-label="Edit tribute">
-                  <i class="fas fa-edit me-1"></i> Edit
-                </button>
-                <button class="btn btn-sm btn-outline-danger delete-tribute" 
-                        data-tribute-id="${tribute.id}"
-                        aria-label="Delete tribute">
-                  <i class="fas fa-trash me-1"></i> Delete
-                </button>
-              </div>
+                <div class="mt-auto pt-3 border-top tribute-actions">
+                  <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                          data-tribute-id="${tribute.id}"
+                          data-author-name="${escapeHTML(tribute.author_name)}"
+                          data-message="${escapeHTML(tribute.message)}"
+                          aria-label="Edit tribute">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                          data-tribute-id="${tribute.id}"
+                          aria-label="Delete tribute">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
               ` : ''}
             </div>
           </div>
         </div>
       `;
     }
-
-    // Event Listeners
-    if (openTributeFormBtn) {
+    
+    /**
+     * Setup toggle button for viewing more tributes
+     */
+    function setupTributeToggle() {
+      const hiddenTributes = document.querySelectorAll('.tribute-hidden');
+      const toggleContainer = document.getElementById('tribute-toggle-container');
+      const toggleBtn = document.getElementById('toggle-tributes-btn');
+      
+      if (hiddenTributes.length > 0 && toggleContainer) {
+        toggleContainer.style.display = 'block';
+        
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', function() {
+            const isHidden = hiddenTributes[0].classList.contains('d-none');
+            
+            hiddenTributes.forEach(tribute => {
+              tribute.classList.toggle('d-none');
+            });
+            
+            this.innerHTML = isHidden 
+              ? '<i class="fas fa-chevron-up me-2"></i>View Less'
+              : '<i class="fas fa-chevron-down me-2"></i>View All Tributes';
+          });
+        }
+      }
+    }
+    
+    /**
+     * Handle opening tribute form modal
+     */
+    const openTributeFormBtn = document.getElementById('open-tribute-form');
+    if (openTributeFormBtn && tributeForm) {
       openTributeFormBtn.addEventListener('click', () => {
         tributeForm.reset();
         tributeForm.action = `/memorials/${memorialId}/tributes/create/`;
-        tributeFormModal.show();
+        tributeFormModal?.show();
       });
     }
-
+    
+    /**
+     * Handle tribute form submission
+     */
     if (tributeForm) {
       tributeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const formData = new FormData(tributeForm);
-
+        const submitBtn = tributeForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+        
         try {
           const response = await fetch(tributeForm.action, {
             method: 'POST',
@@ -929,52 +1027,79 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: formData,
           });
-
+          
           const data = await response.json();
-
+          
           if (data.success) {
-            const emptyMessage = document.getElementById('empty-tributes-message');
-            if (emptyMessage) emptyMessage.remove();
-
-            tributeList.insertAdjacentHTML('afterbegin', 
-              generateTributeCard(data.tribute, data.can_edit));
-            tributeFormModal.hide();
+            document.getElementById('empty-tributes-message')?.remove();
+            
+            const isPending = data.tribute.status === 'pending';
+            const newTributeHTML = generateTributeCard(data.tribute, data.can_edit, isPending);
+            
+            if (visibleTributes) {
+              visibleTributes.insertAdjacentHTML('afterbegin', newTributeHTML);
+            } else if (tributeList) {
+              tributeList.insertAdjacentHTML('afterbegin', newTributeHTML);
+            }
+            
+            tributeFormModal?.hide();
             tributeForm.reset();
+            
+            showToast(data.message || 'Your tribute has been submitted and is awaiting approval.', 'success');
           } else {
-            throw new Error(data.error || 'Failed to create tribute');
+            throw new Error(data.error || 'Failed to submit tribute');
           }
         } catch (error) {
-          console.error('Error:', error);
-          alert(`Error: ${error.message}`);
+          console.error('Tribute submission error:', error);
+          showToast(error.message || 'An error occurred. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
         }
       });
     }
-
+    
+    /**
+     * Handle tribute list click events (edit/delete)
+     */
     if (tributeList) {
       tributeList.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-tribute');
         const deleteBtn = e.target.closest('.delete-tribute');
-
-        if (editBtn) {
-          editTributeForm.action = `/memorials/tributes/${editBtn.dataset.tributeId}/edit/`;
+        
+        if (editBtn && editTributeForm) {
           document.getElementById('edit-tribute-id').value = editBtn.dataset.tributeId;
-          document.getElementById('edit-author-name').value = editBtn.dataset.authorName;
-          document.getElementById('edit-message').value = editBtn.dataset.message;
-          editTributeModal.show();
-        } else if (deleteBtn) {
-          if (confirm('Are you sure you want to delete this tribute?')) {
+          document.getElementById('edit-tribute-author-name').value = editBtn.dataset.authorName;
+          document.getElementById('edit-tribute-message').value = editBtn.dataset.message;
+          
+          editTributeForm.action = `/memorials/tributes/${editBtn.dataset.tributeId}/edit/`;
+          
+          editTributeModal?.show();
+        }
+        
+        if (deleteBtn) {
+          if (confirm('Are you sure you want to delete your tribute? This action cannot be undone.')) {
             deleteTribute(deleteBtn.dataset.tributeId);
           }
         }
       });
     }
-
+    
+    /**
+     * Handle edit tribute form submission
+     */
     if (editTributeForm) {
       editTributeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const formData = new FormData(editTributeForm);
         const tributeId = formData.get('tribute_id');
-
+        const submitBtn = editTributeForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+        
         try {
           const response = await fetch(editTributeForm.action, {
             method: 'POST',
@@ -984,30 +1109,33 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: formData,
           });
-
+          
           const data = await response.json();
-
+          
           if (data.success) {
-            const tributeElem = document.querySelector(
-              `.tribute-item[data-tribute-id="${tributeId}"]`
-            );
-            if (tributeElem) {
-              tributeElem.outerHTML = generateTributeCard(data.tribute, data.can_edit);
+            const tributeEl = document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`);
+            if (tributeEl) {
+              const isPending = data.tribute.status === 'pending';
+              tributeEl.outerHTML = generateTributeCard(data.tribute, data.can_edit, isPending);
             }
-            editTributeModal.hide();
+            
+            editTributeModal?.hide();
+            showToast('Your tribute has been updated.', 'success');
           } else {
             throw new Error(data.error || 'Failed to update tribute');
           }
         } catch (error) {
-          console.error('Error:', error);
-          alert(`Error: ${error.message}`);
+          console.error('Tribute edit error:', error);
+          showToast(error.message || 'An error occurred. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
         }
       });
     }
-
+    
     /**
-     * Deletes a tribute via AJAX
-     * @param {string} tributeId - ID of the tribute to delete
+     * Delete a tribute
      */
     async function deleteTribute(tributeId) {
       try {
@@ -1018,126 +1146,181 @@ document.addEventListener('DOMContentLoaded', () => {
             'X-Requested-With': 'XMLHttpRequest',
           },
         });
-
+        
         const data = await response.json();
-
+        
         if (data.success) {
-          const tributeElem = document.querySelector(
-            `.tribute-item[data-tribute-id="${tributeId}"]`
-          );
-          tributeElem?.remove();
+          document.querySelector(`.tribute-item[data-tribute-id="${tributeId}"]`)?.remove();
           
           if (!document.querySelector('.tribute-item')) {
-            document.getElementById('empty-tributes-message')?.classList.remove('d-none');
+            const container = visibleTributes || tributeList;
+            if (container) {
+              container.innerHTML = `
+                <div class="col-12" id="empty-tributes-message">
+                  <div class="empty-tributes text-center py-5">
+                    <i class="fas fa-heart text-muted mb-4"></i>
+                    <h3 class="h5 text-muted mb-3">No tributes yet</h3>
+                    <p class="text-muted mb-4">Be the first to share your memories</p>
+                  </div>
+                </div>
+              `;
+            }
           }
+          
+          showToast('Your tribute has been deleted.', 'success');
         } else {
           throw new Error(data.error || 'Failed to delete tribute');
         }
       } catch (error) {
-        console.error('Error:', error);
-        alert(`Error: ${error.message}`);
+        console.error('Tribute delete error:', error);
+        showToast(error.message || 'An error occurred. Please try again.', 'error');
       }
     }
-
-    // Toggle tributes visibility
-    const toggleTributesBtn = document.getElementById('toggle-tributes-btn');
-    const hiddenTributes = document.getElementById('hidden-tributes');
-    
-    if (toggleTributesBtn && hiddenTributes) {
-      toggleTributesBtn.addEventListener('click', function() {
-        hiddenTributes.classList.toggle('d-none');
-        this.innerHTML = hiddenTributes.classList.contains('d-none') 
-          ? '<i class="fas fa-chevron-down me-2"></i>View More'
-          : '<i class="fas fa-chevron-up me-2"></i>View Less';
-      });
-    }
   }
-
-  // ------------------------- STORIES FUNCTIONALITY -------------------------
+  
+  // ========================
+  // === STORIES SECTION ===
+  // ========================
+  
   const storiesSection = document.querySelector('.stories-section');
   
   if (storiesSection) {
     const memorialId = storiesSection.dataset.memorialId;
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-
-    // Initialize Bootstrap modals
-    const storyFormModal = bootstrap.Modal.getOrCreateInstance(
-      document.getElementById('storyFormModal')
-    );
-    const editStoryModal = bootstrap.Modal.getOrCreateInstance(
-      document.getElementById('editStoryModal')
-    );
-
-    // Cache DOM elements
-    const storyList = document.getElementById('story-list');
-    const openStoryFormBtn = document.getElementById('open-story-form');
+    const csrfToken = getCsrfToken();
+    
+    // Get elements
+    const storyFormModalEl = document.getElementById('storyFormModal');
+    const editStoryModalEl = document.getElementById('editStoryModal');
     const storyForm = document.getElementById('story-form');
     const editStoryForm = document.getElementById('edit-story-form');
-
+    const storyList = document.getElementById('story-list');
+    const visibleStories = document.getElementById('visible-stories');
+    
+    // Initialize modals
+    let storyFormModal = null;
+    let editStoryModal = null;
+    
+    if (storyFormModalEl) {
+      storyFormModal = bootstrap.Modal.getOrCreateInstance(storyFormModalEl);
+    }
+    if (editStoryModalEl) {
+      editStoryModal = bootstrap.Modal.getOrCreateInstance(editStoryModalEl);
+    }
+    
+    // Setup toggle button for showing more stories
+    setupStoryToggle();
+    
     /**
-     * Generates HTML for a story card
-     * @param {Object} story - Story data object
-     * @param {boolean} canEdit - Whether user can edit this story
-     * @return {string} HTML string for the story card
+     * Generate HTML for a story card (viewer version)
      */
-    function generateStoryCard(story, canEdit = false) {
-      const dateStr = new Date(story.created_at).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-
+    function generateStoryCard(story, canEdit = false, isPending = false) {
+      const dateStr = formatDate(story.created_at);
+      
       return `
-        <div class="col-12 story-item" data-story-id="${story.id}">
-          <div class="card story-card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <h3 class="card-title mb-1 fs-5 fw-semibold">${escapeHTML(story.title)}</h3>
-                  <p class="text-muted mb-0">by ${escapeHTML(story.author_name)}</p>
+        <div class="col-12 story-item" data-story-id="${story.id}" data-status="${story.status || 'approved'}">
+          <div class="card story-card h-100 border-0 shadow-sm ${isPending ? 'story-pending' : ''}">
+            <div class="card-body d-flex flex-column p-4">
+              ${isPending ? `
+                <div class="pending-notice mb-3">
+                  <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                  <small class="text-muted d-block mt-1">
+                    Only you can see this story until it's approved.
+                  </small>
                 </div>
-                <small class="text-muted">${dateStr}</small>
+              ` : ''}
+              
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="story-header-info">
+                  <h3 class="card-title mb-1 fs-5 fw-semibold story-title-text">${escapeHTML(story.title)}</h3>
+                  <p class="text-muted mb-0 story-author-text">
+                    <i class="fas fa-user me-1"></i> by ${escapeHTML(story.author_name)}
+                  </p>
+                </div>
+                <small class="text-muted story-date">${dateStr}</small>
               </div>
+              
               <div class="card-text flex-grow-1 mb-3 lh-base story-content">
                 ${escapeHTML(story.content).replace(/\n/g, '<br>')}
               </div>
+              
               ${canEdit ? `
-              <div class="mt-auto text-end" data-user-can-edit="true">
-                <button class="btn btn-sm btn-outline-primary edit-story me-2" 
-                        data-story-id="${story.id}"
-                        data-author-name="${escapeHTML(story.author_name)}"
-                        data-title="${escapeHTML(story.title)}"
-                        data-content="${escapeHTML(story.content)}"
-                        aria-label="Edit story">
-                  <i class="fas fa-edit me-1"></i> Edit
-                </button>
-                <button class="btn btn-sm btn-outline-danger delete-story" 
-                        data-story-id="${story.id}"
-                        aria-label="Delete story">
-                  <i class="fas fa-trash me-1"></i> Delete
-                </button>
-              </div>
+                <div class="mt-auto pt-3 border-top story-actions">
+                  <button class="btn btn-sm btn-outline-primary edit-story" 
+                          data-story-id="${story.id}"
+                          data-author-name="${escapeHTML(story.author_name)}"
+                          data-title="${escapeHTML(story.title)}"
+                          data-content="${escapeHTML(story.content)}"
+                          aria-label="Edit story">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-story" 
+                          data-story-id="${story.id}"
+                          aria-label="Delete story">
+                    <i class="fas fa-trash me-1"></i> Delete
+                  </button>
+                </div>
               ` : ''}
             </div>
           </div>
         </div>
       `;
     }
-
-    // Event Listeners
-    if (openStoryFormBtn) {
+    
+    /**
+     * Setup toggle button for viewing more stories
+     */
+    function setupStoryToggle() {
+      const hiddenStories = document.querySelectorAll('.story-hidden');
+      const toggleContainer = document.getElementById('story-toggle-container');
+      const toggleBtn = document.getElementById('toggle-stories-btn');
+      
+      if (hiddenStories.length > 0 && toggleContainer) {
+        toggleContainer.style.display = 'block';
+        
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', function() {
+            const isHidden = hiddenStories[0].classList.contains('d-none');
+            
+            hiddenStories.forEach(story => {
+              story.classList.toggle('d-none');
+            });
+            
+            this.innerHTML = isHidden 
+              ? '<i class="fas fa-chevron-up me-2"></i>View Less'
+              : '<i class="fas fa-chevron-down me-2"></i>View All Stories';
+          });
+        }
+      }
+    }
+    
+    /**
+     * Handle opening story form modal
+     */
+    const openStoryFormBtn = document.getElementById('open-story-form');
+    if (openStoryFormBtn && storyForm) {
       openStoryFormBtn.addEventListener('click', () => {
         storyForm.reset();
         storyForm.action = `/memorials/${memorialId}/stories/create/`;
-        storyFormModal.show();
+        storyFormModal?.show();
       });
     }
-
+    
+    /**
+     * Handle story form submission
+     */
     if (storyForm) {
       storyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const formData = new FormData(storyForm);
-
+        const submitBtn = storyForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+        
         try {
           const response = await fetch(storyForm.action, {
             method: 'POST',
@@ -1147,53 +1330,80 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: formData,
           });
-
+          
           const data = await response.json();
-
+          
           if (data.success) {
-            const emptyMessage = document.getElementById('empty-stories-message');
-            if (emptyMessage) emptyMessage.remove();
-
-            storyList.insertAdjacentHTML('afterbegin', 
-              generateStoryCard(data.story, data.can_edit));
-            storyFormModal.hide();
+            document.getElementById('empty-stories-message')?.remove();
+            
+            const isPending = data.story.status === 'pending';
+            const newStoryHTML = generateStoryCard(data.story, data.can_edit, isPending);
+            
+            if (visibleStories) {
+              visibleStories.insertAdjacentHTML('afterbegin', newStoryHTML);
+            } else if (storyList) {
+              storyList.insertAdjacentHTML('afterbegin', newStoryHTML);
+            }
+            
+            storyFormModal?.hide();
             storyForm.reset();
+            
+            showToast(data.message || 'Your story has been submitted and is awaiting approval.', 'success');
           } else {
-            throw new Error(data.error || 'Failed to create story');
+            throw new Error(data.error || 'Failed to submit story');
           }
         } catch (error) {
-          console.error('Error:', error);
-          alert(`Error: ${error.message}`);
+          console.error('Story submission error:', error);
+          showToast(error.message || 'An error occurred. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
         }
       });
     }
-
+    
+    /**
+     * Handle story list click events (edit/delete)
+     */
     if (storyList) {
       storyList.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-story');
         const deleteBtn = e.target.closest('.delete-story');
-
-        if (editBtn) {
-          editStoryForm.action = `/memorials/stories/${editBtn.dataset.storyId}/edit/`;
+        
+        if (editBtn && editStoryForm) {
           document.getElementById('edit-story-id').value = editBtn.dataset.storyId;
-          document.getElementById('edit-author-name').value = editBtn.dataset.authorName;
-          document.getElementById('edit-title').value = editBtn.dataset.title;
-          document.getElementById('edit-content').value = editBtn.dataset.content;
-          editStoryModal.show();
-        } else if (deleteBtn) {
-          if (confirm('Are you sure you want to delete this story?')) {
+          document.getElementById('edit-story-author-name').value = editBtn.dataset.authorName;
+          document.getElementById('edit-story-title').value = editBtn.dataset.title;
+          document.getElementById('edit-story-content').value = editBtn.dataset.content;
+          
+          editStoryForm.action = `/memorials/stories/${editBtn.dataset.storyId}/edit/`;
+          
+          editStoryModal?.show();
+        }
+        
+        if (deleteBtn) {
+          if (confirm('Are you sure you want to delete your story? This action cannot be undone.')) {
             deleteStory(deleteBtn.dataset.storyId);
           }
         }
       });
     }
-
+    
+    /**
+     * Handle edit story form submission
+     */
     if (editStoryForm) {
       editStoryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const formData = new FormData(editStoryForm);
         const storyId = formData.get('story_id');
-
+        const submitBtn = editStoryForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+        
         try {
           const response = await fetch(editStoryForm.action, {
             method: 'POST',
@@ -1203,30 +1413,33 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: formData,
           });
-
+          
           const data = await response.json();
-
+          
           if (data.success) {
-            const storyElem = document.querySelector(
-              `.story-item[data-story-id="${storyId}"]`
-            );
-            if (storyElem) {
-              storyElem.outerHTML = generateStoryCard(data.story, data.can_edit);
+            const storyEl = document.querySelector(`.story-item[data-story-id="${storyId}"]`);
+            if (storyEl) {
+              const isPending = data.story.status === 'pending';
+              storyEl.outerHTML = generateStoryCard(data.story, data.can_edit, isPending);
             }
-            editStoryModal.hide();
+            
+            editStoryModal?.hide();
+            showToast('Your story has been updated.', 'success');
           } else {
             throw new Error(data.error || 'Failed to update story');
           }
         } catch (error) {
-          console.error('Error:', error);
-          alert(`Error: ${error.message}`);
+          console.error('Story edit error:', error);
+          showToast(error.message || 'An error occurred. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
         }
       });
     }
-
+    
     /**
-     * Deletes a story via AJAX
-     * @param {string} storyId - ID of the story to delete
+     * Delete a story
      */
     async function deleteStory(storyId) {
       try {
@@ -1237,46 +1450,81 @@ document.addEventListener('DOMContentLoaded', () => {
             'X-Requested-With': 'XMLHttpRequest',
           },
         });
-
+        
         const data = await response.json();
-
+        
         if (data.success) {
-          const storyElem = document.querySelector(
-            `.story-item[data-story-id="${storyId}"]`
-          );
-          storyElem?.remove();
+          document.querySelector(`.story-item[data-story-id="${storyId}"]`)?.remove();
           
           if (!document.querySelector('.story-item')) {
-            document.getElementById('empty-stories-message')?.classList.remove('d-none');
+            const container = visibleStories || storyList;
+            if (container) {
+              container.innerHTML = `
+                <div class="col-12" id="empty-stories-message">
+                  <div class="empty-stories text-center py-5">
+                    <i class="fas fa-book-open text-muted mb-4"></i>
+                    <h3 class="h5 text-muted mb-3">No stories yet</h3>
+                    <p class="text-muted mb-4">Be the first to share a story</p>
+                  </div>
+                </div>
+              `;
+            }
           }
+          
+          showToast('Your story has been deleted.', 'success');
         } else {
           throw new Error(data.error || 'Failed to delete story');
-          }
+        }
       } catch (error) {
-        console.error('Error:', error);
-        alert(`Error: ${error.message}`);
+        console.error('Story delete error:', error);
+        showToast(error.message || 'An error occurred. Please try again.', 'error');
       }
     }
+  }
+  
+  // ==============================
+  // === GALLERY FUNCTIONALITY ===
+  // ==============================
+  
+  const galleryModal = document.getElementById('galleryModal');
+  
+  if (galleryModal) {
+    const galleryCarousel = bootstrap.Carousel.getOrCreateInstance(
+      document.getElementById('galleryCarousel')
+    );
 
-    // Toggle stories visibility
-    const toggleStoriesBtn = document.getElementById('toggle-stories-btn');
-    const hiddenStories = document.getElementById('hidden-stories');
-    
-    if (toggleStoriesBtn && hiddenStories) {
-      toggleStoriesBtn.addEventListener('click', function() {
-        hiddenStories.classList.toggle('d-none');
-        this.innerHTML = hiddenStories.classList.contains('d-none') 
-          ? '<i class="fas fa-chevron-down me-2"></i>View More Stories'
-          : '<i class="fas fa-chevron-up me-2"></i>View Less';
+    galleryModal.addEventListener('show.bs.modal', function (event) {
+      const trigger = event.relatedTarget;
+      const slideIndex = trigger?.getAttribute('data-bs-slide-to');
+      if (slideIndex !== null) {
+        galleryCarousel.to(parseInt(slideIndex));
+      }
+    });
+
+    // Toggle gallery hidden/visible photos
+    const toggleGalleryBtn = document.getElementById('toggle-gallery-btn');
+    if (toggleGalleryBtn) {
+      toggleGalleryBtn.addEventListener('click', function() {
+        const hiddenGallery = document.getElementById('hidden-gallery');
+        if (hiddenGallery) {
+          const isHidden = hiddenGallery.classList.contains('d-none');
+          hiddenGallery.classList.toggle('d-none');
+          this.innerHTML = isHidden 
+            ? '<i class="fas fa-chevron-up me-2"></i>View Less'
+            : '<i class="fas fa-chevron-down me-2"></i>View More';
+        }
       });
     }
   }
 });
 
-// ------------------------- SHARING FUNCTIONALITY -------------------------
+// ================================
+// === SHARING FUNCTIONALITY ===
+// ================================
+
 document.getElementById("shareButton")?.addEventListener("click", function () {
   const shareData = {
-    title: "Memorial for {{ memorial.first_name }} {{ memorial.last_name }}",
+    title: document.title,
     text: "Visit this memorial page:",
     url: window.location.href
   };
@@ -1286,113 +1534,99 @@ document.getElementById("shareButton")?.addEventListener("click", function () {
       .then(() => console.log('Memorial shared successfully'))
       .catch((error) => console.error('Error sharing memorial:', error));
   } else {
-    // Fallback: copy URL to clipboard
     navigator.clipboard.writeText(window.location.href)
-      .then(() => alert("Link copied to clipboard!"))
+      .then(() => {
+        // Show toast notification
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+          toastContainer = document.createElement('div');
+          toastContainer.id = 'toast-container';
+          toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999;';
+          document.body.appendChild(toastContainer);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast show align-items-center text-white bg-success border-0';
+        toast.style.cssText = 'min-width: 300px;';
+        toast.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="fas fa-check-circle me-2"></i>
+              Link copied to clipboard!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+          </div>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      })
       .catch(() => alert("Couldn't copy the link. Please try manually."));
   }
 });
 
-// ------------------------- GALLERY FUNCTIONALITY -------------------------
-document.addEventListener('DOMContentLoaded', function () {
-  const galleryModal = document.getElementById('galleryModal');
-  
-  if (galleryModal) {
-    const galleryCarousel = bootstrap.Carousel.getOrCreateInstance(
-      '#galleryCarousel'
-    );
+// ================================
+// === QR CODE DOWNLOAD ===
+// ================================
 
-    galleryModal.addEventListener('show.bs.modal', function (event) {
-      const trigger = event.relatedTarget;
-      const slideIndex = trigger.getAttribute('data-bs-slide-to');
-      if (slideIndex !== null) {
-        galleryCarousel.to(parseInt(slideIndex));
+document.addEventListener('DOMContentLoaded', function() {
+  const downloadQrBtn = document.getElementById('downloadQrBtn');
+  
+  if (downloadQrBtn) {
+    downloadQrBtn.addEventListener('click', async function() {
+      const qrCodeUrl = this.getAttribute('data-qr-url');
+      const qrCodeImage = document.getElementById('qrCodeImage');
+      
+      if (!qrCodeImage || !qrCodeUrl) {
+        console.error('QR code image or URL not found');
+        alert('Unable to download QR code. Please try again.');
+        return;
+      }
+      
+      try {
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+        this.disabled = true;
+        
+        const response = await fetch(qrCodeUrl);
+        if (!response.ok) throw new Error('Failed to fetch QR code');
+        
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        
+        const downloadLink = document.createElement('a');
+        downloadLink.href = blobUrl;
+        downloadLink.download = 'memorial_qr_code.png';
+        
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        URL.revokeObjectURL(blobUrl);
+        
+        this.innerHTML = originalText;
+        this.disabled = false;
+        
+      } catch (error) {
+        console.error('Download error:', error);
+        
+        // Fallback method
+        try {
+          const fallbackLink = document.createElement('a');
+          fallbackLink.href = qrCodeUrl;
+          fallbackLink.download = 'memorial_qr_code.png';
+          document.body.appendChild(fallbackLink);
+          fallbackLink.click();
+          document.body.removeChild(fallbackLink);
+        } catch (fallbackError) {
+          console.error('Fallback download also failed:', fallbackError);
+          alert('Failed to download QR code. Please try again.');
+        }
+        
+        this.innerHTML = '<i class="fas fa-download"></i> Download QR Code';
+        this.disabled = false;
       }
     });
-
-    // Toggle gallery hidden/visible photos
-    const toggleBtn = document.getElementById('toggle-gallery-btn');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
-        const hiddenGallery = document.getElementById('hidden-gallery');
-        if (hiddenGallery.classList.contains('d-none')) {
-          hiddenGallery.classList.remove('d-none');
-          toggleBtn.innerHTML = '<i class="fas fa-chevron-up me-2"></i>View Less';
-        } else {
-          hiddenGallery.classList.add('d-none');
-          toggleBtn.innerHTML = '<i class="fas fa-chevron-down me-2"></i>View More';
-        }
-      });
-    }
   }
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const downloadQrBtn = document.getElementById('downloadQrBtn');
-    
-    if (downloadQrBtn) {
-        downloadQrBtn.addEventListener('click', async function() {
-            const qrCodeUrl = this.getAttribute('data-qr-url');
-            const qrCodeImage = document.getElementById('qrCodeImage');
-            
-            if (!qrCodeImage || !qrCodeUrl) {
-                console.error('QR code image or URL not found');
-                alert('Unable to download QR code. Please try again.');
-                return;
-            }
-            
-            try {
-                // Show loading state
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
-                this.disabled = true;
-                
-                // Fetch the image
-                const response = await fetch(qrCodeUrl);
-                if (!response.ok) throw new Error('Failed to fetch QR code');
-                
-                const blob = await response.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                
-                // Create download link
-                const downloadLink = document.createElement('a');
-                downloadLink.href = blobUrl;
-                
-                // Create filename based on memorial name
-                const memorialName = "{{ memorial.first_name }}_{{ memorial.last_name }}".replace(/\s+/g, '_');
-                downloadLink.download = `${memorialName}_qr_code.png`;
-                
-                // Trigger download
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-                
-                // Clean up
-                URL.revokeObjectURL(blobUrl);
-                
-            } catch (error) {
-                console.error('Download error:', error);
-                alert('Failed to download QR code. Please try again.');
-                
-                // Fallback method - try the simple approach
-                try {
-                    const fallbackLink = document.createElement('a');
-                    fallbackLink.href = qrCodeUrl;
-                    fallbackLink.download = 'qr_code.png';
-                    document.body.appendChild(fallbackLink);
-                    fallbackLink.click();
-                    document.body.removeChild(fallbackLink);
-                } catch (fallbackError) {
-                    console.error('Fallback download also failed:', fallbackError);
-                }
-            } finally {
-                // Reset button state
-                this.innerHTML = originalText;
-                this.disabled = false;
-            }
-        });
-    }
 });
 </script>
 {% endblock %}

@@ -27,102 +27,185 @@
 }
 
 .auth-container {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px);
-    max-width: 480px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    max-width: 440px;
     width: 100%;
-    padding: 2.5rem;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(62, 47, 28, 0.12);
-    border: 2px solid var(--warm-border);
-    border-top: 8px solid var(--warm-accent);
+    padding: 2.5rem 2.5rem 2rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(62, 47, 28, 0.15);
+    border: 1px solid rgba(242, 229, 199, 0.6);
 }
 
 .auth-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-logo {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--warm-accent), var(--warm-accent-light));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    box-shadow: 0 8px 20px rgba(217, 110, 43, 0.25);
+}
+
+.auth-logo i {
+    font-size: 1.75rem;
+    color: white;
 }
 
 .auth-header h1 {
     font-family: 'Lora', serif;
-    font-size: 2.2rem;
+    font-size: 1.75rem;
+    color: var(--warm-brown);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.auth-header p {
+    color: #7a6a50;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Error Message */
+.error-message {
+    background: rgba(231, 76, 60, 0.08);
+    color: #c0392b;
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    font-size: 0.9rem;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    font-size: 0.9rem;
     color: var(--warm-brown);
     margin-bottom: 0.5rem;
 }
 
-.auth-header p {
-    color: #5a4a30;
-    font-size: 1rem;
-}
-
-/* Social Login Buttons */
-.social-login {
-    margin-bottom: 2rem;
-}
-
-.social-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+.form-group input {
     width: 100%;
-    padding: 0.875rem 1.5rem;
-    margin-bottom: 0.75rem;
+    padding: 0.875rem 1rem;
     border: 2px solid var(--warm-border);
     border-radius: 12px;
+    font-family: 'Lora', serif;
+    font-size: 1rem;
+    transition: all 0.2s ease;
     background: white;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--warm-accent);
+    box-shadow: 0 0 0 4px rgba(217, 110, 43, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #b8a88a;
+}
+
+/* Password Wrapper */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #8a7a60;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.2s;
+}
+
+.toggle-password:hover {
+    color: var(--warm-brown);
+}
+
+/* Form Options */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6a5a40;
+    cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--warm-accent);
+    cursor: pointer;
+}
+
+.forgot-password {
+    color: var(--warm-accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--warm-accent), var(--warm-accent-light));
+    color: white;
+    border: none;
+    border-radius: 12px;
     font-family: 'Lora', serif;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    color: var(--warm-brown);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(217, 110, 43, 0.3);
 }
 
-.social-btn:hover {
+.submit-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(217, 110, 43, 0.35);
 }
 
-.social-btn.google {
-    border-color: #4285f4;
-}
-
-.social-btn.google:hover {
-    background: #4285f4;
-    color: white;
-}
-
-.social-btn.facebook {
-    border-color: #1877f2;
-}
-
-.social-btn.facebook:hover {
-    background: #1877f2;
-    color: white;
-}
-
-.social-btn.github {
-    border-color: #333;
-}
-
-.social-btn.github:hover {
-    background: #333;
-    color: white;
-}
-
-.social-btn i {
-    font-size: 1.3rem;
-}
-
+/* Divider */
 .divider {
     display: flex;
     align-items: center;
     text-align: center;
-    margin: 2rem 0;
-    color: #5a4a30;
-    font-family: 'Lora', serif;
+    margin: 1.75rem 0;
+    color: #9a8a70;
+    font-size: 0.85rem;
 }
 
 .divider::before,
@@ -136,82 +219,47 @@
     padding: 0 1rem;
 }
 
-/* Form Styles */
-.form-group {
-    margin-bottom: 1.5rem;
+/* Social Login - Circle Google Button */
+.social-login {
+    display: flex;
+    justify-content: center;
 }
 
-.form-group label {
-    display: block;
-    font-family: 'Lora', serif;
-    font-weight: 600;
-    color: var(--warm-brown);
-    margin-bottom: 0.5rem;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.875rem 1rem;
+.social-btn-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 2px solid var(--warm-border);
-    border-radius: 12px;
-    font-family: 'Lora', serif;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: var(--warm-accent);
-    box-shadow: 0 0 0 3px rgba(217, 110, 43, 0.1);
-}
-
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-}
-
-.remember-me {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.forgot-password {
-    color: var(--warm-accent);
-    text-decoration: none;
-}
-
-.forgot-password:hover {
-    text-decoration: underline;
-}
-
-.submit-btn {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, var(--warm-accent), var(--warm-accent-light));
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: 'Lora', serif;
-    font-size: 1.1rem;
-    font-weight: 600;
+    background: white;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: var(--warm-brown);
 }
 
-.submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(217, 110, 43, 0.3);
+.social-btn-circle:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #4285f4;
+    background: rgba(66, 133, 244, 0.05);
 }
 
+.social-btn-circle svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Signup Link */
 .signup-link {
     text-align: center;
-    margin-top: 1.5rem;
-    font-family: 'Lora', serif;
-    color: #5a4a30;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--warm-border);
+    font-size: 0.95rem;
+    color: #6a5a40;
 }
 
 .signup-link a {
@@ -224,27 +272,21 @@
     text-decoration: underline;
 }
 
-.error-message {
-    background: rgba(231, 76, 60, 0.1);
-    color: #e74c3c;
-    padding: 1rem;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
-    border-left: 4px solid #e74c3c;
-}
-
+/* Responsive */
 @media (max-width: 576px) {
     .auth-container {
-        padding: 2rem 1.5rem;
+        padding: 2rem 1.5rem 1.5rem;
+        margin: 0 0.5rem;
     }
     
     .auth-header h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
     
-    .social-btn {
-        font-size: 0.95rem;
-        padding: 0.75rem 1.25rem;
+    .form-options {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
     }
 }
 </style>
@@ -252,85 +294,118 @@
 
 {% block content %}
 <div class="auth-wrapper">
-  <div class="auth-container">
-    <div class="auth-header">
-      <h1>Welcome Back</h1>
-      <p>Sign in to continue honoring your loved ones</p>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-dove"></i>
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue honoring your loved ones</p>
+        </div>
+
+        {% if form.errors %}
+        <div class="error-message">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Email Login Form -->
+        <form method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_login">Email</label>
+                <input 
+                    type="email" 
+                    name="login" 
+                    id="id_login" 
+                    placeholder="you@example.com"
+                    required
+                    autocomplete="email"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <div class="password-wrapper">
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="id_password" 
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    />
+                    <button type="button" class="toggle-password" data-target="id_password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember" id="id_remember">
+                    <span>Remember me</span>
+                </label>
+                <a href="{% url 'account_reset_password' %}" class="forgot-password">
+                    Forgot password?
+                </a>
+            </div>
+
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+
+            <button type="submit" class="submit-btn">Sign In</button>
+        </form>
+
+        <div class="divider">
+            <span>or continue with</span>
+        </div>
+
+        <!-- Google Social Login -->
+        <div class="social-login">
+            <a href="{% provider_login_url 'google' %}" class="social-btn-circle" title="Sign in with Google">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="signup-link">
+            Don't have an account? <a href="{% url 'account_signup' %}">Create one</a>
+        </div>
     </div>
-
-    {% if form.errors %}
-      <div class="error-message">
-        {% for error in form.non_field_errors %}
-          {{ error }}
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    <!-- Social Login Options -->
-    <div class="social-login">
-      <a href="{% provider_login_url 'google' %}" class="social-btn google">
-        <i class="fab fa-google"></i>
-        <span>Continue with Google</span>
-      </a>
-      
-      <a href="{% provider_login_url 'facebook' %}" class="social-btn facebook">
-        <i class="fab fa-facebook-f"></i>
-        <span>Continue with Facebook</span>
-      </a>
-    </div>
-
-    <div class="divider">
-      <span>or sign in with email</span>
-    </div>
-
-    <!-- Email Login Form -->
-    <form method="post" action="{% url 'account_login' %}">
-      {% csrf_token %}
-      
-      <div class="form-group">
-        <label for="id_login">Email</label>
-        <input 
-          type="email" 
-          name="login" 
-          id="id_login" 
-          placeholder="your.email@example.com"
-          required
-          autocomplete="email"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="id_password">Password</label>
-        <input 
-          type="password" 
-          name="password" 
-          id="id_password" 
-          placeholder="Enter your password"
-          required
-          autocomplete="current-password"
-        />
-      </div>
-
-      <div class="form-options">
-        <label class="remember-me">
-          <input type="checkbox" name="remember" id="id_remember">
-          <span>Remember me</span>
-        </label>
-        <a href="{% url 'account_reset_password' %}" class="forgot-password">
-          Forgot password?
-        </a>
-      </div>
-
-      {% if redirect_field_value %}
-        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-      {% endif %}
-
-      <button type="submit" class="submit-btn">Sign In</button>
-    </form>
-
-    <div class="signup-link">
-      Don't have an account? <a href="{% url 'account_signup' %}">Sign up</a>
-    </div>
-  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const toggleBtn = document.querySelector('.toggle-password');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

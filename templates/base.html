@@ -99,7 +99,7 @@
             {% if user.is_authenticated %}
                 <li><a href="{% url 'memorials:account_profile' %}">My Account</a></li>
             {% else %}
-                <li><a href="{% url 'account_login' %}">Sign Up/Login</a></li>
+                <li><a href="{% url 'account_signup' %}">Sign Up/Login</a></li>
             {% endif %}
         </ul>
         
@@ -166,7 +166,7 @@
                     </li>
                 {% else %}
                     <li class="mobile-menu-item">
-                        <a href="{% url 'account_login' %}" class="mobile-menu-link">
+                        <a href="{% url 'account_signup' %}" class="mobile-menu-link">
                             <span class="mobile-menu-text">Sign Up / Login</span>
                             <span class="mobile-menu-subtext">Access your account</span>
                         </a>

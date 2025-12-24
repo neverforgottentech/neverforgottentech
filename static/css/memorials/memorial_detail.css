@@ -815,9 +815,11 @@ h1.fw-bold {
   }
 }
 
-/* ======================= */
-/* === TRIBUTES STYLES === */
-/* ======================= */
+/* ======================================== */
+/* === TRIBUTES & STORIES DETAIL PAGE === */
+/* ======================================== */
+
+/* Section Container */
 .tributes-section,
 .stories-section {
   background-color: #fffaf3;
@@ -831,6 +833,7 @@ h1.fw-bold {
   font-family: 'Lora', serif;
 }
 
+/* Section Title */
 .tributes-section h2,
 .stories-section h2 {
   font-family: 'Lora', serif;
@@ -853,166 +856,365 @@ h1.fw-bold {
   background-color: #d97b37;
 }
 
-.tribute-item,
-.story-item {
-  background-color: #fffaf3;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
+/* ======================== */
+/* === CARD STYLES === */
+/* ======================== */
 
 .tribute-card,
 .story-card {
-  background-color: #fffaf3;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
   height: 100%;
+  border: 1px solid rgba(217, 123, 55, 0.15);
 }
 
 .tribute-card:hover,
 .story-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(217, 123, 55, 0.15);
+  box-shadow: 0 8px 20px rgba(217, 123, 55, 0.15);
 }
 
+/* Pending card styling */
+.tribute-card.tribute-pending,
+.story-card.story-pending {
+  border: 2px dashed #ffc107;
+  background-color: #fffef5;
+}
+
+/* Card body */
 .tribute-card .card-body,
 .story-card .card-body {
-  padding: 20px;
+  padding: 24px;
 }
 
-.tribute-card .card-title,
-.story-card .card-title {
-  font-weight: 600;
-  color: #d97b37;
-  margin-bottom: 5px;
+/* ======================== */
+/* === AUTHOR STYLING === */
+/* ======================== */
+
+.tribute-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.tribute-card .card-text,
-.story-card .card-text {
+.author-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d97b37, #f5a623);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-info .card-title {
   color: #3e2f1c;
-  line-height: 1.6;
-  margin-bottom: 15px;
+  margin-bottom: 2px;
 }
+
+.author-info small {
+  font-size: 0.85rem;
+}
+
+/* Story header */
+.story-header-info .story-title-text {
+  color: #d97b37;
+  margin-bottom: 4px;
+}
+
+.story-author-text {
+  font-size: 0.9rem;
+}
+
+.story-author-text i {
+  opacity: 0.7;
+}
+
+.story-date {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* ======================== */
+/* === MESSAGE/CONTENT === */
+/* ======================== */
+
+.tribute-message,
+.story-content {
+  color: #3e2f1c;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* ======================== */
+/* === PENDING NOTICE === */
+/* ======================== */
+
+.pending-notice {
+  padding: 10px 14px;
+  background-color: #fff8e1;
+  border-radius: 8px;
+  border-left: 4px solid #ffc107;
+}
+
+.pending-notice .badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 10px;
+}
+
+.pending-notice small {
+  font-size: 0.8rem;
+  color: #6c584c;
+}
+
+/* ======================== */
+/* === ACTION BUTTONS === */
+/* ======================== */
+
+.tribute-actions,
+.story-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.tribute-actions .btn,
+.story-actions .btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tribute-actions .btn-outline-primary,
+.story-actions .btn-outline-primary {
+  color: #d97b37;
+  border-color: #d97b37;
+}
+
+.tribute-actions .btn-outline-primary:hover,
+.story-actions .btn-outline-primary:hover {
+  background-color: #d97b37;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.tribute-actions .btn-outline-danger,
+.story-actions .btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.tribute-actions .btn-outline-danger:hover,
+.story-actions .btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* ======================== */
+/* === EMPTY STATE === */
+/* ======================== */
 
 .empty-tributes,
 .empty-stories {
   text-align: center;
-  padding: 30px;
+  padding: 40px 20px;
   color: #6c584c;
 }
 
 .empty-tributes i,
 .empty-stories i {
-  font-size: 2.5rem;
-  color: rgba(217, 123, 55, 0.3);
-  margin-bottom: 15px;
+  font-size: 3.5rem;
+  color: rgba(217, 123, 55, 0.25);
+  display: block;
+  margin-bottom: 20px;
+}
+
+.empty-tributes h3,
+.empty-stories h3 {
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .empty-tributes p,
 .empty-stories p {
-  font-size: 1.1rem;
+  font-size: 1rem;
+  max-width: 300px;
+  margin: 0 auto;
 }
 
-#open-tribute-form {
+/* ======================== */
+/* === FORM BUTTONS === */
+/* ======================== */
+
+#open-tribute-form,
+#open-story-form {
   background-color: #d97b37;
   border: none;
   color: #fffaf3;
   font-family: 'Lora', serif;
   font-weight: 600;
   padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(217, 123, 55, 0.4);
+  border-radius: 25px;
+  box-shadow: 0 3px 8px rgba(217, 123, 55, 0.3);
   transition: all 0.3s ease;
 }
 
-#open-tribute-form:hover {
+#open-tribute-form:hover,
+#open-story-form:hover {
   background-color: #b86528;
-  box-shadow: 0 4px 12px rgba(217, 123, 55, 0.6);
+  box-shadow: 0 5px 15px rgba(217, 123, 55, 0.4);
+  transform: translateY(-2px);
 }
 
-#toggle-tributes-btn {
+/* Toggle buttons */
+#toggle-tributes-btn,
+#toggle-stories-btn {
   background-color: transparent;
   border: 2px solid #d97b37;
   color: #d97b37;
   font-family: 'Lora', serif;
   font-weight: 600;
-  padding: 8px 20px;
-  border-radius: 8px;
+  padding: 10px 24px;
+  border-radius: 25px;
   transition: all 0.3s ease;
 }
 
-#toggle-tributes-btn:hover {
+#toggle-tributes-btn:hover,
+#toggle-stories-btn:hover {
   background-color: #d97b37;
   color: #fffaf3;
 }
 
-/* Edit/Delete buttons */
-.edit-tribute,
-.delete-tribute,
-.edit-story,
-.delete-story {
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 60px;
-  text-align: center;
-  justify-content: center;
+/* ======================== */
+/* === MODAL STYLING === */
+/* ======================== */
+
+#tributeFormModal .modal-content,
+#storyFormModal .modal-content,
+#editTributeModal .modal-content,
+#editStoryModal .modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
-.delete-tribute,
-.delete-story {
-  color: #dc3545;
-  border: 1px solid #dc3545;
+#tributeFormModal .modal-header,
+#storyFormModal .modal-header,
+#editTributeModal .modal-header,
+#editStoryModal .modal-header {
+  background-color: #fffaf3;
+  border-bottom: 1px solid rgba(217, 123, 55, 0.2);
+  padding: 20px 24px;
 }
 
-.delete-tribute:hover,
-.delete-story:hover {
-  background-color: #dc3545;
-  color: white;
+#tributeFormModal .modal-title,
+#storyFormModal .modal-title,
+#editTributeModal .modal-title,
+#editStoryModal .modal-title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  color: #3e2f1c;
 }
 
-.edit-tribute,
-.edit-story {
-  color: #0d6efd;
-  border: 1px solid #0d6efd;
+#tributeFormModal .modal-body,
+#storyFormModal .modal-body,
+#editTributeModal .modal-body,
+#editStoryModal .modal-body {
+  padding: 24px;
 }
 
-.edit-tribute:hover,
-.edit-story:hover {
-  background-color: #0d6efd;
-  color: white;
+#tributeFormModal .form-control,
+#storyFormModal .form-control,
+#editTributeModal .form-control,
+#editStoryModal .form-control {
+  border: 1.5px solid #e0d5c7;
+  border-radius: 8px;
+  font-family: 'Lora', serif;
+  transition: all 0.2s ease;
 }
+
+#tributeFormModal .form-control:focus,
+#storyFormModal .form-control:focus,
+#editTributeModal .form-control:focus,
+#editStoryModal .form-control:focus {
+  border-color: #d97b37;
+  box-shadow: 0 0 0 3px rgba(217, 123, 55, 0.15);
+}
+
+#tributeFormModal .form-text,
+#storyFormModal .form-text {
+  color: #6c584c;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+#tributeFormModal .btn-primary,
+#storyFormModal .btn-primary,
+#editTributeModal .btn-primary,
+#editStoryModal .btn-primary {
+  background-color: #d97b37;
+  border: none;
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+#tributeFormModal .btn-primary:hover,
+#storyFormModal .btn-primary:hover,
+#editTributeModal .btn-primary:hover,
+#editStoryModal .btn-primary:hover {
+  background-color: #b86528;
+  transform: translateY(-1px);
+}
+
+#tributeFormModal .btn-outline-secondary,
+#storyFormModal .btn-outline-secondary,
+#editTributeModal .btn-outline-secondary,
+#editStoryModal .btn-outline-secondary {
+  border-color: #ccc;
+  color: #666;
+  font-family: 'Lora', serif;
+  padding: 10px 24px;
+  border-radius: 8px;
+}
+
+#tributeFormModal .btn-outline-secondary:hover,
+#storyFormModal .btn-outline-secondary:hover,
+#editTributeModal .btn-outline-secondary:hover,
+#editStoryModal .btn-outline-secondary:hover {
+  background-color: #f5f5f5;
+  border-color: #bbb;
+}
+
+/* ======================== */
+/* === RESPONSIVE === */
+/* ======================== */
 
 @media (max-width: 768px) {
   .tributes-section,
   .stories-section {
     padding: 20px;
-  }
-  
-  .tribute-card,
-  .story-card {
-    margin-bottom: 15px;
-  }
-  
-  .edit-tribute,
-  .delete-tribute,
-  .edit-story,
-  .delete-story {
-    padding: 6px 14px;
-    font-size: 0.85rem;
-    min-width: 70px;
-    margin: 4px 0;
-  }
-}
-
-@media (max-width: 576px) {
-  .tributes-section,
-  .stories-section {
-    padding: 15px;
+    width: 95vw;
+    margin: 20px auto;
   }
   
   .tributes-section h2,
@@ -1022,21 +1224,104 @@ h1.fw-bold {
   
   .tribute-card .card-body,
   .story-card .card-body {
-    padding: 15px;
+    padding: 18px;
+  }
+  
+  .tribute-author {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
   
   .tribute-actions,
   .story-actions {
-    display: flex;
     flex-direction: column;
     gap: 8px;
   }
   
-  .edit-tribute,
-  .delete-tribute,
-  .edit-story,
-  .delete-story {
+  .tribute-actions .btn,
+  .story-actions .btn {
     width: 100%;
+    justify-content: center;
+  }
+  
+  #open-tribute-form,
+  #open-story-form {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch !important;
+  }
+  
+  .d-flex.justify-content-between h2 {
+    text-align: center;
+  }
+  
+  .d-flex.justify-content-between button {
+    align-self: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .tributes-section,
+  .stories-section {
+    padding: 15px;
+  }
+  
+  .tribute-card .card-body,
+  .story-card .card-body {
+    padding: 15px;
+  }
+  
+  .tribute-message,
+  .story-content {
+    font-size: 0.95rem;
+  }
+  
+  .empty-tributes i,
+  .empty-stories i {
+    font-size: 2.5rem;
+  }
+  
+  .empty-tributes h3,
+  .empty-stories h3 {
+    font-size: 1.1rem;
+  }
+  
+  .empty-tributes p,
+  .empty-stories p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .tributes-section h2,
+  .stories-section h2 {
+    font-size: 1.3rem;
+  }
+  
+  .author-info .card-title,
+  .story-title-text {
+    font-size: 1rem;
+  }
+  
+  .pending-notice {
+    padding: 8px 10px;
+  }
+  
+  .pending-notice .badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
   }
 }
 
