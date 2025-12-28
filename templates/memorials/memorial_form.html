@@ -124,10 +124,13 @@
             </label>
             <i class="fas fa-calendar-day input-icon"></i>
             <input
-              type="date"
+              type="text"
               id="dob"
               name="date_of_birth"
               required
+              placeholder="Select date of birth"
+              onfocus="(this.type='date')"
+              onblur="if(!this.value)this.type='text'"
               min="1900-01-01"
               max="{{ today|default:'2025-12-31' }}"
               value="{{ form.date_of_birth.value|default:'' }}"
@@ -149,10 +152,13 @@
             </label>
             <i class="fas fa-calendar-day input-icon"></i>
             <input
-              type="date"
+              type="text"
               id="dod"
               name="date_of_death"
               required
+              placeholder="Select date of passing"
+              onfocus="(this.type='date')"
+              onblur="if(!this.value)this.type='text'"
               min="1900-01-01"
               value="{{ form.date_of_death.value|default:'' }}"
             />
@@ -200,12 +206,57 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set date input maximums to today
     const today = new Date().toISOString().split('T')[0];
-    dobInput.max = today;
+    
+    // Function to handle date input type switching with placeholder
+    function setupDateInput(input, maxDate) {
+        // If there's already a value, switch to date type
+        if (input.value) {
+            input.type = 'date';
+        }
+        
+        // Set max date if provided
+        if (maxDate) {
+            input.max = maxDate;
+        }
+        
+        // Handle focus - switch to date type
+        input.addEventListener('focus', function() {
+            this.type = 'date';
+        });
+        
+        // Handle blur - switch back to text if empty (to show placeholder)
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.type = 'text';
+            }
+        });
+        
+        // Handle change - keep as date type if value exists
+        input.addEventListener('change', function() {
+            if (this.value) {
+                this.type = 'date';
+            }
+        });
+    }
+    
+    // Setup both date inputs
+    setupDateInput(dobInput, today);
+    setupDateInput(dodInput, null);
     
     // Update death date minimum based on birth date
     dobInput.addEventListener("change", function () {
         if (dobInput.value) {
             dodInput.min = dobInput.value;
+            // Switch dod to date type to apply min constraint
+            if (dodInput.type === 'text') {
+                dodInput.type = 'date';
+                if (!dodInput.value) {
+                    // Switch back after setting min
+                    setTimeout(() => {
+                        if (!dodInput.value) dodInput.type = 'text';
+                    }, 0);
+                }
+            }
         }
     });
     
@@ -229,6 +280,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission with validation
     form.addEventListener('submit', function(e) {
         let isValid = true;
+        
+        // Ensure date inputs are in date mode for validation
+        if (dobInput.type === 'text') dobInput.type = 'date';
+        if (dodInput.type === 'text') dodInput.type = 'date';
         
         // Check required fields
         inputs.forEach(input => {
@@ -271,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isValid) {
             e.preventDefault();
             // Smooth scroll to first error
-            const firstError = form.querySelector('input[style*="border-color: #e74c3c"]');
+            const firstError = form.querySelector('input[style*="border-color: rgb(231, 76, 60)"], input[style*="border-color: #e74c3c"]');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 firstError.focus();
