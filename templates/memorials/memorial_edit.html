@@ -313,7 +313,7 @@
   </div>
 </div>
 
-<!-- Tributes Section -->
+ <!-- Tributes Section -->
 <section class="tributes-section container mt-5 p-4 rounded-3 shadow-sm bg-light" 
          data-memorial-id="{{ memorial.pk }}"
          data-delete-tribute-url="{% url 'memorials:delete_tribute' 0 %}">
@@ -375,75 +375,89 @@
         <!-- Only show to memorial owner OR approved tributes to others -->
         {% if request.user == memorial.user or tribute.status == 'approved' %}
           <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}" data-status="{{ tribute.status }}">
-            <div class="card tribute-card h-100 
-                        {% if tribute.status == 'pending' %}status-pending
-                        {% elif tribute.status == 'rejected' %}status-rejected
-                        {% else %}status-approved{% endif %}">
-              <div class="card-body">
-                <!-- Header with author and date -->
-                <div class="tribute-header">
-                  <div class="tribute-author-info">
-                    <h3 class="tribute-author">{{ tribute.author_name }}</h3>
-                    <span class="tribute-date">{{ tribute.created_at|date:"M j, Y" }}</span>
-                  </div>
-                  
-                  <!-- Status Badge - only show for pending/rejected -->
-                  {% if tribute.status == 'pending' %}
-                    <span class="status-badge badge-pending">
-                      <i class="fas fa-clock"></i> Pending
-                    </span>
-                  {% elif tribute.status == 'rejected' %}
-                    <span class="status-badge badge-rejected">
-                      <i class="fas fa-times-circle"></i> Rejected
-                    </span>
-                  {% endif %}
-                </div>
+            <div class="card tribute-card h-100 border-0 shadow-sm 
+                        {% if tribute.status == 'pending' %}border-warning border-2 
+                        {% elif tribute.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if tribute.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif tribute.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
                 
-                <!-- Message content -->
-                <div class="tribute-message">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h3 class="card-title mb-0 fs-5 fw-semibold text-truncate">{{ tribute.author_name }}</h3>
+                  <small class="text-muted ms-2">{{ tribute.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
                   {{ tribute.message|linebreaksbr }}
                 </div>
                 
-                <!-- Action Buttons - Memorial Owner Only -->
-                {% if request.user == memorial.user %}
-                  <div class="tribute-actions">
-                    {% if tribute.status == 'pending' %}
-                      <button class="action-btn btn-approve approve-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Approve tribute">
-                        <i class="fas fa-check"></i> Approve
-                      </button>
-                      <button class="action-btn btn-reject reject-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Reject tribute">
-                        <i class="fas fa-times"></i> Decline
-                      </button>
-                    {% elif tribute.status == 'rejected' %}
-                      <button class="action-btn btn-delete delete-rejected-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete rejected tribute">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% elif tribute.status == 'approved' %}
-                      <button class="action-btn btn-delete delete-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete tribute">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% endif %}
-                  </div>
-                {% elif request.user == tribute.user %}
-                  <!-- Tribute Author Controls (only for their own approved tributes) -->
-                  {% if tribute.status == 'approved' %}
-                    <div class="tribute-actions">
-                      <button class="action-btn btn-delete delete-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete tribute">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Approve tribute">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Reject tribute">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif tribute.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete rejected tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if tribute.status == 'approved' or tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
                     </div>
+                  {% elif request.user == tribute.user %}
+                    <!-- Tribute Author Controls (only for their own approved tributes) -->
+                    {% if tribute.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
                   {% endif %}
-                {% endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -467,75 +481,89 @@
         <!-- Only show to memorial owner OR approved tributes to others -->
         {% if request.user == memorial.user or tribute.status == 'approved' %}
           <div class="col-12 tribute-item" data-tribute-id="{{ tribute.id }}" data-status="{{ tribute.status }}">
-            <div class="card tribute-card h-100 
-                        {% if tribute.status == 'pending' %}status-pending
-                        {% elif tribute.status == 'rejected' %}status-rejected
-                        {% else %}status-approved{% endif %}">
-              <div class="card-body">
-                <!-- Header with author and date -->
-                <div class="tribute-header">
-                  <div class="tribute-author-info">
-                    <h3 class="tribute-author">{{ tribute.author_name }}</h3>
-                    <span class="tribute-date">{{ tribute.created_at|date:"M j, Y" }}</span>
-                  </div>
-                  
-                  <!-- Status Badge - only show for pending/rejected -->
-                  {% if tribute.status == 'pending' %}
-                    <span class="status-badge badge-pending">
-                      <i class="fas fa-clock"></i> Pending
-                    </span>
-                  {% elif tribute.status == 'rejected' %}
-                    <span class="status-badge badge-rejected">
-                      <i class="fas fa-times-circle"></i> Rejected
-                    </span>
-                  {% endif %}
-                </div>
+            <div class="card tribute-card h-100 border-0 shadow-sm 
+                        {% if tribute.status == 'pending' %}border-warning border-2 
+                        {% elif tribute.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if tribute.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif tribute.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
                 
-                <!-- Message content -->
-                <div class="tribute-message">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h3 class="card-title mb-0 fs-5 fw-semibold text-truncate">{{ tribute.author_name }}</h3>
+                  <small class="text-muted ms-2">{{ tribute.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base tribute-message">
                   {{ tribute.message|linebreaksbr }}
                 </div>
                 
-                <!-- Action Buttons - Memorial Owner Only -->
-                {% if request.user == memorial.user %}
-                  <div class="tribute-actions">
-                    {% if tribute.status == 'pending' %}
-                      <button class="action-btn btn-approve approve-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Approve tribute">
-                        <i class="fas fa-check"></i> Approve
-                      </button>
-                      <button class="action-btn btn-reject reject-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Reject tribute">
-                        <i class="fas fa-times"></i> Decline
-                      </button>
-                    {% elif tribute.status == 'rejected' %}
-                      <button class="action-btn btn-delete delete-rejected-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete rejected tribute">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% elif tribute.status == 'approved' %}
-                      <button class="action-btn btn-delete delete-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete tribute">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% endif %}
-                  </div>
-                {% elif request.user == tribute.user %}
-                  <!-- Tribute Author Controls (only for their own approved tributes) -->
-                  {% if tribute.status == 'approved' %}
-                    <div class="tribute-actions">
-                      <button class="action-btn btn-delete delete-tribute" 
-                              data-tribute-id="{{ tribute.id }}"
-                              aria-label="Delete tribute">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Approve tribute">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Reject tribute">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif tribute.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete rejected tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if tribute.status == 'approved' or tribute.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
                     </div>
+                  {% elif request.user == tribute.user %}
+                    <!-- Tribute Author Controls (only for their own approved tributes) -->
+                    {% if tribute.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                data-author-name="{{ tribute.author_name }}"
+                                data-message="{{ tribute.message }}"
+                                aria-label="Edit tribute">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tribute" 
+                                data-tribute-id="{{ tribute.id }}"
+                                aria-label="Delete tribute">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
                   {% endif %}
-                {% endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -552,6 +580,41 @@
     </div>
   {% endif %}
 </section>
+
+<!-- Edit Tribute Modal -->
+<div class="modal fade" id="editTributeModal" tabindex="-1" 
+     aria-labelledby="editTributeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h3 class="modal-title fs-5" id="editTributeModalLabel">Edit Tribute</h3>
+        <button type="button" class="btn-close" 
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-tribute-form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="edit-tribute-id" name="tribute_id">
+          <div class="mb-3">
+            <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
+            <input type="text" class="form-control py-2" id="edit-author-name" 
+                   name="author_name" required>
+          </div>
+          <div class="mb-4">
+            <label for="edit-message" class="form-label fw-semibold">Your Tribute</label>
+            <textarea class="form-control py-2" id="edit-message" 
+                      name="message" rows="5" required></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-3">
+            <button type="button" class="btn btn-outline-secondary px-4" 
+                    data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteTributeModal" tabindex="-1" aria-hidden="true">
@@ -920,78 +983,94 @@
         <!-- Only show to memorial owner OR approved stories to others -->
         {% if request.user == memorial.user or story.status == 'approved' %}
           <div class="col-12 story-item" data-story-id="{{ story.id }}" data-status="{{ story.status }}">
-            <div class="card story-card h-100 
-                        {% if story.status == 'pending' %}status-pending
-                        {% elif story.status == 'rejected' %}status-rejected
-                        {% else %}status-approved{% endif %}">
-              <div class="card-body">
-                <!-- Header with title, author, date and status -->
-                <div class="story-header">
-                  <div class="story-title-group">
-                    <h3 class="story-title">{{ story.title }}</h3>
-                    <div class="story-meta">
-                      <span class="story-author">by {{ story.author_name }}</span>
-                      <span class="story-date">{{ story.created_at|date:"M j, Y" }}</span>
-                    </div>
-                  </div>
-                  
-                  <!-- Status Badge - only show for pending/rejected -->
-                  {% if story.status == 'pending' %}
-                    <span class="status-badge badge-pending">
-                      <i class="fas fa-clock"></i> Pending
-                    </span>
-                  {% elif story.status == 'rejected' %}
-                    <span class="status-badge badge-rejected">
-                      <i class="fas fa-times-circle"></i> Rejected
-                    </span>
-                  {% endif %}
-                </div>
+            <div class="card story-card h-100 border-0 shadow-sm 
+                        {% if story.status == 'pending' %}border-warning border-2 
+                        {% elif story.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if story.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif story.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
                 
-                <!-- Content -->
-                <div class="story-content">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                    <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                  </div>
+                  <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
                   {{ story.content|linebreaksbr }}
                 </div>
                 
-                <!-- Action Buttons - Memorial Owner Only -->
-                {% if request.user == memorial.user %}
-                  <div class="story-actions">
-                    {% if story.status == 'pending' %}
-                      <button class="action-btn btn-approve approve-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Approve story">
-                        <i class="fas fa-check"></i> Approve
-                      </button>
-                      <button class="action-btn btn-reject reject-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Reject story">
-                        <i class="fas fa-times"></i> Decline
-                      </button>
-                    {% elif story.status == 'rejected' %}
-                      <button class="action-btn btn-delete delete-rejected-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete rejected story">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% elif story.status == 'approved' %}
-                      <button class="action-btn btn-delete delete-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete story">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% endif %}
-                  </div>
-                {% elif request.user == story.user %}
-                  <!-- Story Author Controls (only for their own approved stories) -->
-                  {% if story.status == 'approved' %}
-                    <div class="story-actions">
-                      <button class="action-btn btn-delete delete-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete story">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if story.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Approve story">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Reject story">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif story.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete rejected story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if story.status == 'approved' or story.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
                     </div>
+                  {% elif request.user == story.user %}
+                    <!-- Story Author Controls (only for their own approved stories) -->
+                    {% if story.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
                   {% endif %}
-                {% endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -1015,78 +1094,94 @@
         <!-- Only show to memorial owner OR approved stories to others -->
         {% if request.user == memorial.user or story.status == 'approved' %}
           <div class="col-12 story-item" data-story-id="{{ story.id }}" data-status="{{ story.status }}">
-            <div class="card story-card h-100 
-                        {% if story.status == 'pending' %}status-pending
-                        {% elif story.status == 'rejected' %}status-rejected
-                        {% else %}status-approved{% endif %}">
-              <div class="card-body">
-                <!-- Header with title, author, date and status -->
-                <div class="story-header">
-                  <div class="story-title-group">
-                    <h3 class="story-title">{{ story.title }}</h3>
-                    <div class="story-meta">
-                      <span class="story-author">by {{ story.author_name }}</span>
-                      <span class="story-date">{{ story.created_at|date:"M j, Y" }}</span>
-                    </div>
-                  </div>
-                  
-                  <!-- Status Badge - only show for pending/rejected -->
-                  {% if story.status == 'pending' %}
-                    <span class="status-badge badge-pending">
-                      <i class="fas fa-clock"></i> Pending
-                    </span>
-                  {% elif story.status == 'rejected' %}
-                    <span class="status-badge badge-rejected">
-                      <i class="fas fa-times-circle"></i> Rejected
-                    </span>
-                  {% endif %}
-                </div>
+            <div class="card story-card h-100 border-0 shadow-sm 
+                        {% if story.status == 'pending' %}border-warning border-2 
+                        {% elif story.status == 'rejected' %}border-danger border-2 
+                        {% else %}border-success border-1{% endif %}">
+              <div class="card-body d-flex flex-column p-3">
+                <!-- Status Badge -->
+                {% if story.status == 'pending' %}
+                  <span class="badge bg-warning text-dark mb-2 align-self-start status-badge">
+                    <i class="fas fa-clock me-1"></i> Awaiting Approval
+                  </span>
+                {% elif story.status == 'rejected' %}
+                  <span class="badge bg-danger text-white mb-2 align-self-start status-badge">
+                    <i class="fas fa-times-circle me-1"></i> Rejected
+                  </span>
+                {% endif %}
                 
-                <!-- Content -->
-                <div class="story-content">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h3 class="card-title mb-1 fs-5 fw-semibold">{{ story.title }}</h3>
+                    <p class="text-muted mb-0">by {{ story.author_name }}</p>
+                  </div>
+                  <small class="text-muted">{{ story.created_at|date:"M j, Y" }}</small>
+                </div>
+                <div class="card-text flex-grow-1 mb-3 lh-base story-content">
                   {{ story.content|linebreaksbr }}
                 </div>
                 
-                <!-- Action Buttons - Memorial Owner Only -->
-                {% if request.user == memorial.user %}
-                  <div class="story-actions">
-                    {% if story.status == 'pending' %}
-                      <button class="action-btn btn-approve approve-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Approve story">
-                        <i class="fas fa-check"></i> Approve
-                      </button>
-                      <button class="action-btn btn-reject reject-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Reject story">
-                        <i class="fas fa-times"></i> Decline
-                      </button>
-                    {% elif story.status == 'rejected' %}
-                      <button class="action-btn btn-delete delete-rejected-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete rejected story">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% elif story.status == 'approved' %}
-                      <button class="action-btn btn-delete delete-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete story">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
-                    {% endif %}
-                  </div>
-                {% elif request.user == story.user %}
-                  <!-- Story Author Controls (only for their own approved stories) -->
-                  {% if story.status == 'approved' %}
-                    <div class="story-actions">
-                      <button class="action-btn btn-delete delete-story" 
-                              data-story-id="{{ story.id }}"
-                              aria-label="Delete story">
-                        <i class="fas fa-trash"></i> Delete
-                      </button>
+                <!-- Action Buttons -->
+                <div class="mt-auto pt-2 border-top">
+                  {% if request.user == memorial.user %}
+                    <!-- Memorial Owner Controls -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                      {% if story.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Approve story">
+                          <i class="fas fa-check me-1"></i><span class="btn-text">Approve</span>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Reject story">
+                          <i class="fas fa-times me-1"></i><span class="btn-text">Reject</span>
+                        </button>
+                      {% elif story.status == 'rejected' %}
+                        <button class="btn btn-sm btn-outline-danger delete-rejected-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete rejected story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
+                      
+                      {% if story.status == 'approved' or story.status == 'pending' %}
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      {% endif %}
                     </div>
+                  {% elif request.user == story.user %}
+                    <!-- Story Author Controls (only for their own approved stories) -->
+                    {% if story.status == 'approved' %}
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary edit-story" 
+                                data-story-id="{{ story.id }}"
+                                data-author-name="{{ story.author_name }}"
+                                data-title="{{ story.title }}"
+                                data-content="{{ story.content }}"
+                                aria-label="Edit story">
+                          <i class="fas fa-edit me-1"></i><span class="btn-text">Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-story" 
+                                data-story-id="{{ story.id }}"
+                                aria-label="Delete story">
+                          <i class="fas fa-trash me-1"></i><span class="btn-text">Delete</span>
+                        </button>
+                      </div>
+                    {% endif %}
                   {% endif %}
-                {% endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -1103,6 +1198,46 @@
     </div>
   {% endif %}
 </section>
+
+<!-- Edit Story Modal -->
+<div class="modal fade" id="editStoryModal" tabindex="-1" 
+     aria-labelledby="editStoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h3 class="modal-title fs-5" id="editStoryModalLabel">Edit Story</h3>
+        <button type="button" class="btn-close" 
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-story-form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="edit-story-id" name="story_id">
+          <div class="mb-3">
+            <label for="edit-author-name" class="form-label fw-semibold">Your Name</label>
+            <input type="text" class="form-control py-2" id="edit-author-name" 
+                   name="author_name" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit-title" class="form-label fw-semibold">Story Title</label>
+            <input type="text" class="form-control py-2" id="edit-title" 
+                   name="title" required>
+          </div>
+          <div class="mb-4">
+            <label for="edit-content" class="form-label fw-semibold">Your Story</label>
+            <textarea class="form-control py-2" id="edit-content" 
+                      name="content" rows="5" required></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-3">
+            <button type="button" class="btn btn-outline-secondary px-4" 
+                    data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteStoryModal" tabindex="-1" aria-hidden="true">
