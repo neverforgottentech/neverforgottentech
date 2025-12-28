@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Tribute Awaiting Approval</title>
+    <title>New Story Awaiting Approval</title>
     <style type="text/css">
         /* Import Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600&display=swap');
@@ -29,10 +29,10 @@
         
         /* Alert Header */
         .alert-header {
-            background: linear-gradient(135deg, #d96e2b 0%, #b7551e 100%);
+            background: linear-gradient(135deg, #5a4a30 0%, #3e2f1c 100%);
             padding: 30px;
             text-align: center;
-            border-bottom: 3px solid #3e2f1c;
+            border-bottom: 3px solid #d96e2b;
             position: relative;
         }
         
@@ -77,27 +77,27 @@
             margin-top: 0;
         }
         
-        /* Tribute Box */
-        .tribute-box {
+        /* Story Box */
+        .story-box {
             background: linear-gradient(135deg, #fff9e6 0%, #f5e6cc 100%);
             padding: 25px;
             border-radius: 10px;
-            border-left: 5px solid #d96e2b;
+            border-left: 5px solid #5a4a30;
             margin: 20px 0;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         }
         
-        .tribute-box p {
+        .story-box p {
             margin: 0 0 15px 0;
             color: #3e2f1c;
             font-size: 15px;
         }
         
-        .tribute-box p:last-child {
+        .story-box p:last-child {
             margin-bottom: 0;
         }
         
-        .tribute-label {
+        .story-label {
             font-weight: 600;
             font-family: 'Montserrat', sans-serif;
             color: #3e2f1c;
@@ -105,17 +105,45 @@
             min-width: 80px;
         }
         
-        .tribute-message-box {
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            border: 1px solid #f2e5c7;
+        .story-title-display {
+            font-size: 18px;
+            font-weight: 600;
+            color: #3e2f1c;
+            font-family: 'Lora', serif;
             font-style: italic;
-            line-height: 1.8;
         }
         
-        .tribute-timestamp {
+        .story-content-box {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #f2e5c7;
+            line-height: 1.9;
+            max-height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .story-content-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, #ffffff);
+        }
+        
+        .story-preview-note {
+            font-size: 13px;
+            color: #8a7a65;
+            font-style: italic;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .story-timestamp {
             font-size: 13px;
             color: #8a7a65;
             margin-top: 15px;
@@ -169,7 +197,7 @@
             margin: 30px 0;
         }
         
-        /* Info Box - FIXED FOR LINK OVERFLOW */
+        /* Info Box */
         .info-box {
             background: #f9f9f9;
             padding: 20px;
@@ -177,7 +205,7 @@
             margin: 25px 0;
             border: 1px solid #f2e5c7;
             text-align: center;
-            overflow: hidden; /* Prevent overflow */
+            overflow: hidden;
         }
         
         .info-box p {
@@ -190,8 +218,8 @@
             color: #d96e2b;
             text-decoration: none;
             font-weight: 600;
-            word-break: break-all; /* Break long URLs */
-            overflow-wrap: break-word; /* Alternative for word breaking */
+            word-break: break-all;
+            overflow-wrap: break-word;
             display: inline-block;
             max-width: 100%;
         }
@@ -261,13 +289,22 @@
                 padding: 30px 20px;
             }
             
-            .tribute-box {
+            .story-box {
                 padding: 20px;
             }
             
-            .tribute-label {
+            .story-label {
                 display: block;
                 margin-bottom: 5px;
+            }
+            
+            .story-title-display {
+                font-size: 16px;
+            }
+            
+            .story-content-box {
+                padding: 15px;
+                max-height: 150px;
             }
             
             .action-section {
@@ -301,38 +338,43 @@
     <div class="email-container">
         <!-- Alert Header -->
         <div class="alert-header">
-            <div class="alert-icon">🕊️</div>
-            <h2>New Tribute Awaiting Approval</h2>
-            <p>A heartfelt message has been submitted for {{ memorial.first_name }} {{ memorial.last_name }}</p>
+            <div class="alert-icon">📖</div>
+            <h2>New Story Awaiting Approval</h2>
+            <p>A cherished memory has been shared for {{ memorial.first_name }} {{ memorial.last_name }}</p>
         </div>
         
         <!-- Main Content -->
         <div class="content">
-            <h3 class="section-title">Tribute Details</h3>
+            <h3 class="section-title">Story Details</h3>
             
-            <div class="tribute-box">
+            <div class="story-box">
                 <p>
-                    <span class="tribute-label">From:</span>
-                    <span>{{ tribute.author_name }}</span>
+                    <span class="story-label">From:</span>
+                    <span>{{ story.author_name }}</span>
                 </p>
                 
                 <p>
-                    <span class="tribute-label">Message:</span>
+                    <span class="story-label">Title:</span>
+                    <span class="story-title-display">"{{ story.title }}"</span>
                 </p>
-                <div class="tribute-message-box">
-                    {{ tribute.message|linebreaksbr }}
+                
+                <div class="story-content-box">
+                    {{ story.content|linebreaksbr|truncatewords:80 }}
                 </div>
+                <p class="story-preview-note">
+                    Preview only — view full story on the memorial page
+                </p>
                 
-                <p class="tribute-timestamp">
-                    Submitted on {{ tribute.created_at|date:"F j, Y" }} at {{ tribute.created_at|date:"g:i A" }}
+                <p class="story-timestamp">
+                    Submitted on {{ story.created_at|date:"F j, Y" }} at {{ story.created_at|date:"g:i A" }}
                 </p>
             </div>
             
             <div class="divider"></div>
             
             <div class="action-section">
-                <h3>Review & Manage Tribute</h3>
-                <p>Visit the memorial page to approve or manage this tribute</p>
+                <h3>Review & Manage Story</h3>
+                <p>Visit the memorial page to approve or manage this story</p>
                 <a href="{{ memorial_url }}" class="button">
                     ✅ Go to Memorial Page
                 </a>
