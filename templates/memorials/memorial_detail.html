@@ -179,16 +179,16 @@
 <!-- ======================= -->
 <section class="tributes-section py-5" data-memorial-id="{{ memorial.id }}">
   <div class="container">
-    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+    <div class="section-header mb-4">
       <h2 class="section-title mb-0">
         <i class="fas fa-heart me-2" style="color: #d96e2b;"></i>Tributes
       </h2>
       {% if user.is_authenticated %}
-      <button type="button" class="btn btn-primary btn-action" id="open-tribute-form">
+      <button type="button" class="btn btn-action" id="open-tribute-form">
         <i class="fas fa-plus me-2"></i><span class="btn-text">Leave a Tribute</span>
       </button>
       {% else %}
-      <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-action">
+      <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-action">
         <i class="fas fa-sign-in-alt me-2"></i><span class="btn-text">Login to Leave a Tribute</span>
       </a>
       {% endif %}
@@ -254,17 +254,17 @@
           {% endif %}
         {% empty %}
           <div class="col-12" id="empty-tributes-message">
-            <div class="empty-tributes text-center py-5">
+            <div class="empty-state text-center py-5">
               <i class="fas fa-heart fa-3x mb-4"></i>
               <h3 class="h5 mb-3">No tributes yet</h3>
               <p class="mb-4">Be the first to share your memories and pay tribute.</p>
               {% if user.is_authenticated %}
-              <button type="button" class="btn btn-primary btn-action" data-bs-toggle="modal" data-bs-target="#tributeFormModal">
-                <i class="fas fa-plus me-2"></i>Leave the First Tribute
+              <button type="button" class="btn btn-action-sm" data-bs-toggle="modal" data-bs-target="#tributeFormModal">
+                <i class="fas fa-plus me-1"></i>Leave the First Tribute
               </button>
               {% else %}
-              <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-action">
-                <i class="fas fa-sign-in-alt me-2"></i>Login to Leave the First Tribute
+              <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-action-sm">
+                <i class="fas fa-sign-in-alt me-1"></i>Login to Leave a Tribute
               </a>
               {% endif %}
             </div>
@@ -561,16 +561,16 @@
 <!-- ======================= -->
 <section class="stories-section py-5 bg-light" data-memorial-id="{{ memorial.id }}">
   <div class="container">
-    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+    <div class="section-header mb-4">
       <h2 class="section-title mb-0">
         <i class="fas fa-book-open me-2" style="color: #d96e2b;"></i>Stories & Memories
       </h2>
       {% if user.is_authenticated %}
-      <button type="button" class="btn btn-primary btn-action" id="open-story-form">
+      <button type="button" class="btn btn-action" id="open-story-form">
         <i class="fas fa-plus me-2"></i><span class="btn-text">Share a Story</span>
       </button>
       {% else %}
-      <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-action">
+      <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-action">
         <i class="fas fa-sign-in-alt me-2"></i><span class="btn-text">Login to Share a Story</span>
       </a>
       {% endif %}
@@ -635,17 +635,17 @@
           {% endif %}
         {% empty %}
           <div class="col-12" id="empty-stories-message">
-            <div class="empty-stories text-center py-5">
+            <div class="empty-state text-center py-5">
               <i class="fas fa-book-open fa-3x mb-4"></i>
               <h3 class="h5 mb-3">No stories yet</h3>
               <p class="mb-4">Be the first to share a story or memory.</p>
               {% if user.is_authenticated %}
-              <button type="button" class="btn btn-primary btn-action" data-bs-toggle="modal" data-bs-target="#storyFormModal">
-                <i class="fas fa-plus me-2"></i>Share the First Story
+              <button type="button" class="btn btn-action-sm" data-bs-toggle="modal" data-bs-target="#storyFormModal">
+                <i class="fas fa-plus me-1"></i>Share the First Story
               </button>
               {% else %}
-              <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-action">
-                <i class="fas fa-sign-in-alt me-2"></i>Login to Share the First Story
+              <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-action-sm">
+                <i class="fas fa-sign-in-alt me-1"></i>Login to Share a Story
               </a>
               {% endif %}
             </div>

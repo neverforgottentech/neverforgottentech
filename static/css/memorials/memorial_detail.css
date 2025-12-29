@@ -831,15 +831,28 @@ h1.fw-bold {
   font-family: 'Lora', serif;
 }
 
+/* ======================= */
+/* === SECTION HEADER === */
+/* ======================= */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+
 .tributes-section h2,
 .stories-section h2 {
   font-family: 'Lora', serif;
   font-size: 1.8rem;
   font-weight: 700;
   color: #3e2f1c;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   position: relative;
   padding-bottom: 10px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .tributes-section h2::after,
@@ -905,7 +918,7 @@ h1.fw-bold {
 /* === ACTION BUTTONS === */
 /* ======================= */
 
-/* Primary action buttons (Leave Tribute, Share Story, Login buttons) */
+/* Primary action buttons in header (Leave Tribute, Share Story, Login buttons) */
 .btn-action {
   background-color: #d97b37;
   border: none;
@@ -921,6 +934,7 @@ h1.fw-bold {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-action:hover {
@@ -931,6 +945,38 @@ h1.fw-bold {
 }
 
 .btn-action:focus {
+  background-color: #b86528;
+  color: #fffaf3;
+  box-shadow: 0 0 0 3px rgba(217, 123, 55, 0.3);
+}
+
+/* Smaller action button for empty states */
+.btn-action-sm {
+  background-color: #d97b37;
+  border: none;
+  color: #fffaf3;
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(217, 123, 55, 0.4);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn-action-sm:hover {
+  background-color: #b86528;
+  color: #fffaf3;
+  box-shadow: 0 4px 12px rgba(217, 123, 55, 0.6);
+  transform: translateY(-1px);
+}
+
+.btn-action-sm:focus {
   background-color: #b86528;
   color: #fffaf3;
   box-shadow: 0 0 0 3px rgba(217, 123, 55, 0.3);
@@ -1051,6 +1097,7 @@ h1.fw-bold {
 /* ======================= */
 /* === EMPTY STATES === */
 /* ======================= */
+.empty-state,
 .empty-tributes,
 .empty-stories {
   text-align: center;
@@ -1058,32 +1105,30 @@ h1.fw-bold {
   color: #6c584c;
 }
 
+.empty-state i,
 .empty-tributes i,
 .empty-stories i {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: rgba(217, 123, 55, 0.3);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: block;
 }
 
+.empty-state h3,
 .empty-tributes h3,
 .empty-stories h3 {
   color: #6c584c;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
 }
 
+.empty-state p,
 .empty-tributes p,
 .empty-stories p {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #8a7968;
-  margin-bottom: 20px;
-}
-
-/* Empty state action buttons */
-.empty-tributes .btn-action,
-.empty-stories .btn-action {
-  margin-top: 10px;
+  margin-bottom: 15px;
 }
 
 /* ======================= */
@@ -1114,8 +1159,13 @@ h1.fw-bold {
 /* Tablet and smaller desktops (1024px and below) */
 @media (max-width: 1024px) {
   .btn-action {
-    padding: 9px 18px;
+    padding: 9px 16px;
     font-size: 0.9rem;
+  }
+  
+  .btn-action-sm {
+    padding: 7px 14px;
+    font-size: 0.85rem;
   }
   
   .approve-tribute,
@@ -1143,29 +1193,32 @@ h1.fw-bold {
   
   .tributes-section h2,
   .stories-section h2 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
   
-  /* Section header - stack on tablet */
+  /* Keep header buttons in top right */
   .section-header {
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 15px;
+    flex-wrap: nowrap;
+    align-items: center;
   }
   
-  .section-header .btn-action {
-    width: 100%;
-    justify-content: center;
+  .btn-action {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+  
+  .btn-action .btn-text {
+    display: inline;
+  }
+  
+  .btn-action-sm {
+    padding: 7px 12px;
+    font-size: 0.8rem;
   }
   
   .tribute-card .card-body,
   .story-card .card-body {
     padding: 15px;
-  }
-  
-  .btn-action {
-    padding: 10px 16px;
-    font-size: 0.875rem;
   }
   
   .approve-tribute,
@@ -1204,20 +1257,16 @@ h1.fw-bold {
     font-size: 0.875rem;
   }
   
+  .empty-state,
   .empty-tributes,
   .empty-stories {
     padding: 30px 15px;
   }
   
+  .empty-state i,
   .empty-tributes i,
   .empty-stories i {
-    font-size: 2.5rem;
-  }
-  
-  .empty-tributes .btn-action,
-  .empty-stories .btn-action {
-    width: 100%;
-    max-width: 280px;
+    font-size: 2rem;
   }
 }
 
@@ -1231,7 +1280,22 @@ h1.fw-bold {
   
   .tributes-section h2,
   .stories-section h2 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+  }
+  
+  /* Shorter button text on mobile */
+  .btn-action {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+  
+  .btn-action i {
+    margin-right: 4px !important;
+  }
+  
+  .btn-action-sm {
+    padding: 6px 10px;
+    font-size: 0.75rem;
   }
   
   .tribute-card .card-body,
@@ -1242,16 +1306,6 @@ h1.fw-bold {
   .tribute-card .d-flex.flex-wrap.gap-2,
   .story-card .d-flex.flex-wrap.gap-2 {
     gap: 6px !important;
-  }
-  
-  .btn-action {
-    padding: 10px 14px;
-    font-size: 0.8rem;
-  }
-  
-  /* Show shorter text on mobile */
-  .btn-action .btn-text {
-    display: inline;
   }
   
   .approve-tribute,
@@ -1270,8 +1324,6 @@ h1.fw-bold {
   }
   
   /* Two buttons per row on small screens */
-  .tribute-card .d-flex.flex-wrap,
-  .story-card .d-flex.flex-wrap,
   .tribute-actions,
   .story-actions {
     display: flex !important;
@@ -1288,23 +1340,30 @@ h1.fw-bold {
   #toggle-stories-btn {
     padding: 8px 14px;
     font-size: 0.8rem;
-    width: 100%;
-    max-width: 200px;
   }
   
+  .empty-state,
   .empty-tributes,
   .empty-stories {
     padding: 25px 10px;
   }
   
+  .empty-state h3,
   .empty-tributes h3,
   .empty-stories h3 {
     font-size: 1rem;
   }
   
+  .empty-state p,
   .empty-tributes p,
   .empty-stories p {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+  }
+  
+  .empty-state i,
+  .empty-tributes i,
+  .empty-stories i {
+    font-size: 1.8rem;
   }
 }
 
@@ -1319,12 +1378,17 @@ h1.fw-bold {
   
   .tributes-section h2,
   .stories-section h2 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
   
   .btn-action {
-    padding: 10px 12px;
-    font-size: 0.75rem;
+    padding: 7px 10px;
+    font-size: 0.7rem;
+  }
+  
+  .btn-action-sm {
+    padding: 6px 10px;
+    font-size: 0.7rem;
   }
   
   .approve-tribute,
@@ -1336,9 +1400,9 @@ h1.fw-bold {
   .reject-story,
   .edit-story,
   .delete-story {
-    padding: 8px 10px;
-    font-size: 0.7rem;
-    gap: 4px;
+    padding: 6px 8px;
+    font-size: 0.65rem;
+    gap: 3px;
   }
   
   .approve-tribute i,
@@ -1350,19 +1414,14 @@ h1.fw-bold {
   .reject-story i,
   .edit-story i,
   .delete-story i {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
   
+  .empty-state i,
   .empty-tributes i,
   .empty-stories i {
-    font-size: 2rem;
-  }
-  
-  .empty-tributes .btn-action,
-  .empty-stories .btn-action {
-    padding: 10px;
-    font-size: 0.75rem;
-    width: 100%;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
   }
 }
 
@@ -1371,6 +1430,26 @@ h1.fw-bold {
   .tribute-card .card-body,
   .story-card .card-body {
     padding: 10px;
+  }
+  
+  .tributes-section h2,
+  .stories-section h2 {
+    font-size: 1rem;
+  }
+  
+  /* Shorter text for header buttons on very small screens */
+  .btn-action .btn-text {
+    display: inline;
+  }
+  
+  .btn-action {
+    padding: 6px 8px;
+    font-size: 0.65rem;
+  }
+  
+  .btn-action-sm {
+    padding: 6px 8px;
+    font-size: 0.65rem;
   }
   
   /* Stack buttons vertically on very small screens */
@@ -1399,8 +1478,8 @@ h1.fw-bold {
   .reject-story,
   .edit-story,
   .delete-story {
-    padding: 10px 12px;
-    font-size: 0.75rem;
+    padding: 8px 10px;
+    font-size: 0.7rem;
   }
 }
 
@@ -1408,7 +1487,7 @@ h1.fw-bold {
 @media (max-width: 350px) {
   .tributes-section h2,
   .stories-section h2 {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
   
   .tribute-card .card-title,
@@ -1422,8 +1501,13 @@ h1.fw-bold {
   }
   
   .btn-action {
-    padding: 8px 10px;
-    font-size: 0.7rem;
+    padding: 5px 6px;
+    font-size: 0.6rem;
+  }
+  
+  .btn-action-sm {
+    padding: 5px 8px;
+    font-size: 0.6rem;
   }
   
   .approve-tribute,
@@ -1435,10 +1519,11 @@ h1.fw-bold {
   .reject-story,
   .edit-story,
   .delete-story {
-    padding: 8px 10px;
-    font-size: 0.7rem;
+    padding: 6px 8px;
+    font-size: 0.65rem;
   }
   
+  .empty-state,
   .empty-tributes,
   .empty-stories {
     padding: 20px 8px;
