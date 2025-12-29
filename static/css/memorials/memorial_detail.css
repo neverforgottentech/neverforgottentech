@@ -901,12 +901,71 @@ h1.fw-bold {
   border-radius: 4px;
 }
 
-/* Button Styles - Improved for better responsiveness */
+/* ======================= */
+/* === ACTION BUTTONS === */
+/* ======================= */
+
+/* Primary action buttons (Leave Tribute, Share Story, Login buttons) */
+.btn-action {
+  background-color: #d97b37;
+  border: none;
+  color: #fffaf3;
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(217, 123, 55, 0.4);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn-action:hover {
+  background-color: #b86528;
+  color: #fffaf3;
+  box-shadow: 0 4px 12px rgba(217, 123, 55, 0.6);
+  transform: translateY(-1px);
+}
+
+.btn-action:focus {
+  background-color: #b86528;
+  color: #fffaf3;
+  box-shadow: 0 0 0 3px rgba(217, 123, 55, 0.3);
+}
+
+/* Keep legacy ID selector for backwards compatibility */
+#open-tribute-form,
+#open-story-form {
+  background-color: #d97b37;
+  border: none;
+  color: #fffaf3;
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(217, 123, 55, 0.4);
+  transition: all 0.3s ease;
+}
+
+#open-tribute-form:hover,
+#open-story-form:hover {
+  background-color: #b86528;
+  box-shadow: 0 4px 12px rgba(217, 123, 55, 0.6);
+}
+
+/* Card action buttons (Edit, Delete, Approve, Reject) */
 .approve-tribute,
 .reject-tribute,
 .edit-tribute,
 .delete-tribute,
-.delete-rejected-tribute {
+.delete-rejected-tribute,
+.approve-story,
+.reject-story,
+.edit-story,
+.delete-story {
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -921,39 +980,45 @@ h1.fw-bold {
   font-family: 'Montserrat', sans-serif;
 }
 
-.approve-tribute {
+.approve-tribute,
+.approve-story {
   background-color: #28a745;
   color: white;
   border-color: #28a745;
 }
 
-.approve-tribute:hover {
+.approve-tribute:hover,
+.approve-story:hover {
   background-color: #218838;
   border-color: #1e7e34;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
-.reject-tribute {
+.reject-tribute,
+.reject-story {
   background-color: #dc3545;
   color: white;
   border-color: #dc3545;
 }
 
-.reject-tribute:hover {
+.reject-tribute:hover,
+.reject-story:hover {
   background-color: #c82333;
   border-color: #bd2130;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
-.edit-tribute {
+.edit-tribute,
+.edit-story {
   background-color: transparent;
   color: #d97b37;
   border-color: #d97b37;
 }
 
-.edit-tribute:hover {
+.edit-tribute:hover,
+.edit-story:hover {
   background-color: #d97b37;
   color: white;
   transform: translateY(-1px);
@@ -961,14 +1026,16 @@ h1.fw-bold {
 }
 
 .delete-tribute,
-.delete-rejected-tribute {
+.delete-rejected-tribute,
+.delete-story {
   background-color: transparent;
   color: #dc3545;
   border-color: #dc3545;
 }
 
 .delete-tribute:hover,
-.delete-rejected-tribute:hover {
+.delete-rejected-tribute:hover,
+.delete-story:hover {
   background-color: #dc3545;
   color: white;
   transform: translateY(-1px);
@@ -976,47 +1043,54 @@ h1.fw-bold {
 }
 
 /* Button container */
-.tribute-card .d-flex.flex-wrap.gap-2 {
+.tribute-card .d-flex.flex-wrap.gap-2,
+.story-card .d-flex.flex-wrap.gap-2 {
   gap: 8px !important;
 }
 
+/* ======================= */
+/* === EMPTY STATES === */
+/* ======================= */
 .empty-tributes,
 .empty-stories {
   text-align: center;
-  padding: 30px;
+  padding: 40px 20px;
   color: #6c584c;
 }
 
 .empty-tributes i,
 .empty-stories i {
-  font-size: 2.5rem;
+  font-size: 3rem;
   color: rgba(217, 123, 55, 0.3);
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.empty-tributes h3,
+.empty-stories h3 {
+  color: #6c584c;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .empty-tributes p,
 .empty-stories p {
-  font-size: 1.1rem;
+  font-size: 1rem;
+  color: #8a7968;
+  margin-bottom: 20px;
 }
 
-#open-tribute-form {
-  background-color: #d97b37;
-  border: none;
-  color: #fffaf3;
-  font-family: 'Lora', serif;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(217, 123, 55, 0.4);
-  transition: all 0.3s ease;
+/* Empty state action buttons */
+.empty-tributes .btn-action,
+.empty-stories .btn-action {
+  margin-top: 10px;
 }
 
-#open-tribute-form:hover {
-  background-color: #b86528;
-  box-shadow: 0 4px 12px rgba(217, 123, 55, 0.6);
-}
-
-#toggle-tributes-btn {
+/* ======================= */
+/* === TOGGLE BUTTONS === */
+/* ======================= */
+#toggle-tributes-btn,
+#toggle-stories-btn {
   background-color: transparent;
   border: 2px solid #d97b37;
   color: #d97b37;
@@ -1027,7 +1101,8 @@ h1.fw-bold {
   transition: all 0.3s ease;
 }
 
-#toggle-tributes-btn:hover {
+#toggle-tributes-btn:hover,
+#toggle-stories-btn:hover {
   background-color: #d97b37;
   color: #fffaf3;
 }
@@ -1038,11 +1113,20 @@ h1.fw-bold {
 
 /* Tablet and smaller desktops (1024px and below) */
 @media (max-width: 1024px) {
+  .btn-action {
+    padding: 9px 18px;
+    font-size: 0.9rem;
+  }
+  
   .approve-tribute,
   .reject-tribute,
   .edit-tribute,
   .delete-tribute,
-  .delete-rejected-tribute {
+  .delete-rejected-tribute,
+  .approve-story,
+  .reject-story,
+  .edit-story,
+  .delete-story {
     padding: 7px 14px;
     font-size: 0.8rem;
   }
@@ -1062,16 +1146,37 @@ h1.fw-bold {
     font-size: 1.5rem;
   }
   
+  /* Section header - stack on tablet */
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  
+  .section-header .btn-action {
+    width: 100%;
+    justify-content: center;
+  }
+  
   .tribute-card .card-body,
   .story-card .card-body {
     padding: 15px;
+  }
+  
+  .btn-action {
+    padding: 10px 16px;
+    font-size: 0.875rem;
   }
   
   .approve-tribute,
   .reject-tribute,
   .edit-tribute,
   .delete-tribute,
-  .delete-rejected-tribute {
+  .delete-rejected-tribute,
+  .approve-story,
+  .reject-story,
+  .edit-story,
+  .delete-story {
     padding: 6px 12px;
     font-size: 0.75rem;
     gap: 4px;
@@ -1082,41 +1187,82 @@ h1.fw-bold {
     padding: 3px 6px;
   }
   
-  .tribute-card .card-title {
+  .tribute-card .card-title,
+  .story-card .card-title {
     font-size: 1rem;
   }
   
-  .tribute-card .card-text {
+  .tribute-card .card-text,
+  .story-card .card-text {
     font-size: 0.9rem;
     line-height: 1.5;
   }
   
-  #open-tribute-form {
+  #toggle-tributes-btn,
+  #toggle-stories-btn {
     padding: 8px 16px;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
   }
   
-  #toggle-tributes-btn {
-    padding: 6px 16px;
-    font-size: 0.9rem;
+  .empty-tributes,
+  .empty-stories {
+    padding: 30px 15px;
+  }
+  
+  .empty-tributes i,
+  .empty-stories i {
+    font-size: 2.5rem;
+  }
+  
+  .empty-tributes .btn-action,
+  .empty-stories .btn-action {
+    width: 100%;
+    max-width: 280px;
   }
 }
 
 /* Small tablets and large phones (576px and below) */
 @media (max-width: 576px) {
-  .tribute-card .card-body {
+  .tributes-section,
+  .stories-section {
+    padding: 15px;
+    width: 96vw;
+  }
+  
+  .tributes-section h2,
+  .stories-section h2 {
+    font-size: 1.3rem;
+  }
+  
+  .tribute-card .card-body,
+  .story-card .card-body {
     padding: 12px;
   }
   
-  .tribute-card .d-flex.flex-wrap.gap-2 {
+  .tribute-card .d-flex.flex-wrap.gap-2,
+  .story-card .d-flex.flex-wrap.gap-2 {
     gap: 6px !important;
+  }
+  
+  .btn-action {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+  
+  /* Show shorter text on mobile */
+  .btn-action .btn-text {
+    display: inline;
   }
   
   .approve-tribute,
   .reject-tribute,
   .edit-tribute,
   .delete-tribute,
-  .delete-rejected-tribute {
+  .delete-rejected-tribute,
+  .approve-story,
+  .reject-story,
+  .edit-story,
+  .delete-story {
     padding: 6px 10px;
     font-size: 0.7rem;
     flex: 1 1 auto;
@@ -1124,14 +1270,41 @@ h1.fw-bold {
   }
   
   /* Two buttons per row on small screens */
-  .tribute-card .d-flex.flex-wrap {
+  .tribute-card .d-flex.flex-wrap,
+  .story-card .d-flex.flex-wrap,
+  .tribute-actions,
+  .story-actions {
     display: flex !important;
     flex-wrap: wrap !important;
   }
   
-  .tribute-card .d-flex.flex-wrap > button {
-    flex: 1 1 calc(50% - 3px);
-    max-width: calc(50% - 3px);
+  .tribute-actions > button,
+  .story-actions > button {
+    flex: 1 1 calc(50% - 4px);
+    max-width: calc(50% - 4px);
+  }
+  
+  #toggle-tributes-btn,
+  #toggle-stories-btn {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .empty-tributes,
+  .empty-stories {
+    padding: 25px 10px;
+  }
+  
+  .empty-tributes h3,
+  .empty-stories h3 {
+    font-size: 1rem;
+  }
+  
+  .empty-tributes p,
+  .empty-stories p {
+    font-size: 0.9rem;
   }
 }
 
@@ -1139,64 +1312,95 @@ h1.fw-bold {
 @media (max-width: 480px) {
   .tributes-section,
   .stories-section {
-    padding: 15px;
+    padding: 12px;
     width: 98vw;
+    margin: 15px auto;
+  }
+  
+  .tributes-section h2,
+  .stories-section h2 {
+    font-size: 1.2rem;
+  }
+  
+  .btn-action {
+    padding: 10px 12px;
+    font-size: 0.75rem;
   }
   
   .approve-tribute,
   .reject-tribute,
   .edit-tribute,
   .delete-tribute,
-  .delete-rejected-tribute {
-    padding: 8px 12px;
-    font-size: 0.75rem;
+  .delete-rejected-tribute,
+  .approve-story,
+  .reject-story,
+  .edit-story,
+  .delete-story {
+    padding: 8px 10px;
+    font-size: 0.7rem;
     gap: 4px;
-  }
-  
-  /* Keep text visible but compact */
-  .btn-text {
-    display: inline;
   }
   
   .approve-tribute i,
   .reject-tribute i,
   .edit-tribute i,
   .delete-tribute i,
-  .delete-rejected-tribute i {
-    font-size: 0.85rem;
+  .delete-rejected-tribute i,
+  .approve-story i,
+  .reject-story i,
+  .edit-story i,
+  .delete-story i {
+    font-size: 0.8rem;
+  }
+  
+  .empty-tributes i,
+  .empty-stories i {
+    font-size: 2rem;
+  }
+  
+  .empty-tributes .btn-action,
+  .empty-stories .btn-action {
+    padding: 10px;
+    font-size: 0.75rem;
+    width: 100%;
   }
 }
 
 /* Very small phones (400px and below) */
 @media (max-width: 400px) {
-  .tribute-card .card-body {
+  .tribute-card .card-body,
+  .story-card .card-body {
     padding: 10px;
   }
   
   /* Stack buttons vertically on very small screens */
-  .tribute-card .d-flex.flex-wrap {
+  .tribute-actions,
+  .story-actions {
     flex-direction: column !important;
     align-items: stretch !important;
+    gap: 8px !important;
   }
   
-  .tribute-card .d-flex.flex-wrap > button {
+  .tribute-actions > button,
+  .story-actions > button {
     flex: 1 1 auto;
     max-width: 100%;
     width: 100%;
     justify-content: center;
+    margin-right: 0 !important;
   }
   
   .approve-tribute,
   .reject-tribute,
   .edit-tribute,
   .delete-tribute,
-  .delete-rejected-tribute {
+  .delete-rejected-tribute,
+  .approve-story,
+  .reject-story,
+  .edit-story,
+  .delete-story {
     padding: 10px 12px;
-    font-size: 0.8rem;
-  }
-  
-  .btn-text {
-    display: inline;
+    font-size: 0.75rem;
   }
 }
 
@@ -1204,24 +1408,40 @@ h1.fw-bold {
 @media (max-width: 350px) {
   .tributes-section h2,
   .stories-section h2 {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
   
-  .tribute-card .card-title {
-    font-size: 0.95rem;
+  .tribute-card .card-title,
+  .story-card .card-title {
+    font-size: 0.9rem;
   }
   
-  .tribute-card .card-text {
-    font-size: 0.85rem;
+  .tribute-card .card-text,
+  .story-card .card-text {
+    font-size: 0.8rem;
+  }
+  
+  .btn-action {
+    padding: 8px 10px;
+    font-size: 0.7rem;
   }
   
   .approve-tribute,
   .reject-tribute,
   .edit-tribute,
   .delete-tribute,
-  .delete-rejected-tribute {
+  .delete-rejected-tribute,
+  .approve-story,
+  .reject-story,
+  .edit-story,
+  .delete-story {
     padding: 8px 10px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+  }
+  
+  .empty-tributes,
+  .empty-stories {
+    padding: 20px 8px;
   }
 }
 

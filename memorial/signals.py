@@ -112,3 +112,4 @@ def delete_old_files_on_update(sender, instance, **kwargs):
                     logger.info(f"Deleted old {field}")
                 except Exception as e:
                     logger.error(f"Error deleting old {field}: {e}")
+
