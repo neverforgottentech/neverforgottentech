@@ -258,15 +258,6 @@
               <i class="fas fa-heart fa-3x mb-4"></i>
               <h3 class="h5 mb-3">No tributes yet</h3>
               <p class="mb-4">Be the first to share your memories and pay tribute.</p>
-              {% if user.is_authenticated %}
-              <button type="button" class="btn btn-action-sm" data-bs-toggle="modal" data-bs-target="#tributeFormModal">
-                <i class="fas fa-plus me-1"></i>Leave the First Tribute
-              </button>
-              {% else %}
-              <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-action-sm">
-                <i class="fas fa-sign-in-alt me-1"></i>Login to Leave a Tribute
-              </a>
-              {% endif %}
             </div>
           </div>
         {% endfor %}
@@ -640,14 +631,6 @@
               <h3 class="h5 mb-3">No stories yet</h3>
               <p class="mb-4">Be the first to share a story or memory.</p>
               {% if user.is_authenticated %}
-              <button type="button" class="btn btn-action-sm" data-bs-toggle="modal" data-bs-target="#storyFormModal">
-                <i class="fas fa-plus me-1"></i>Share the First Story
-              </button>
-              {% else %}
-              <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-action-sm">
-                <i class="fas fa-sign-in-alt me-1"></i>Login to Share a Story
-              </a>
-              {% endif %}
             </div>
           </div>
         {% endfor %}
