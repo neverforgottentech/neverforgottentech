@@ -7,6 +7,9 @@ Handles memorial creation, management, and all related functionality.
 from datetime import datetime, time
 import json
 
+from urllib.parse import urlparse
+import re
+
 # Django Core
 from django import forms
 from django.conf import settings
@@ -1005,6 +1008,18 @@ def upload_gallery_images(request, pk):
         return redirect('memorials:memorial_edit', pk=pk)
 
 
+def get_public_id_from_url(url):
+    """Extracts Cloudinary public_id from URL."""
+    parsed = urlparse(url)
+    path = parsed.path
+    match = re.search(r'/upload/(?:v\d+/)?(?P<public_id>.+)', path)
+    if match:
+        public_id = match.group('public_id')
+        public_id = re.sub(r'\.[^.]+$', '', public_id)
+        return public_id
+    return None
+
+
 @login_required
 def delete_gallery_image(request, memorial_id, image_id):
     """View for deleting gallery images from memorial."""
@@ -1022,31 +1037,16 @@ def delete_gallery_image(request, memorial_id, image_id):
             )
             return redirect('memorials:memorial_detail', pk=memorial_id)
 
-        # DEBUG with print (always shows in Heroku)
-        print(f"=== GALLERY DELETE DEBUG ===")
-        print(f"image.image raw: {image.image}")
-        print(f"str(image.image): {str(image.image)}")
-        
-        try:
-            print(f"image.image.url: {image.image.url}")
-        except Exception as e:
-            print(f"No .url: {e}")
-        
-        try:
-            print(f"image.image.public_id: {image.image.public_id}")
-        except Exception as e:
-            print(f"No .public_id: {e}")
-
-        # Get public_id
-        public_id = str(image.image) if image.image else None
-        print(f"Sending to Cloudinary destroy(): {public_id}")
+        # Extract public_id from the full URL
+        image_url = str(image.image)
+        public_id = get_public_id_from_url(image_url)
 
         if public_id:
             try:
                 result = destroy(public_id)
-                print(f"Cloudinary result: {result}")
+                print(f"Cloudinary destroy result: {result}")
             except Exception as e:
-                print(f"Cloudinary error: {e}")
+                print(f"Cloudinary destroy error: {e}")
 
         image.delete()
         messages.success(request, "Image deleted successfully.")

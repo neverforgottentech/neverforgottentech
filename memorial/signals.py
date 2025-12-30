@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import re
 import logging
 from time import sleep
-from memorial.models import Memorial
+from memorial.models import Memorial, GalleryImage
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,12 @@ def get_public_id_from_url(url):
     parsed = urlparse(url)
     path = parsed.path
     match = re.search(r'/upload/(?:v\d+/)?(?P<public_id>.+)', path)
-    return match.group('public_id') if match else None
+    if match:
+        public_id = match.group('public_id')
+        # Remove file extension if present
+        public_id = re.sub(r'\.[^.]+$', '', public_id)
+        return public_id
+    return None
 
 
 @receiver(post_delete, sender=Memorial)
@@ -113,13 +118,15 @@ def delete_old_files_on_update(sender, instance, **kwargs):
                 except Exception as e:
                     logger.error(f"Error deleting old {field}: {e}")
 
-from memorial.models import GalleryImage  # adjust import path as needed
 
 @receiver(post_delete, sender=GalleryImage)
 def delete_gallery_image_from_cloudinary(sender, instance, **kwargs):
     """Delete gallery image from Cloudinary when GalleryImage is deleted."""
     if instance.image:
-        public_id = str(instance.image)
+        # Extract public_id from the full URL
+        image_url = str(instance.image)
+        public_id = get_public_id_from_url(image_url)
+        
         if public_id:
             try:
                 destroy(public_id)
