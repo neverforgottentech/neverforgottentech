@@ -410,32 +410,37 @@ def upload_profile_picture(request, pk):
             )
 
         try:
-            # FIXED APPROACH: Match how generate_qr_code() works
-            # Read the uploaded file
             file_content = profile_pic.read()
             
-            # Upload to Cloudinary with explicit settings
             upload_result = upload(
                 file_content,
                 folder=f"memorials/{memorial.id}/profile_pictures",
                 public_id=f"profile_{memorial.id}",
                 overwrite=True,
+                invalidate=True,
                 resource_type="image"
             )
             
-            # CRITICAL: Set profile_picture to None and save the public_id
-            # This matches your QR code pattern
+            # Log the upload result to see what Cloudinary returns
+            logger.info(f"Cloudinary upload result: {upload_result}")
+            
             memorial.profile_picture = None
             memorial.profile_public_id = upload_result['public_id']
             memorial.save()
             
+            # Use timestamp for cache busting (safer than version)
+            cache_buster = int(time.time())
+            
             return JsonResponse({
                 'status': 'success',
-                'profile_picture_url': f"https://res.cloudinary.com/dols0zev1/image/upload/{upload_result['public_id']}.png?v={int(time.time())}",
+                'profile_picture_url': f"https://res.cloudinary.com/dols0zev1/image/upload/{upload_result['public_id']}.png?v={cache_buster}",
                 'public_id': upload_result['public_id'],
                 'message': 'Profile picture updated!'
             })
+
         except Exception as e:
+            # Log the full error
+            logger.exception(f"Profile picture upload failed for memorial {pk}: {str(e)}")
             return JsonResponse({
                 'status': 'error',
                 'message': f'Upload failed: {str(e)}'
