@@ -162,7 +162,10 @@ def delete_memorial(request, pk):
                     "Memorial deleted but subscription cancel failed."
                 )
 
-        memorial.delete()
+        print(f"=== DELETING MEMORIAL {memorial.id} ===")
+        memorial.delete()  # This triggers the post_delete signal
+        print(f"=== MEMORIAL DELETED ===")
+        
         messages.success(request, "Memorial has been deleted.")
         return redirect('memorials:account_profile')
 
