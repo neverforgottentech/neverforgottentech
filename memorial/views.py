@@ -1022,10 +1022,24 @@ def delete_gallery_image(request, memorial_id, image_id):
             )
             return redirect('memorials:memorial_detail', pk=memorial_id)
 
-        public_id = image.image.public_id
-        if public_id:
-            destroy(public_id)
+        # With CloudinaryField, the field itself stores the public_id
+        # image.image is the CloudinaryResource, str() gives the public_id
+        public_id = str(image.image) if image.image else None
+        
+        logger.info(f"Attempting to delete gallery image. public_id: {public_id}")
 
+        if public_id:
+            try:
+                result = destroy(public_id)
+                logger.info(f"Cloudinary destroy result: {result}")
+                
+                # Check if deletion was successful
+                if result.get('result') != 'ok':
+                    logger.warning(f"Cloudinary deletion may have failed: {result}")
+            except Exception as e:
+                logger.error(f"Cloudinary destroy failed: {e}")
+
+        # Delete from database
         image.delete()
         messages.success(request, "Image deleted successfully.")
         return redirect('memorials:memorial_edit', pk=memorial_id)

@@ -113,3 +113,16 @@ def delete_old_files_on_update(sender, instance, **kwargs):
                 except Exception as e:
                     logger.error(f"Error deleting old {field}: {e}")
 
+from memorial.models import GalleryImage  # adjust import path as needed
+
+@receiver(post_delete, sender=GalleryImage)
+def delete_gallery_image_from_cloudinary(sender, instance, **kwargs):
+    """Delete gallery image from Cloudinary when GalleryImage is deleted."""
+    if instance.image:
+        public_id = str(instance.image)
+        if public_id:
+            try:
+                destroy(public_id)
+                logger.info(f"Deleted gallery image from Cloudinary: {public_id}")
+            except Exception as e:
+                logger.error(f"Failed to delete gallery image from Cloudinary: {e}")
