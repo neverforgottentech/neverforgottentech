@@ -388,6 +388,12 @@ def update_biography(request, pk):
 # File Upload Views
 # ---------------------------
 
+import time
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 @login_required
 def upload_profile_picture(request, pk):
     """View for uploading profile pictures to Cloudinary"""
