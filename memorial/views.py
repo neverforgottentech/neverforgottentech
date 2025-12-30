@@ -1022,33 +1022,31 @@ def delete_gallery_image(request, memorial_id, image_id):
             )
             return redirect('memorials:memorial_detail', pk=memorial_id)
 
-        # DEBUG: Log everything about the image
-        logger.info(f"=== GALLERY IMAGE DELETE DEBUG ===")
-        logger.info(f"image.image: {image.image}")
-        logger.info(f"str(image.image): {str(image.image)}")
-        logger.info(f"type(image.image): {type(image.image)}")
+        # DEBUG with print (always shows in Heroku)
+        print(f"=== GALLERY DELETE DEBUG ===")
+        print(f"image.image raw: {image.image}")
+        print(f"str(image.image): {str(image.image)}")
         
-        # Try to get URL
         try:
-            logger.info(f"image.image.url: {image.image.url}")
+            print(f"image.image.url: {image.image.url}")
         except Exception as e:
-            logger.info(f"Could not get .url: {e}")
+            print(f"No .url: {e}")
         
-        # Try to get public_id directly
         try:
-            logger.info(f"image.image.public_id: {image.image.public_id}")
+            print(f"image.image.public_id: {image.image.public_id}")
         except Exception as e:
-            logger.info(f"Could not get .public_id: {e}")
+            print(f"No .public_id: {e}")
 
+        # Get public_id
         public_id = str(image.image) if image.image else None
-        logger.info(f"Using public_id for deletion: {public_id}")
+        print(f"Sending to Cloudinary destroy(): {public_id}")
 
         if public_id:
             try:
                 result = destroy(public_id)
-                logger.info(f"Cloudinary destroy result: {result}")
+                print(f"Cloudinary result: {result}")
             except Exception as e:
-                logger.error(f"Cloudinary destroy failed: {e}")
+                print(f"Cloudinary error: {e}")
 
         image.delete()
         messages.success(request, "Image deleted successfully.")
@@ -1056,7 +1054,6 @@ def delete_gallery_image(request, memorial_id, image_id):
 
     messages.error(request, "Invalid request.")
     return redirect('memorials:memorial_edit', pk=memorial_id)
-
 
 # ---------------------------
 # Story Views with Approval System
