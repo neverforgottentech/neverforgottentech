@@ -11,6 +11,9 @@ from memorial.models import Memorial, GalleryImage
 logger = logging.getLogger(__name__)
 
 
+print("=== SIGNALS.PY LOADED ===")
+
+
 def get_public_id_from_url(url):
     """Extracts Cloudinary public_id from URL, handles various formats."""
     parsed = urlparse(url)
