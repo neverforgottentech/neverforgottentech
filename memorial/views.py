@@ -1022,24 +1022,34 @@ def delete_gallery_image(request, memorial_id, image_id):
             )
             return redirect('memorials:memorial_detail', pk=memorial_id)
 
-        # With CloudinaryField, the field itself stores the public_id
-        # image.image is the CloudinaryResource, str() gives the public_id
-        public_id = str(image.image) if image.image else None
+        # DEBUG: Log everything about the image
+        logger.info(f"=== GALLERY IMAGE DELETE DEBUG ===")
+        logger.info(f"image.image: {image.image}")
+        logger.info(f"str(image.image): {str(image.image)}")
+        logger.info(f"type(image.image): {type(image.image)}")
         
-        logger.info(f"Attempting to delete gallery image. public_id: {public_id}")
+        # Try to get URL
+        try:
+            logger.info(f"image.image.url: {image.image.url}")
+        except Exception as e:
+            logger.info(f"Could not get .url: {e}")
+        
+        # Try to get public_id directly
+        try:
+            logger.info(f"image.image.public_id: {image.image.public_id}")
+        except Exception as e:
+            logger.info(f"Could not get .public_id: {e}")
+
+        public_id = str(image.image) if image.image else None
+        logger.info(f"Using public_id for deletion: {public_id}")
 
         if public_id:
             try:
                 result = destroy(public_id)
                 logger.info(f"Cloudinary destroy result: {result}")
-                
-                # Check if deletion was successful
-                if result.get('result') != 'ok':
-                    logger.warning(f"Cloudinary deletion may have failed: {result}")
             except Exception as e:
                 logger.error(f"Cloudinary destroy failed: {e}")
 
-        # Delete from database
         image.delete()
         messages.success(request, "Image deleted successfully.")
         return redirect('memorials:memorial_edit', pk=memorial_id)
