@@ -73,7 +73,7 @@
     {% csrf_token %}
     <div class="profile-pic-wrapper upload-wrapper" title="Click to change profile picture">
       {% if memorial.profile_public_id %}
-        <img src="https://res.cloudinary.com/dols0zev1/image/upload/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+        <img src="https://res.cloudinary.com/dols0zev1/image/upload/c_fill,g_face,h_300,w_220/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
              alt="Profile Picture of {{ memorial.first_name }}" 
              data-original-src="https://res.cloudinary.com/dols0zev1/image/upload/{{ memorial.profile_public_id }}.png">
       {% else %}
