@@ -45,24 +45,31 @@
     </div>
 
 {# ------------------------ Profile Picture Section ------------------------ #}
-  <div id="pfpUploadForm">
-    <div class="profile-pic-wrapper upload-wrapper" 
-         title="profile picture" 
-         data-bs-toggle="modal" 
-         data-bs-target="#profilePictureModal">
-      {% if memorial.profile_public_id %}
-        <img src="https://res.cloudinary.com/dols0zev1/image/upload/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
-             alt="Profile Picture of {{ memorial.first_name }}" 
-             class="profile-image-clickable"
-             data-original-src="https://res.cloudinary.com/dols0zev1/image/upload/{{ memorial.profile_public_id }}.png">
-      {% else %}
-        <img src="{% static 'images/nf.png' %}" 
-             alt="Default memorial image" 
-             class="profile-image-clickable"
-             data-original-src="{% static 'images/nf.png' %}">
-      {% endif %}
+  <div class="modal fade" 
+     id="profilePictureModal" 
+     tabindex="-1" 
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 bg-transparent">
+      <div class="modal-body text-center p-0">
+        <button type="button" 
+                class="btn-close btn-close-white position-absolute top-0 end-0 m-2" 
+                data-bs-dismiss="modal" 
+                aria-label="Close">
+        </button>
+        {% if memorial.profile_public_id %}
+          <img src="https://res.cloudinary.com/dols0zev1/image/upload/{{ memorial.profile_public_id }}.png?{% now 'U' %}" 
+               class="img-fluid rounded" 
+               alt="Enlarged profile picture of {{ memorial.first_name }}">
+        {% else %}
+          <img src="{% static 'images/nf.png' %}" 
+               class="img-fluid rounded" 
+               alt="Enlarged default memorial image">
+        {% endif %}
+      </div>
     </div>
   </div>
+</div>
 
   {# ------------------------ Profile Picture Modal ------------------------ #}
   <div class="modal fade" 
