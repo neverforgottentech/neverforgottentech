@@ -57,6 +57,7 @@
 
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
 <link rel="stylesheet" href="{% static 'css/recent_memorials.css' %}">
+<link rel="stylesheet" href="{% static 'css/animations.css' %}">
 </head>
 
 <body class="body-background">
@@ -189,6 +190,90 @@
     </div>
 </section>
     </main>
+
+
+<!-- HOW IT WORKS SECTION - Add this after your hero section -->
+<section class="how-it-works-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Create a lasting digital memorial in three simple steps</p>
+        </div>
+        
+        <div class="steps-container">
+            <!-- Step 1 -->
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h3>Create a Memorial</h3>
+                <p>Add photos, stories, dates, and tributes to build a beautiful memorial page for your loved one.</p>
+            </div>
+            
+            <!-- Connector -->
+            <div class="step-connector">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h3>Get Your QR Code</h3>
+                <p>Your unique QR code is automatically generated and displayed at the bottom of your memorial page.</p>
+            </div>
+            
+            <!-- Connector -->
+            <div class="step-connector">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                    <div class="scan-animation">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+                <h3>Scan & Remember</h3>
+                <p>Place the QR code on a headstone, memorial card, or frame. Anyone can scan to visit the tribute.</p>
+            </div>
+        </div>
+        
+        <!-- Visual Demo -->
+        <div class="qr-demo">
+            <div class="demo-phone">
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="mini-memorial">
+                            <div class="mini-photo">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="mini-name">John Smith</div>
+                            <div class="mini-dates">1945 - 2023</div>
+                            <div class="mini-text"></div>
+                            <div class="mini-text short"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-arrow">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div class="demo-qr">
+                <div class="qr-placeholder">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <span>Scan with any phone camera</span>
+            </div>
+        </div>
+    </div>
+</section>
 
 
 {# ===================== RECENT MEMORIALS SECTION ===================== #}
