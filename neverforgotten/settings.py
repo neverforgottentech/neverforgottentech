@@ -17,8 +17,6 @@ ALLOWED_HOSTS = [
     'neverforgottenmemorials.ie',
     'www.neverforgottenmemorials.ie',
     'neverforgottentech-7593096aaa0b.herokuapp.com',
-    'localhost',
-    '127.0.0.1',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
