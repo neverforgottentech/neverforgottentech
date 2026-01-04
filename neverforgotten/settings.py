@@ -187,7 +187,7 @@ SOCIALACCOUNT_PROVIDERS = {
 SITE_ID = 1
 SITE_URL = config(
     "SITE_URL",
-    default="https://neverforgottentech-7593096aaa0b.herokuapp.com"
+    default="neverforgottenemorials.ie"
 )
 
 # Redirects
