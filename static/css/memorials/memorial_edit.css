@@ -114,19 +114,19 @@ body {
   left: 10px;
   background-color: #fffaf3;
   border: 2px solid #d97b37;
-  padding: 1.5rem;
+  padding: 0.75rem;
   z-index: 1000;
-  width: 320px;
-  border-radius: 12px;
+  width: 220px;
+  border-radius: 8px;
   box-shadow: 0 8px 20px rgba(217, 123, 55, 0.3);
   font-family: 'Lora', serif;
 }
 
 .banner-modal p {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
   color: #3e2f1c;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   text-align: center;
 }
 
@@ -134,8 +134,8 @@ body {
 .banner-carousel {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
 }
 
 .banner-options-wrapper {
@@ -151,7 +151,7 @@ body {
 .banner-page {
   display: none;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+  gap: 0.4rem;
   min-width: 100%;
 }
 
@@ -164,8 +164,8 @@ body {
   background-color: #d97b37;
   color: #fffaf3;
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -173,6 +173,7 @@ body {
   justify-content: center;
   transition: all 0.3s ease;
   flex-shrink: 0;
+  font-size: 0.65rem;
 }
 
 .carousel-btn:hover {
@@ -180,23 +181,16 @@ body {
   transform: scale(1.1);
 }
 
-.carousel-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  transform: none;
-}
-
 /* Carousel Dots */
 .carousel-dots {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.35rem;
 }
 
 .carousel-dot {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: #ddd;
   cursor: pointer;
@@ -215,12 +209,13 @@ body {
 .banner-option[data-type="color"] {
   background-color: #f7e8c9;
   border: 2px solid #d97b37;
-  border-radius: 8px;
-  height: 60px;
+  border-radius: 5px;
+  height: 55px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: 'Lora', serif;
   font-weight: 600;
+  font-size: 0.7rem;
   color: #3e2f1c;
   display: flex;
   align-items: center;
@@ -230,10 +225,10 @@ body {
 
 .banner-option[data-type="image"] {
   width: 100%;
-  height: 60px;
+  height: 55px;
   object-fit: cover;
   border: 2px solid #d97b37;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -242,48 +237,8 @@ body {
 .banner-option[data-type="image"]:hover,
 .banner-option[data-type="color"]:hover {
   border-color: #b86528;
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(217, 123, 55, 0.4);
-}
-
-#closeBannerModal {
-  background-color: transparent;
-  color: #6c584c;
-  border: 2px solid #d97b37;
-  font-size: 1rem;
-  font-family: 'Lora', serif;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 8px 20px;
-  border-radius: 8px;
-  width: 100%;
-  transition: all 0.3s ease;
-}
-
-#closeBannerModal:hover {
-  background-color: #d97b37;
-  color: #fffaf3;
-  border-color: #b86528;
-}
-
-#closeBannerModal {
-  background-color: transparent;
-  color: #6c584c;
-  border: 2px solid #d97b37;
-  font-size: 1rem;
-  font-family: 'Lora', serif;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 8px 20px;
-  border-radius: 8px;
-  width: 100%;
-  transition: all 0.3s ease;
-}
-
-#closeBannerModal:hover {
-  background-color: #d97b37;
-  color: #fffaf3;
-  border-color: #b86528;
+  transform: scale(1.03);
+  box-shadow: 0 3px 8px rgba(217, 123, 55, 0.4);
 }
 
 /* ====================== */
