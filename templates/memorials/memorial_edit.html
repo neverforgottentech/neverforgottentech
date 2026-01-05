@@ -45,54 +45,71 @@
 <!-- Banner selection modal -->
     <div id="bannerSelectionModal" class="banner-modal" style="display: none;">
       <p>Select a banner:</p>
-      <div class="banner-options">
-        <!-- Color option -->
-        <button class="banner-option" data-type="color" data-value="#f7e8c9">
-          Default Color
+      <div class="banner-carousel">
+        <button class="carousel-btn carousel-prev" id="carouselPrev">
+          <i class="fas fa-chevron-left"></i>
         </button>
-
-        <img src="{% static 'banners/sunset.jpg' %}"
-             class="banner-option"
-             data-type="image"
-             data-value="banners/sunset.jpg"
-             alt="Sunset">
-
-        <img src="{% static 'banners/sunflower.jpg' %}"
-             class="banner-option"
-             data-type="image"
-             data-value="banners/sunflower.jpg"
-             alt="Sunflower">
-
-        <img src="{% static 'banners/irish_hillside.jpg' %}"
-             class="banner-option"
-             data-type="image"
-             data-value="banners/irish_hillside.jpg"
-             alt="Irish Hillside">
-
-        <img src="{% static 'banners/mountains.jpg' %}"
-             class="banner-option"
-             data-type="image"
-             data-value="banners/mountains.jpg"
-             alt="Mountains">
-
-        <img src="{% static 'banners/flowers.jpg' %}"
-             class="banner-option"
-             data-type="image"
-             data-value="banners/flowers.jpg"
-             alt="Flowers">
-
-        <img src="{% static 'banners/forest.jpg' %}"
-             class="banner-option"
-             data-type="image"
-             data-value="banners/forest.jpg"
-             alt="Forest">
-
-        <img src="{% static 'banners/waves.jpg' %}"
-             class="banner-option"
-             data-type="image"
-             data-value="banners/waves.jpg"
-             alt="Waves">
+        
+        <div class="banner-options-wrapper">
+          <div class="banner-options" id="bannerOptions">
+            <!-- Page 1 -->
+            <div class="banner-page active">
+              <button class="banner-option" data-type="color" data-value="#f7e8c9">
+                Default Color
+              </button>
+              <img src="{% static 'banners/sunset.jpg' %}"
+                   class="banner-option"
+                   data-type="image"
+                   data-value="banners/sunset.jpg"
+                   alt="Sunset">
+              <img src="{% static 'banners/sunflower.jpg' %}"
+                   class="banner-option"
+                   data-type="image"
+                   data-value="banners/sunflower.jpg"
+                   alt="Sunflower">
+              <img src="{% static 'banners/irish_hillside.jpg' %}"
+                   class="banner-option"
+                   data-type="image"
+                   data-value="banners/irish_hillside.jpg"
+                   alt="Irish Hillside">
+            </div>
+            
+            <!-- Page 2 -->
+            <div class="banner-page">
+              <img src="{% static 'banners/mountains.jpg' %}"
+                   class="banner-option"
+                   data-type="image"
+                   data-value="banners/mountains.jpg"
+                   alt="Mountains">
+              <img src="{% static 'banners/flowers.jpg' %}"
+                   class="banner-option"
+                   data-type="image"
+                   data-value="banners/flowers.jpg"
+                   alt="Flowers">
+              <img src="{% static 'banners/forest.jpg' %}"
+                   class="banner-option"
+                   data-type="image"
+                   data-value="banners/forest.jpg"
+                   alt="Forest">
+              <img src="{% static 'banners/waves.jpg' %}"
+                   class="banner-option"
+                   data-type="image"
+                   data-value="banners/waves.jpg"
+                   alt="Waves">
+            </div>
+          </div>
+        </div>
+        
+        <button class="carousel-btn carousel-next" id="carouselNext">
+          <i class="fas fa-chevron-right"></i>
+        </button>
       </div>
+      
+      <div class="carousel-dots">
+        <span class="carousel-dot active" data-page="0"></span>
+        <span class="carousel-dot" data-page="1"></span>
+      </div>
+      
       <button id="closeBannerModal">Cancel</button>
     </div>
   </div>
@@ -2979,6 +2996,46 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
+});
+</script>
+<script>
+  // Banner Carousel
+document.addEventListener('DOMContentLoaded', function() {
+  const prevBtn = document.getElementById('carouselPrev');
+  const nextBtn = document.getElementById('carouselNext');
+  const pages = document.querySelectorAll('.banner-page');
+  const dots = document.querySelectorAll('.carousel-dot');
+  let currentPage = 0;
+
+  function showPage(index) {
+    pages.forEach((page, i) => {
+      page.classList.toggle('active', i === index);
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+    currentPage = index;
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function() {
+      const newPage = currentPage > 0 ? currentPage - 1 : pages.length - 1;
+      showPage(newPage);
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function() {
+      const newPage = currentPage < pages.length - 1 ? currentPage + 1 : 0;
+      showPage(newPage);
+    });
+  }
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', function() {
+      showPage(index);
+    });
+  });
 });
 </script>
 {% endblock %}
